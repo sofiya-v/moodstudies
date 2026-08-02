@@ -1,5 +1,5 @@
 ---
-
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <html lang="en">
@@ -9,11 +9,12 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
 	</head>
 	<body>
-		<h1>mood studies</h1>
-		<h3>field notes from the in-between.</h3>
-		<h5><a href="/studies/001">001 — Sofiya V</a></h5>
+		<BaseLayout>
+			<h1>mood studies</h1>
+			<h3>field notes from the in-between.</h3>
+			<h5><a href="/studies/001">001 — Sofiya V</a></h5>
+		</BaseLayout>
 	</body>
 </html>
