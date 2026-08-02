@@ -1,8 +1,39 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import StudyLayout from "../../layouts/StudyLayout.astro";
 ---
 
-<BaseLayout title="mood study 001 — Sofiya V">
-    <h1>mood study 001 &mdash; Sofiya V</h1>
-    <p>coming soon.</p>
-</BaseLayout>
+<StudyLayout
+  number="001"
+  artist="Sofiya V"
+  trackId="2276138909"
+  inkblotSrc="/images/studies/001/inkblot.jpeg"
+  imageSrc="/images/studies/001/nyc_still.jpeg"
+>
+  <fragment slot="caption">
+    New York on 35mm by <a href="https://eamonbonner.darkroom.com"
+      >Eamon Bonner</a
+    >
+  </fragment>
+
+  <fragment slot="inkblot response">
+    A pelvis, a snake head, a dragon face.
+  </fragment>
+
+  <fragment slot="dream log">
+    A discotheque of sinister strangers with faces in flux, contorting in and
+    out of familiarity. Nausea and the taste of metal. The room is big and then
+    it’s small until it’s big again. No one knows me here. They are dancing
+    automatons. If I’m the intruder why do I feel like prey? There is something
+    beautiful in the danger, glowing and radioactive. I soon find out why the
+    automatons dance. Whatever compels them takes me in as well, but only
+    somatically. Whatever remains of my self is small and petrified within my
+    body. The center of the dance floor collapses into a void and we succumb to
+    the whirlpool. Lasers bend, ambient haze condenses into small vortexes, the
+    bassline constricts my throat. A LAPSE I am left with an eerie sense of
+    having been somewhere else, and a metallic echo in my mouth.
+  </fragment>
+
+  <fragment slot="bio">
+    Sofiya V is a multidisciplinary artist and designer based in New York City.
+  </fragment>
+</StudyLayout>

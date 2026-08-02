@@ -1,0 +1,132 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import SoundCloudPlayer from "../components/SoundCloudPlayer.astro";
+
+interface Props {
+  number: string;
+  artist: string;
+  trackId: string;
+  inkblotSrc: string;
+  imageSrc: string;
+}
+
+const { number, artist, trackId, inkblotSrc, imageSrc } = Astro.props;
+const title = `mood study ${number} — ${artist}`;
+---
+
+<BaseLayout title={title}>
+  <article>
+    <section class="study-cover">
+      <header class="study-heading">
+        <p class="study-number">mood study {number}</p>
+        <h1>{artist}</h1>
+      </header>
+
+      <SoundCloudPlayer trackId={trackId} />
+    </section>
+
+    <section class="inkblot">
+      <header>
+        <h2>what do you see?</h2>
+      </header>
+
+      <figure>
+        <img src={inkblotSrc} alt="" class="inkblot" />
+      </figure>
+
+      <p><slot name="inkblot response" /></p>
+
+      <section>
+        <h2>dream log</h2>
+        <p><slot name="dream log" /></p>
+      </section>
+
+      <section>
+        <figure>
+          <img src={imageSrc} alt="image" />
+        </figure>
+        <figcaption><slot name="caption" /></figcaption>
+      </section>
+
+      <footer>
+        <p><slot name="bio" /></p>
+      </footer>
+    </section>
+
+    <style>
+      article {
+        display: flex;
+        flex-direction: column;
+        gap: 5rem;
+      }
+
+      .study-cover {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding-block: 4rem;
+      }
+
+      .study-heading {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .study-heading h1,
+      .study-number {
+        margin: 0;
+      }
+
+      .study-number {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.875rem;
+        letter-spacing: 0.08em;
+      }
+
+      figure {
+        margin: 0;
+      }
+
+      .inkblot {
+        text-align: center;
+      }
+
+      .inkblot {
+        display: grid;
+        justify-items: center;
+        gap: 1.5rem;
+        text-align: center;
+      }
+
+      .inkblot h2 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+      }
+
+      .inkblot figure {
+        margin: 0;
+      }
+
+      .inkblot-image {
+        width: min(100%, 20rem);
+        margin-inline: auto;
+      }
+
+      .inkblot p {
+        max-width: 28rem;
+        margin: 0;
+      }
+
+      .image {
+        display: block;
+        width: 100%;
+        max-width: 48rem;
+        height: auto;
+        margin: 0 auto;
+      }
+    </style>
+  </article>
+</BaseLayout>

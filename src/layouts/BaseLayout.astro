@@ -4,6 +4,8 @@ interface Props {
 }
 
 const { title = "mood studies" } = Astro.props;
+
+import "../styles/global.css";
 ---
 
 <!doctype html>
@@ -16,7 +18,7 @@ const { title = "mood studies" } = Astro.props;
 
   <body>
     <header>
-        <a href="/">mood studies</a>
+      <a href="/">mood studies</a>
     </header>
 
     <main>
