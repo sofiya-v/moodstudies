@@ -1,34 +1,169 @@
+/* ========================================
+   Theme
+======================================== */
+
 :root {
-    --bg: #24142f;
+    --bg: #130d18;
     --fg: #f2eee7;
     --muted: #c9c2b7;
     --accent: #6e4d8c;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--fg);
-    background: var(--bg);
 }
+
+/* ========================================
+   Reset and base
+======================================== */
 
 * {
     box-sizing: border-box;
 }
 
+html,
 body {
+    overflow-x: clip;
+}
+
+body {
+    position: relative;
+    isolation: isolate;
     margin: 0;
     min-height: 100vh;
     padding: 2rem;
+    background: var(--bg);
 }
+
+/* ========================================
+   Atmospheric layers
+======================================== */
+
+/* Fine moving grain */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.065;
+    mix-blend-mode: screen;
+
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 700px 700px;
+
+    animation:
+        grain 0.18s steps(2) infinite,
+        grain-breathe 90s ease-in-out infinite;
+}
+
+/* Slow signal drift and faint scan lines */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.45;
+
+    background:
+        linear-gradient(to bottom,
+            transparent 0%,
+            rgb(180 125 210 / 7%) 48%,
+            rgb(225 190 235 / 10%) 50%,
+            rgb(180 125 210 / 7%) 52%,
+            transparent 100%),
+        repeating-linear-gradient(to bottom,
+            transparent 0,
+            transparent 3px,
+            rgb(255 255 255 / 1.5%) 4px);
+
+    background-size:
+        100% 220%,
+        100% 4px;
+
+    animation:
+        signal-drift 11s ease-in-out infinite alternate,
+        scan 8s linear infinite;
+}
+
+/* ========================================
+   Animation
+======================================== */
+
+@keyframes grain {
+    0% {
+        background-position: 0 0;
+    }
+
+    25% {
+        background-position: -20px 15px;
+    }
+
+    50% {
+        background-position: 15px -20px;
+    }
+
+    75% {
+        background-position: 20px 20px;
+    }
+
+    100% {
+        background-position: -15px -15px;
+    }
+}
+
+@keyframes grain-breathe {
+
+    0%,
+    100% {
+        opacity: 0.045;
+    }
+
+    50% {
+        opacity: 0.075;
+    }
+}
+
+@keyframes signal-drift {
+    from {
+        background-position:
+            0 -80%,
+            0 0;
+    }
+
+    to {
+        background-position:
+            0 120%,
+            0 0;
+    }
+}
+
+@keyframes scan {
+    to {
+        background-position:
+            0 120%,
+            0 4px;
+    }
+}
+
+/* ========================================
+   Layout
+======================================== */
 
 header {
     margin-bottom: 5rem;
 }
 
-a {
-    color: inherit;
-}
-
 main {
     max-width: 48rem;
+}
+
+/* ========================================
+   Typography and elements
+======================================== */
+
+a {
+    color: inherit;
 }
 
 h1 {
@@ -46,4 +181,16 @@ img {
     display: block;
     max-width: 100%;
     height: auto;
+}
+
+/* ========================================
+   Accessibility
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body::before,
+    body::after {
+        animation: none;
+    }
 }

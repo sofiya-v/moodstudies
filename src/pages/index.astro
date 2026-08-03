@@ -1,18 +1,63 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Ticker from "../components/Ticker.astro";
+
+const observations = [
+  "the blue hour is now",
+  "reports of mutual dreaming are unverified but seductively plausible",
+  "you've seen things you can't explain",
+  "as in dreams, so in life",
+];
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-	</head>
-	<body>
-		<BaseLayout>
-			<h1>mood studies</h1>
-			<h3>field notes from the in-between.</h3>
-			<h5><a href="/studies/001">001 — Sofiya V</a></h5>
-		</BaseLayout>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <BaseLayout>
+      <section class="title">
+        <h1 aria-label="mood studies">
+          <span aria-hidden="true">mood studies</span>
+        </h1>
+      </section>
+      <Ticker items={observations} />
+      <h5><a href="/archive">archive</a></h5>
+    </BaseLayout>
+  </body>
 </html>
+<style>
+  .title {
+    min-height: 70svh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+
+  .title h1 {
+    margin: 0;
+    perspective: 800px;
+  }
+
+  .title span {
+    display: block;
+    font-size: clamp(4rem, 20vw, 11rem);
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: -0.08em;
+
+    color: var(--fg);
+
+    text-shadow:
+      1px 1px 0 #b9adc0,
+      2px 2px 0 #95849f,
+      3px 3px 0 #725e7c,
+      4px 4px 0 #513d5c,
+      5px 5px 0 #33233d,
+      10px 14px 24px rgb(0 0 0 / 45%);
+
+    transform: rotateX(4deg) rotateY(-3deg);
+  }
+</style>

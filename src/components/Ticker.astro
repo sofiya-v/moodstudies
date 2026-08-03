@@ -1,0 +1,52 @@
+---
+interface Props {
+  items: string[];
+  duration?: number;
+}
+
+const { items, duration = 35 } = Astro.props;
+const text = items.join(" · ");
+---
+
+<div class="ticker" aria-label={text}>
+  <div class="ticker-track" style={`--ticker-duration: ${duration}s`}>
+    <span>{text} · </span>
+    <span aria-hidden="true">{text} · </span>
+  </div>
+</div>
+
+<style>
+  .ticker {
+    width: 100%;
+    overflow: hidden;
+    border-block: 1px solid currentColor;
+    padding-block: 0.6rem;
+  }
+
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker var(--ticker-duration) linear infinite;
+  }
+
+  .ticker-track span {
+    white-space: nowrap;
+    padding-right: 0.35rem;
+  }
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+
+    .ticker {
+      overflow-x: auto;
+    }
+  }
+</style>
