@@ -15,31 +15,37 @@ const title = `mood study ${number} — ${artist}`;
 ---
 
 <BaseLayout title={title}>
+  <button
+    slot="header-actions"
+    id="archive-btn"
+    class="archive-btn"
+    type="button"
+    aria-pressed="false"
+    aria-label="Return to archive"
+    ><a href="/archive"> <span aria-hidden="true">back to archive</span></a>
+  </button>
   <article>
     <section class="study-cover">
       <header class="study-heading">
         <p class="study-number">mood study {number}</p>
-        <h1>{artist}</h1>
+        <h2>{artist}</h2>
+        <SoundCloudPlayer trackId={trackId} />
       </header>
-
-      <SoundCloudPlayer trackId={trackId} />
     </section>
 
     <section class="inkblot">
-      <header>
-        <h2>what do you see?</h2>
-      </header>
+      <h2>what do you see?</h2>
 
       <figure>
         <img src={inkblotSrc} alt="" class="inkblot" />
       </figure>
 
       <p><slot name="inkblot response" /></p>
+    </section>
 
-      <section>
-        <h2>dream log</h2>
-        <p><slot name="dream log" /></p>
-      </section>
+    <section class="dream">
+      <h2>dream log</h2>
+      <p><slot name="dream log" /></p>
 
       <section>
         <figure>
@@ -54,6 +60,14 @@ const title = `mood study ${number} — ${artist}`;
     </section>
 
     <style>
+      .archive-btn {
+        padding: 0;
+        color: var(--fg);
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        style: none;
+      }
       article {
         display: flex;
         flex-direction: column;
@@ -77,13 +91,6 @@ const title = `mood study ${number} — ${artist}`;
         margin: 0;
       }
 
-      .study-number {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.875rem;
-        letter-spacing: 0.08em;
-      }
-
       figure {
         margin: 0;
       }
@@ -97,13 +104,6 @@ const title = `mood study ${number} — ${artist}`;
         justify-items: center;
         gap: 1.5rem;
         text-align: center;
-      }
-
-      .inkblot h2 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 400;
-        letter-spacing: 0.08em;
       }
 
       .inkblot figure {
@@ -126,6 +126,14 @@ const title = `mood study ${number} — ${artist}`;
         max-width: 48rem;
         height: auto;
         margin: 0 auto;
+      }
+      figcaption {
+        text-align: center;
+        font-size: 0.725rem;
+        color: var(--muted);
+      }
+      footer {
+        font-size: 0.725rem;
       }
     </style>
   </article>

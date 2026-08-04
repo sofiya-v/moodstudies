@@ -4,14 +4,14 @@ interface Props {
   duration?: number;
 }
 
-const { items, duration = 35 } = Astro.props;
-const text = items.join(" · ");
+const { items, duration = 55 } = Astro.props;
+const text = items.join(" ◆ ");
 ---
 
 <div class="ticker" aria-label={text}>
   <div class="ticker-track" style={`--ticker-duration: ${duration}s`}>
-    <span>{text} · </span>
-    <span aria-hidden="true">{text} · </span>
+    <span>{text} ◆ </span>
+    <span aria-hidden="true">{text} ◆ </span>
   </div>
 </div>
 
@@ -19,8 +19,9 @@ const text = items.join(" · ");
   .ticker {
     width: 100%;
     overflow: hidden;
-    border-block: 1px solid currentColor;
     padding-block: 0.6rem;
+    font: var(--font-sans);
+    text-shadow: 0 0 5px #00ffff;
   }
 
   .ticker-track {

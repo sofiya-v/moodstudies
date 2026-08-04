@@ -6,7 +6,17 @@ const observations = [
   "the blue hour is now",
   "reports of mutual dreaming are unverified but seductively plausible",
   "you've seen things you can't explain",
-  "as in dreams, so in life",
+  "as below, so above",
+  "memories wither and bloom in the waters of time",
+  "you've been here before",
+  "haven't you?",
+  "your stay will be short but its effects will linger",
+  "the archive changes as it's observed",
+  "you will intuit your way through",
+  "try to remember what you've found",
+  "there are dark times in which things glow",
+  "your demeanor is an incantation",
+  "glittering images must be studied",
 ];
 ---
 
@@ -22,9 +32,9 @@ const observations = [
         <h1 aria-label="mood studies">
           <span aria-hidden="true">mood studies</span>
         </h1>
+        <h5><a href="/archive">archival index</a></h5>
       </section>
       <Ticker items={observations} />
-      <h5><a href="/archive">archive</a></h5>
     </BaseLayout>
   </body>
 </html>
@@ -39,6 +49,7 @@ const observations = [
   .title h1 {
     margin: 0;
     perspective: 800px;
+    font-family: var(--font-sans);
   }
 
   .title span {
@@ -49,15 +60,5 @@ const observations = [
     letter-spacing: -0.08em;
 
     color: var(--fg);
-
-    text-shadow:
-      1px 1px 0 #b9adc0,
-      2px 2px 0 #95849f,
-      3px 3px 0 #725e7c,
-      4px 4px 0 #513d5c,
-      5px 5px 0 #33233d,
-      10px 14px 24px rgb(0 0 0 / 45%);
-
-    transform: rotateX(4deg) rotateY(-3deg);
   }
 </style>

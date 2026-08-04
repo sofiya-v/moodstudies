@@ -3,12 +3,10 @@
 ======================================== */
 
 :root {
-    --bg: #130d18;
+    --bg: #0c0910;
     --fg: #f2eee7;
-    --muted: #c9c2b7;
-    --accent: #6e4d8c;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     color: var(--fg);
 }
 
@@ -156,6 +154,7 @@ header {
 
 main {
     max-width: 48rem;
+    margin: 0 auto;
 }
 
 /* ========================================
@@ -169,6 +168,13 @@ a {
 h1 {
     margin: 0 0 1.5rem;
     font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+}
+
+h2 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.5rem, 6vw, 3rem);
     font-weight: 400;
     letter-spacing: -0.04em;
 }

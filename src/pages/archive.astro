@@ -3,12 +3,141 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="mood studies archive">
-  <h1>archive</h1>
+  <button
+    slot="header-actions"
+    id="view-btn"
+    class="view-btn"
+    type="button"
+    aria-pressed="false"
+    aria-label="Switch archive view"
+  >
+    <span aria-hidden="true">view toggle</span>
+  </button>
+  <section class="archive-header">
+    <h2>archival index</h2>
+  </section>
 
-  <section class="archive-list">
-    <h2>studies</h2>
+  <section class="archive-list" data-view="images">
     <ul>
-      <li><a href="/studies/001">001 — Sofiya V</a></li>
+      <li>
+        <a href="/studies/001">
+          <img src="/images/studies/001/inkblot_001_white.png" alt="" />
+          <span class="study-label"><h3>001 — Sofiya V</h3> </span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/studies/001">
+          <img src="/images/studies/001/inkblot_001_white.png" alt="" />
+          <span class="study-label"><h3>002 — forthcoming</h3></span>
+        </a>
+      </li>
     </ul>
   </section>
 </BaseLayout>
+
+<style>
+  .archive-header {
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .view-btn {
+    padding: 0;
+    color: var(--fg);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .archive-list ul {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    gap: 3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .archive-list ul {
+      grid-template-columns: repeat(2, 200px);
+      justify-content: center;
+      column-gap: 6rem;
+    }
+  }
+
+  .archive-list li {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+  }
+
+  .archive-list a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .archive-list img {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+  }
+
+  .study-label {
+    display: none;
+  }
+
+  /* Text view */
+
+  .archive-list[data-view="text"] li {
+    justify-content: flex-start;
+  }
+
+  .archive-list[data-view="text"] img {
+    display: none;
+  }
+
+  .archive-list[data-view="text"] .study-label {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    .archive-list[data-view="images"] a {
+      transition:
+        filter 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .archive-list[data-view="images"] a:hover {
+      filter: invert(1);
+      transform: scale(1.03);
+    }
+
+    .archive-list[data-view="text"] a:hover {
+      text-decoration: underline;
+    }
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>("#view-btn");
+  const archive = document.querySelector<HTMLElement>(".archive-list");
+
+  button?.addEventListener("click", () => {
+    if (!archive) return;
+
+    const showingImages = archive.dataset.view === "images";
+    const nextView = showingImages ? "text" : "images";
+
+    archive.dataset.view = nextView;
+    button.setAttribute("aria-pressed", String(showingImages));
+    button.setAttribute(
+      "aria-label",
+      showingImages ? "Switch to image view" : "Switch to text view",
+    );
+  });
+</script>

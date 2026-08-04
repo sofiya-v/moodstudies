@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { title = "mood studies" } = Astro.props;
+const isHome = Astro.url.pathname === "/";
 
 import "../styles/global.css";
 ---
@@ -17,8 +18,12 @@ import "../styles/global.css";
   </head>
 
   <body>
-    <header>
-      <a href="/">mood studies</a>
+    <header class="site-header">
+      {!isHome && <a href="/">home</a>}
+
+      <div class="site-header-actions">
+        <slot name="header-actions" />
+      </div>
     </header>
 
     <main>
@@ -26,3 +31,11 @@ import "../styles/global.css";
     </main>
   </body>
 </html>
+
+<style>
+  .site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+</style>
