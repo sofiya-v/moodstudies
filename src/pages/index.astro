@@ -6,6 +6,7 @@ const observations = [
   "the blue hour is now",
   "reports of mutual dreaming are unverified but seductively plausible",
   "you've seen things you can't explain",
+  "pay special attention to vespertine phenomena",
   "as below, so above",
   "memories wither and bloom in the waters of time",
   "you've been here before",
@@ -27,6 +28,9 @@ const observations = [
     <meta name="generator" content={Astro.generator} />
   </head>
   <body>
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="/film.mp4" type="video/mp4" />
+    </video>
     <BaseLayout>
       <section class="title">
         <h1 aria-label="mood studies">
@@ -39,26 +43,33 @@ const observations = [
   </body>
 </html>
 <style>
+  .bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
   .title {
     min-height: 70svh;
     display: grid;
     place-items: center;
     text-align: center;
-  }
-
-  .title h1 {
-    margin: 0;
-    perspective: 800px;
-    font-family: var(--font-sans);
+    font-family: var(--font-serif);
   }
 
   .title span {
     display: block;
-    font-size: clamp(4rem, 20vw, 11rem);
     font-weight: 700;
-    line-height: 0.78;
-    letter-spacing: -0.08em;
 
+    line-height: 0.78;
+    letter-spacing: -0.06em;
     color: var(--fg);
   }
 </style>

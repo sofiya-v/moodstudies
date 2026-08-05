@@ -3,6 +3,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="mood studies archive">
+  <video autoplay muted loop playsinline class="bg-video">
+    <source src="/film.mp4" type="video/mp4" />
+  </video>
   <button
     slot="header-actions"
     id="view-btn"
@@ -27,7 +30,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </li>
 
       <li>
-        <a href="/studies/001">
+        <a href="/studies/002">
           <img src="/images/studies/001/inkblot_001_white.png" alt="" />
           <span class="study-label"><h3>002 — forthcoming</h3></span>
         </a>
@@ -37,6 +40,19 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
+  .bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
   .archive-header {
     justify-content: flex-end;
     align-items: center;

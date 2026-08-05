@@ -5,8 +5,7 @@
 :root {
     --bg: #0c0910;
     --fg: #f2eee7;
-
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    --muted: #a39c9c;
     color: var(--fg);
 }
 
@@ -29,6 +28,7 @@ body {
     margin: 0;
     min-height: 100vh;
     padding: 2rem;
+    padding-bottom: 5rem;
     background: var(--bg);
 }
 
@@ -148,8 +148,8 @@ body::after {
    Layout
 ======================================== */
 
-header {
-    margin-bottom: 5rem;
+.site-header {
+    margin: 5rem 10rem;
 }
 
 main {
@@ -163,20 +163,6 @@ main {
 
 a {
     color: inherit;
-}
-
-h1 {
-    margin: 0 0 1.5rem;
-    font-size: clamp(2.5rem, 8vw, 6rem);
-    font-weight: 400;
-    letter-spacing: -0.04em;
-}
-
-h2 {
-    margin: 0 0 1rem;
-    font-size: clamp(1.5rem, 6vw, 3rem);
-    font-weight: 400;
-    letter-spacing: -0.04em;
 }
 
 p {

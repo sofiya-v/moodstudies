@@ -8,10 +8,12 @@ interface Props {
   trackId: string;
   inkblotSrc: string;
   imageSrc: string;
+  imageAlt?: string;
 }
 
-const { number, artist, trackId, inkblotSrc, imageSrc } = Astro.props;
+const { number, artist, trackId, inkblotSrc, imageSrc, imageAlt } = Astro.props;
 const title = `mood study ${number} — ${artist}`;
+const isFirst = number === "001";
 ---
 
 <BaseLayout title={title}>
@@ -24,117 +26,114 @@ const title = `mood study ${number} — ${artist}`;
     aria-label="Return to archive"
     ><a href="/archive"> <span aria-hidden="true">back to archive</span></a>
   </button>
-  <article>
-    <section class="study-cover">
-      <header class="study-heading">
-        <p class="study-number">mood study {number}</p>
-        <h2>{artist}</h2>
-        <SoundCloudPlayer trackId={trackId} />
-      </header>
-    </section>
+  <body>
+    <article>
+      <section class="study-cover">
+        <header class="study-heading">
+          <h2>{artist}</h2>
+          <SoundCloudPlayer trackId={trackId} />
+        </header>
+        <p><slot name="bio" /></p>
+      </section>
 
-    <section class="inkblot">
-      <h2>what do you see?</h2>
-
-      <figure>
-        <img src={inkblotSrc} alt="" class="inkblot" />
-      </figure>
-
-      <p><slot name="inkblot response" /></p>
-    </section>
-
-    <section class="dream">
-      <h2>dream log</h2>
-      <p><slot name="dream log" /></p>
-
-      <section>
+      <section class="inkblot">
+        <h2>what do you see?</h2>
         <figure>
-          <img src={imageSrc} alt="image" />
+          <img
+            src={inkblotSrc}
+            alt="image of an inkblot on paper"
+            class="inkblot-img"
+          />
+        </figure>
+
+        <p><slot name="inkblot response" /></p>
+      </section>
+
+      <section class="dream">
+        <h2>dream log</h2>
+        <p><slot name="dream log" /></p>
+
+        <figure class="dream-image">
+          <img src={imageSrc} alt={imageAlt ?? "image"} />
         </figure>
         <figcaption><slot name="caption" /></figcaption>
       </section>
-
-      <footer>
-        <p><slot name="bio" /></p>
-      </footer>
-    </section>
-
-    <style>
-      .archive-btn {
-        padding: 0;
-        color: var(--fg);
-        background: transparent;
-        border: 0;
-        cursor: pointer;
-        style: none;
-      }
-      article {
-        display: flex;
-        flex-direction: column;
-        gap: 5rem;
-      }
-
-      .study-cover {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-        padding-block: 4rem;
-      }
-
-      .study-heading {
-        display: grid;
-        gap: 0.5rem;
-      }
-
-      .study-heading h1,
-      .study-number {
-        margin: 0;
-      }
-
-      figure {
-        margin: 0;
-      }
-
-      .inkblot {
-        text-align: center;
-      }
-
-      .inkblot {
-        display: grid;
-        justify-items: center;
-        gap: 1.5rem;
-        text-align: center;
-      }
-
-      .inkblot figure {
-        margin: 0;
-      }
-
-      .inkblot-image {
-        width: min(100%, 20rem);
-        margin-inline: auto;
-      }
-
-      .inkblot p {
-        max-width: 28rem;
-        margin: 0;
-      }
-
-      .image {
-        display: block;
-        width: 100%;
-        max-width: 48rem;
-        height: auto;
-        margin: 0 auto;
-      }
-      figcaption {
-        text-align: center;
-        font-size: 0.725rem;
-        color: var(--muted);
-      }
-      footer {
-        font-size: 0.725rem;
-      }
-    </style>
-  </article>
+    </article>
+  </body>
+  <footer class="flip">
+    {
+      !isFirst && (
+        <a href={`/studies/${String(Number(number) - 1).padStart(3, "0")}`}>
+          previous
+        </a>
+      )
+    }
+    <a href={`/studies/${String(Number(number) + 1).padStart(3, "0")}`}>
+      next
+    </a>
+  </footer>
 </BaseLayout>
+
+<style>
+  .archive-btn {
+    padding: 0;
+    color: var(--fg);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    style: none;
+  }
+  article {
+    display: flex;
+    flex-direction: column;
+    gap: 7rem;
+  }
+
+  .study-heading h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 3rem;
+    font-family: monospace;
+  }
+
+  .study-cover {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-block: 4rem;
+  }
+
+  .study-heading {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .study-cover p {
+    text-align: center;
+    margin: 3rem;
+  }
+
+  .inkblot-img {
+    justify-self: center;
+  }
+
+  p {
+    font-family: monospace;
+    font-size: 1.125rem;
+    margin: 2rem;
+  }
+
+  figure {
+    margin: 2rem 0;
+  }
+
+  figcaption {
+    text-align: center;
+    font-size: 0.725rem;
+    color: var(--muted);
+  }
+  footer {
+    font-size: 0.725rem;
+    margin: 1rem;
+  }
+</style>
