@@ -7,20 +7,26 @@ const { title = "mood studies" } = Astro.props;
 const isHome = Astro.url.pathname === "/";
 
 import "../styles/global.css";
+import Font from "astro/components/Font.astro";
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
+    <Font cssVariable="--font-syne-mono" preload />
+    <Font cssVariable="--font-silkscreen" preload />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
+  <video autoplay muted loop playsinline preload="none" class="bg-video">
+    <source src="/film_opt.mp4" type="video/mp4" />
+  </video>
 
   <body>
     <header class="site-header">
-      {!isHome && <a href="/">home</a>}
+      {!isHome && <button onclick="location.href='/'">home</button>}
 
       <div class="site-header-actions">
         <slot name="header-actions" />
@@ -32,11 +38,34 @@ import "../styles/global.css";
     </main>
   </body>
 </html>
-
 <style>
   .site-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .bg-video {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    object-fit: cover;
+    object-position: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
   }
 </style>

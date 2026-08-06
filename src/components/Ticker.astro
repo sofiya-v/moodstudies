@@ -1,13 +1,18 @@
 ---
+import { Font } from "astro:assets";
+
 interface Props {
   items: string[];
   duration?: number;
 }
 
-const { items, duration = 70 } = Astro.props;
+const { items, duration = 75 } = Astro.props;
 const text = items.join("... ");
 ---
 
+<head>
+  <Font cssVariable="--font-silkscreen" preload />
+</head>
 <div class="ticker" aria-label={text}>
   <div class="ticker-track" style={`--ticker-duration: ${duration}s`}>
     <span>{text}... </span>
@@ -20,8 +25,8 @@ const text = items.join("... ");
     width: 100%;
     overflow: hidden;
     padding-block: 0.6rem;
-    text-shadow: 0 0 5px #00ffd9;
-    font-family: monospace;
+    text-shadow: 0 0 5px var(--accent);
+    font-family: var(--font-silkscreen);
     font-size: 1.5rem;
   }
 

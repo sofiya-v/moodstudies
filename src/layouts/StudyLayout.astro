@@ -18,59 +18,60 @@ const isFirst = number === "001";
 
 <BaseLayout title={title}>
   <button
+    onclick="location.href='/archive'"
     slot="header-actions"
-    id="archive-btn"
-    class="archive-btn"
-    type="button"
-    aria-pressed="false"
     aria-label="Return to archive"
-    ><a href="/archive"> <span aria-hidden="true">back to archive</span></a>
+  >
+    <span aria-hidden="true">back to archive</span>
   </button>
-  <body>
-    <article>
-      <section class="study-cover">
-        <header class="study-heading">
-          <h2>{artist}</h2>
-          <SoundCloudPlayer trackId={trackId} />
-        </header>
-        <p><slot name="bio" /></p>
-      </section>
+  <article>
+    <section class="study-cover">
+      <header class="study-heading">
+        <h2>{artist}</h2>
+        <SoundCloudPlayer trackId={trackId} />
+      </header>
+      <p><slot name="bio" /></p>
+    </section>
 
-      <section class="inkblot">
-        <h2>what do you see?</h2>
-        <figure>
-          <img
-            src={inkblotSrc}
-            alt="image of an inkblot on paper"
-            class="inkblot-img"
-          />
-        </figure>
+    <section class="inkblot">
+      <h2>what do you see?</h2>
+      <figure>
+        <img
+          src={inkblotSrc}
+          alt="image of an inkblot on paper"
+          class="inkblot-img"
+        />
+      </figure>
 
-        <p><slot name="inkblot response" /></p>
-      </section>
+      <p><slot name="inkblot response" /></p>
+    </section>
 
-      <section class="dream">
-        <h2>dream log</h2>
-        <p><slot name="dream log" /></p>
+    <section class="dream">
+      <h2>dream log</h2>
+      <p><slot name="dream log" /></p>
 
-        <figure class="dream-image">
-          <img src={imageSrc} alt={imageAlt ?? "image"} />
-        </figure>
-        <figcaption><slot name="caption" /></figcaption>
-      </section>
-    </article>
-  </body>
+      <figure class="dream-img">
+        <img src={imageSrc} alt={imageAlt ?? "image"} />
+      </figure>
+      <figcaption><slot name="caption" /></figcaption>
+    </section>
+  </article>
+
   <footer class="flip">
     {
       !isFirst && (
-        <a href={`/studies/${String(Number(number) - 1).padStart(3, "0")}`}>
+        <button
+          onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
+        >
           previous
-        </a>
+        </button>
       )
     }
-    <a href={`/studies/${String(Number(number) + 1).padStart(3, "0")}`}>
+    <button
+      onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
+    >
       next
-    </a>
+    </button>
   </footer>
 </BaseLayout>
 
@@ -93,7 +94,6 @@ const isFirst = number === "001";
     font-size: 2.5rem;
     text-align: center;
     margin: 3rem;
-    font-family: monospace;
   }
 
   .study-cover {
@@ -117,8 +117,11 @@ const isFirst = number === "001";
     justify-self: center;
   }
 
+  img:hover {
+    transform: scale(1.5);
+  }
+
   p {
-    font-family: monospace;
     font-size: 1.125rem;
     margin: 2rem;
   }
@@ -130,6 +133,7 @@ const isFirst = number === "001";
   figcaption {
     text-align: center;
     font-size: 0.725rem;
+    font-family: monospace;
     color: var(--muted);
   }
   footer {

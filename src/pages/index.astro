@@ -1,11 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Ticker from "../components/Ticker.astro";
+import { Font } from "astro:assets";
 
 const observations = [
   "the blue hour is now",
   "reports of mutual dreaming are unverified but seductively plausible",
-  "you've seen things you can't explain",
   "pay special attention to vespertine phenomena",
   "as below, so above",
   "memories wither and bloom in the waters of time",
@@ -27,49 +27,54 @@ const observations = [
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
   </head>
+
   <body>
-    <video autoplay muted loop playsinline class="bg-video">
-      <source src="/film.mp4" type="video/mp4" />
-    </video>
     <BaseLayout>
+      <Ticker items={observations} />
       <section class="title">
         <h1 aria-label="mood studies">
           <span aria-hidden="true">mood studies</span>
         </h1>
-        <h5><a href="/archive">archival index</a></h5>
+        <h5>
+          <a class="archival-index" href="/archive">[ archival index ]</a>
+        </h5>
       </section>
-      <Ticker items={observations} />
     </BaseLayout>
   </body>
 </html>
 <style>
-  .bg-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    min-width: 100%;
-    min-height: 100%;
-    object-fit: cover;
-    z-index: -1;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-  }
   .title {
     min-height: 70svh;
     display: grid;
     place-items: center;
     text-align: center;
-    font-family: var(--font-serif);
   }
 
   .title span {
     display: block;
     font-weight: 700;
-
     line-height: 0.78;
     letter-spacing: -0.06em;
     color: var(--fg);
+  }
+  .archival-index {
+    text-decoration: none;
+    font-family: var(--font-syne-mono);
+    font-size: 1.2rem;
+  }
+
+  .archival-index:hover {
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-data: reduce) {
+    .video-container {
+      display: none;
+    }
+  }
+  @media (max-width: 480px) {
+    .bg-video {
+      min-width: 150%;
+    }
   }
 </style>
