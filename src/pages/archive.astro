@@ -109,7 +109,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     }
 
     .archive-list[data-view="images"] a:hover {
-      filter: invert(1);
+      filter: drop-shadow(0 0 5px var(--accent));
       transform: scale(1.03);
       label: hover;
     }
@@ -117,6 +117,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     .archive-list[data-view="text"] a:hover {
       color: var(--accent);
       text-decoration: underline;
+      shadow: 0 0 3px var(--accent);
     }
   }
 </style>

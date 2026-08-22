@@ -37,7 +37,7 @@ body {
 a,
 button,
 .clickable {
-    cursor: pointer;
+    cursor: crosshair;
 }
 
 button:hover {

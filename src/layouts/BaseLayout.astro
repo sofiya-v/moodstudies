@@ -20,11 +20,11 @@ import Font from "astro/components/Font.astro";
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <video autoplay muted loop playsinline preload="none" class="bg-video">
-    <source src="/film_opt.mp4" type="video/mp4" />
-  </video>
 
   <body>
+    <video autoplay muted loop playsinline preload="none" class="bg-video">
+      <source src="/film_opt.mp4" type="video/mp4" />
+    </video>
     <header class="site-header">
       {!isHome && <button onclick="location.href='/'">home</button>}
 

@@ -14,6 +14,7 @@ interface Props {
 const { number, artist, trackId, inkblotSrc, imageSrc, imageAlt } = Astro.props;
 const title = `mood study ${number} — ${artist}`;
 const isFirst = number === "001";
+const isLast = number === "002";
 ---
 
 <BaseLayout title={title}>
@@ -57,7 +58,7 @@ const isFirst = number === "001";
     </section>
   </article>
 
-  <footer class="flip">
+  <div class="nav">
     {
       !isFirst && (
         <button
@@ -67,12 +68,17 @@ const isFirst = number === "001";
         </button>
       )
     }
-    <button
-      onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
-    >
-      next
-    </button>
-  </footer>
+    {
+      !isLast && (
+        <button
+          onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
+        >
+          next
+        </button>
+      )
+    }
+  </div>
+  <footer></footer>
 </BaseLayout>
 
 <style>
@@ -136,8 +142,10 @@ const isFirst = number === "001";
     font-family: monospace;
     color: var(--muted);
   }
-  footer {
-    font-size: 0.725rem;
-    margin: 1rem;
+  .nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 4rem;
+    gap: 2rem;
   }
 </style>
