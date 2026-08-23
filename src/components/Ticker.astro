@@ -25,11 +25,17 @@ const text = items.join("... ");
     width: 100%;
     overflow: hidden;
     padding-block: 0.6rem;
-    text-shadow: 1px 1px 5px var(--accent);
+    text-shadow: 1px 1px 1px #01f9c6;
     font-family: var(--font-silkscreen);
     font-size: 1.5rem;
   }
 
+  @media (max-width: 480px) {
+    .ticker {
+      font-size: 0.75rem;
+      text-shadow: 0.5px 0.5px 0.5px #01f9c6;
+    }
+  }
   .ticker-track {
     display: flex;
     width: max-content;

@@ -36,116 +36,170 @@ const isLast = number === "002";
 
     <section class="inkblot">
       <h2>what do you see?</h2>
-      <figure>
-        <img
-          src={inkblotSrc}
-          alt="image of an inkblot on paper"
-          class="inkblot-img"
-        />
-      </figure>
+      <img
+        src={inkblotSrc}
+        alt="Rorschach style inkblot on paper"
+        class="inkblot-img expandable"
+      />
 
-      <p><slot name="inkblot response" /></p>
+      <p><i><slot name="inkblot response" /></i></p>
+
+      <section class="dream">
+        <h2>dream log</h2>
+        <p><slot name="dream log" /></p>
+
+        <figure class="dream-img">
+          <img src={imageSrc} alt={imageAlt ?? "image"} class="expandable" />
+        </figure>
+        <figcaption><slot name="caption" /></figcaption>
+      </section>
     </section>
 
-    <section class="dream">
-      <h2>dream log</h2>
-      <p><slot name="dream log" /></p>
-
-      <figure class="dream-img">
-        <img src={imageSrc} alt={imageAlt ?? "image"} />
-      </figure>
-      <figcaption><slot name="caption" /></figcaption>
-    </section>
+    <div class="nav">
+      {
+        !isFirst && (
+          <button
+            onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
+          >
+            previous
+          </button>
+        )
+      }
+      {
+        !isLast && (
+          <button
+            onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
+          >
+            next
+          </button>
+        )
+      }
+    </div>
+    <footer></footer>
   </article>
 
-  <div class="nav">
-    {
-      !isFirst && (
-        <button
-          onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
-        >
-          previous
-        </button>
-      )
+  <style>
+    .archive-btn {
+      padding: 0;
+      color: var(--fg);
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      style: none;
     }
-    {
-      !isLast && (
-        <button
-          onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
-        >
-          next
-        </button>
-      )
+    article {
+      display: flex;
+      flex-direction: column;
+      gap: 7rem;
     }
-  </div>
-  <footer></footer>
+
+    .study-heading h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin: 3rem;
+    }
+
+    .study-cover {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      padding-block: 4rem;
+    }
+
+    .study-heading {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .study-cover p {
+      text-align: center;
+      margin: 3rem;
+    }
+
+    .inkblot-img {
+      justify-self: center;
+    }
+
+    p {
+      font-size: 1.125rem;
+      margin: 2rem;
+    }
+
+    figure {
+      margin: 2rem 0;
+    }
+
+    figcaption {
+      text-align: center;
+      font-size: 0.725rem;
+      font-family: monospace;
+      color: var(--muted);
+    }
+    .nav {
+      display: flex;
+      justify-content: center;
+      margin-top: 4rem;
+      gap: 2rem;
+    }
+
+    @media (max-width: 767px) {
+      article {
+        gap: 3rem;
+      }
+
+      .study-cover {
+        gap: 1.5rem;
+        padding-block: 2rem;
+      }
+
+      .study-heading h2 {
+        margin: 1.5rem;
+      }
+
+      .study-cover p {
+        margin: 1.5rem 0;
+      }
+
+      p {
+        margin: 1.5rem 0;
+      }
+      .dream > p {
+        margin: 1.5rem 0;
+        font-size: 1rem;
+        line-height: 1.8;
+        letter-spacing: 0.01em;
+      }
+    }
+
+    @media (min-width: 768px) and (hover: hover) {
+      .expandable {
+        cursor: zoom-in;
+      }
+
+      .expandable.is-expanded {
+        width: 90vw;
+        max-width: 90vw;
+        margin-left: 50%;
+        transform: translateX(-50%);
+        cursor: zoom-out;
+      }
+    }
+  </style>
+
+  <script>
+    const expandableImages =
+      document.querySelectorAll<HTMLImageElement>(".expandable");
+
+    const desktopOnly = window.matchMedia(
+      "(min-width: 768px) and (hover: hover)",
+    );
+
+    expandableImages.forEach((image) => {
+      image.addEventListener("click", () => {
+        if (!desktopOnly.matches) return;
+
+        image.classList.toggle("is-expanded");
+      });
+    });
+  </script>
 </BaseLayout>
-
-<style>
-  .archive-btn {
-    padding: 0;
-    color: var(--fg);
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    style: none;
-  }
-  article {
-    display: flex;
-    flex-direction: column;
-    gap: 7rem;
-  }
-
-  .study-heading h2 {
-    font-size: 2.5rem;
-    text-align: center;
-    margin: 3rem;
-  }
-
-  .study-cover {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding-block: 4rem;
-  }
-
-  .study-heading {
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  .study-cover p {
-    text-align: center;
-    margin: 3rem;
-  }
-
-  .inkblot-img {
-    justify-self: center;
-  }
-
-  img:hover {
-    transform: scale(1.5);
-  }
-
-  p {
-    font-size: 1.125rem;
-    margin: 2rem;
-  }
-
-  figure {
-    margin: 2rem 0;
-  }
-
-  figcaption {
-    text-align: center;
-    font-size: 0.725rem;
-    font-family: monospace;
-    color: var(--muted);
-  }
-  .nav {
-    display: flex;
-    justify-content: center;
-    margin-top: 4rem;
-    gap: 2rem;
-  }
-</style>

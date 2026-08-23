@@ -27,7 +27,7 @@ body {
     position: relative;
     isolation: isolate;
     margin: 0;
-    min-height: 100vh;
+    min-height: 100dvh;
     padding: 2rem;
     padding-bottom: 5rem;
     background: var(--bg);
@@ -40,9 +40,20 @@ button,
     cursor: crosshair;
 }
 
-button:hover {
-    background: var(--accent);
-    color: var(--bg);
+
+@media (hover: hover) {
+    button:hover {
+        background: var(--accent);
+        color: var(--bg);
+    }
+}
+
+@media (hover: none) {
+    button:active {
+        background: var(--accent);
+        color: var(--bg);
+        transform: translateY(2px);
+    }
 }
 
 /* ========================================
@@ -162,13 +173,33 @@ body::after {
 ======================================== */
 
 .site-header {
-    margin: 5rem 10rem;
+    margin: 5rem auto;
+    max-width: 68rem;
 }
 
 main {
     max-width: 48rem;
     margin: 0 auto;
 }
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+        padding-bottom: 3rem;
+        min-height: 100dvh;
+    }
+
+    .site-header {
+        margin: 1rem 0;
+    }
+
+    main {
+        width: 100%;
+        max-width: 100%;
+    }
+
+}
+
 
 /* ========================================
    Typography and elements
