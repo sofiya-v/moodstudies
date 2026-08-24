@@ -35,7 +35,7 @@ const observations = [
           <span aria-hidden="true">mood studies</span>
         </h1>
         <h5>
-          <a class="archival-index" href="/archive">[ enter ]</a>
+          <a id="archival-index" href="/archive">[ enter ]</a>
         </h5>
       </section>
     </BaseLayout>
@@ -70,31 +70,23 @@ const observations = [
     text-shadow: 0 0 3px var(--accent);
     font-size: 3rem;
   }
-  .archival-index {
+  #archival-index {
+    color: var(--fg);
     text-decoration: none;
     font-family: var(--font-syne-mono);
     font-size: 1.2rem;
     text-shadow: 0 0 1px var(--accent);
   }
 
-  .archival-index:hover {
+  #archival-index:hover {
     color: var(--accent);
+    text-shadow: 0 0 2px var(--accent);
+    transform:;
   }
 
-  .archival-index:active {
+  #archival-index:active {
     color: var(--accent);
     text-shadow: 0 0 4px var(--accent);
     transform: translateY(2px);
-  }
-
-  @media (prefers-reduced-data: reduce) {
-    .video-container {
-      display: none;
-    }
-  }
-  @media (max-width: 480px) {
-    .bg-video {
-      min-width: 150%;
-    }
   }
 </style>

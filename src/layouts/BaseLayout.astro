@@ -4,7 +4,7 @@ interface Props {
 }
 
 const { title = "mood studies" } = Astro.props;
-const isHome = Astro.url.pathname === "/";
+const isHome = Astro.url.pathname === "/" || Astro.url.pathname === "/404.html";
 
 import "../styles/global.css";
 import Font from "astro/components/Font.astro";
@@ -63,6 +63,7 @@ import Font from "astro/components/Font.astro";
     width: 100%;
     min-height: 100%;
     overflow-x: hidden;
+    justify-content: center;
   }
 
   main {

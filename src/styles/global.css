@@ -101,6 +101,7 @@ h2 {
 
 a {
     color: inherit;
+    color: var(--accent);
 }
 
 p {

@@ -14,7 +14,7 @@ interface Props {
 const { number, artist, trackId, inkblotSrc, imageSrc, imageAlt } = Astro.props;
 const title = `mood study ${number} — ${artist}`;
 const isFirst = number === "001";
-const isLast = number === "002";
+const isLast = number === "001";
 ---
 
 <BaseLayout title={title}>

@@ -3,8 +3,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="how strange...">
-  <section class="error-page">
+  <main>
     <h1>404</h1>
     <p>...you find yourself in a place that does not exist.</p>
-  </section></BaseLayout
->
+  </main>
+</BaseLayout>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+</style>
