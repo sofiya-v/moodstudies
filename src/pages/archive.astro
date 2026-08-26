@@ -13,7 +13,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <span aria-hidden="true">view</span>
   </button>
   <section class="archive-header">
-    <h2>archival index</h2>
+    <h1>archival index</h1>
   </section>
 
   <section class="archive-list" data-view="images">
@@ -40,7 +40,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     margin: 1.5rem auto 0;
     font-family: var(--font-syne-mono);
     font-size: 0.9rem;
-    color: var(--accent);
+    color: var(--glow);
   }
 
   .archive-header {
@@ -120,7 +120,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   .archive-list[data-view="images"] a:hover {
-    filter: drop-shadow(0 0 5px var(--accent));
+    filter: drop-shadow(0 0 5px var(--glow));
     transform: scale(1.03);
   }
 
@@ -130,9 +130,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   }
 
   .archive-list[data-view="text"] a:hover {
-    color: var(--accent);
+    color: var(--glow);
     text-decoration: underline;
-    text-shadow: 0 0 2px var(--accent);
+    text-shadow: 0 0 2px var(--glow);
   }
 
   @media (min-width: 768px) {
@@ -167,7 +167,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     }
 
     .archive-list[data-view="text"] a:active {
-      background: var(--accent);
+      background: var(--glow);
       color: var(--bg);
     }
 

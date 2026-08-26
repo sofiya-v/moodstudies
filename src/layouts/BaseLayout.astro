@@ -4,7 +4,7 @@ interface Props {
 }
 
 const { title = "mood studies" } = Astro.props;
-const isHome = Astro.url.pathname === "/" || Astro.url.pathname === "/404.html";
+const isHome = Astro.url.pathname === "/";
 
 import "../styles/global.css";
 import Font from "astro/components/Font.astro";
@@ -22,8 +22,18 @@ import Font from "astro/components/Font.astro";
   </head>
 
   <body>
-    <video autoplay muted loop playsinline preload="none" class="bg-video">
+    <video autoplay muted loop playsinline preload="none" class="bg-video-web">
       <source src="/film_opt.mp4" type="video/mp4" />
+    </video>
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      class="bg-video-mobile"
+    >
+      <source src="/film_mobile.mp4" type="video/mp4" />
     </video>
     <header class="site-header">
       {!isHome && <button onclick="location.href='/'">home</button>}
@@ -47,7 +57,7 @@ import Font from "astro/components/Font.astro";
     top: 0;
     z-index: 10;
   }
-  .bg-video {
+  .bg-video-web {
     position: fixed;
     inset: 0;
     width: 100%;
@@ -63,10 +73,31 @@ import Font from "astro/components/Font.astro";
     width: 100%;
     min-height: 100%;
     overflow-x: hidden;
-    justify-content: center;
   }
 
   main {
     position: relative;
+  }
+
+  .bg-video-mobile {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .bg-video-web {
+      display: none;
+    }
+    .bg-video-mobile {
+      display: block;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100dvh;
+      object-fit: cover;
+      object-position: center;
+      z-index: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
   }
 </style>

@@ -6,7 +6,8 @@
     --bg: #0c0910;
     --fg: #f2eee7;
     --muted: #a8a8a8;
-    --accent: #b3ffbd;
+    --glow: #b3ffbd;
+    --accent: #ffb86c;
     color: var(--fg);
 }
 
@@ -43,7 +44,7 @@ button,
 
 @media (hover: hover) {
     button:hover {
-        background: var(--accent);
+        background: var(--glow);
         color: var(--bg);
     }
 }
@@ -63,24 +64,6 @@ main {
     margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-    body {
-        padding: 1rem;
-        padding-bottom: 3rem;
-        min-height: 100dvh;
-    }
-
-    .site-header {
-        margin: 1rem 0;
-    }
-
-    main {
-        width: 100%;
-        max-width: 100%;
-    }
-
-}
-
 
 /* ========================================
    Typography and elements
@@ -92,21 +75,31 @@ h3 {
     font-family: var(--font-syne-mono);
 }
 
+h1 {
+    text-shadow: 0 0 3px var(--glow);
+    font-size: 2.4rem;
+
+}
+
 h2 {
     font-size: 1.8rem;
     font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
+    text-shadow: 0 0 2px var(--glow);
+
 }
 
 a {
     color: inherit;
-    color: var(--accent);
+    color: var(--glow);
+    text-decoration: underline;
 }
 
 p {
     line-height: 1.6;
     font-family: monospace;
+    justify-content: center;
 }
 
 img {
@@ -117,11 +110,11 @@ img {
 
 button {
     font-family: monospace;
-    font-weight: bold;
+    color: var(--bg);
     height: 30px;
     font-size: 1rem;
     padding: 0 1rem;
-    background: var(--accent);
+    background: var(--glow);
 }
 
 button:focus {
@@ -148,4 +141,33 @@ button:active {
     body::after {
         animation: none;
     }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+        padding-bottom: 3rem;
+        min-height: 100dvh;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        text-shadow: 0 0 2px var(--glow);
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        text-shadow: 0 0 2px var(--glow);
+    }
+
+    .site-header {
+        margin: 4rem 0;
+    }
+
+    main {
+        max-width: 20rem;
+        margin: 20px;
+    }
+
+
 }

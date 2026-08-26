@@ -26,13 +26,10 @@ const isLast = number === "001";
     <span aria-hidden="true">index</span>
   </button>
   <article>
-    <section class="study-cover">
-      <header class="study-heading">
-        <h2>{artist}</h2>
-        <SoundCloudPlayer trackId={trackId} />
-      </header>
-      <p><slot name="bio" /></p>
-    </section>
+    <header class="study-heading">
+      <h1>{artist}</h1>
+      <SoundCloudPlayer trackId={trackId} />
+    </header>
 
     <section class="inkblot">
       <h2>what do you see?</h2>
@@ -43,60 +40,59 @@ const isLast = number === "001";
       />
 
       <p><i><slot name="inkblot response" /></i></p>
-
-      <section class="dream">
-        <h2>dream log</h2>
-        <p><slot name="dream log" /></p>
-
-        <figure class="dream-img">
-          <img src={imageSrc} alt={imageAlt ?? "image"} class="expandable" />
-        </figure>
-        <figcaption><slot name="caption" /></figcaption>
-      </section>
     </section>
 
-    <div class="nav">
-      {
-        !isFirst && (
-          <button
-            onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
-          >
-            previous
-          </button>
-        )
-      }
-      {
-        !isLast && (
-          <button
-            onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
-          >
-            next
-          </button>
-        )
-      }
-    </div>
-    <footer></footer>
+    <section class="dream">
+      <h2>dream log</h2>
+      <p><slot name="dream log" /></p>
+
+      <figure class="dream-img">
+        <img src={imageSrc} alt={imageAlt ?? "image"} class="expandable" />
+      </figure>
+      <figcaption><slot name="caption" /></figcaption>
+    </section>
   </article>
 
-  <style>
-    .archive-btn {
-      padding: 0;
-      color: var(--fg);
-      background: transparent;
-      border: 0;
-      cursor: pointer;
-      style: none;
+  <div class="nav">
+    {
+      !isFirst && (
+        <button
+          onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
+        >
+          previous
+        </button>
+      )
     }
+    {
+      !isLast && (
+        <button
+          onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
+        >
+          next
+        </button>
+      )
+    }
+  </div>
+  <footer><p><i><slot name="bio" /></i></p></footer>
+
+  <style>
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
     article {
       display: flex;
       flex-direction: column;
       gap: 7rem;
-    }
-
-    .study-heading h2 {
-      font-size: 2.5rem;
-      text-align: center;
-      margin: 3rem;
     }
 
     .study-cover {
@@ -109,11 +105,6 @@ const isLast = number === "001";
     .study-heading {
       display: grid;
       gap: 0.5rem;
-    }
-
-    .study-cover p {
-      text-align: center;
-      margin: 3rem;
     }
 
     .inkblot-img {
@@ -135,11 +126,24 @@ const isLast = number === "001";
       font-family: monospace;
       color: var(--muted);
     }
-    .nav {
+    nav {
       display: flex;
       justify-content: center;
       margin-top: 4rem;
       gap: 2rem;
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    footer p {
+      text-align: center;
+      margin-top: 4rem;
+      font-size: 0.9rem;
+      text-shadow: 0 0 2px var(--glow);
+      font-family: var(--font-syne-mono);
+      margin-bottom: 4rem;
     }
 
     @media (max-width: 767px) {
