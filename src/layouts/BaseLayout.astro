@@ -53,7 +53,6 @@ import Font from "astro/components/Font.astro";
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    position: sticky;
     top: 0;
     z-index: 10;
   }
@@ -66,6 +65,7 @@ import Font from "astro/components/Font.astro";
     object-position: center;
     z-index: 0;
     pointer-events: none;
+    mix-blend-mode: screen;
   }
 
   body {
@@ -73,10 +73,6 @@ import Font from "astro/components/Font.astro";
     width: 100%;
     min-height: 100%;
     overflow-x: hidden;
-  }
-
-  main {
-    position: relative;
   }
 
   .bg-video-mobile {

@@ -7,7 +7,6 @@
     --fg: #f2eee7;
     --muted: #a8a8a8;
     --glow: #b3ffbd;
-    --accent: #ffb86c;
     color: var(--fg);
 }
 
@@ -29,8 +28,6 @@ body {
     isolation: isolate;
     margin: 0;
     min-height: 100dvh;
-    padding: 2rem;
-    padding-bottom: 5rem;
     background: var(--bg);
     cursor: url("/pluto_cursor.cur") 16 16, auto;
 }
@@ -145,8 +142,6 @@ button:active {
 
 @media (max-width: 768px) {
     body {
-        padding: 1rem;
-        padding-bottom: 3rem;
         min-height: 100dvh;
     }
 
