@@ -76,5 +76,12 @@ const observations = [
       text-shadow: 0 0 4px var(--glow);
       transform: translateY(2px);
     }
+
+    @media (max-width: 768px) {
+      .img {
+        width: clamp(12rem, 55vw, 18rem);
+        max-height: 32svh;
+      }
+    }
   </style>
 </BaseLayout>
