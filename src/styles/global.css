@@ -3,11 +3,11 @@
 ======================================== */
 
 :root {
-    --bg: #0c0910;
-    --fg: #f2eee7;
+    --light: #e8ebe4;
+    --dark: #030503;
     --muted: #a8a8a8;
     --glow: #b3ffbd;
-    color: var(--fg);
+    --glow-dark: #96d49e;
 }
 
 /* ========================================
@@ -36,16 +36,10 @@ body {
 a,
 button,
 .clickable {
-    cursor: crosshair;
+    cursor: pointer;
 }
 
 
-@media (hover: hover) {
-    button:hover {
-        background: var(--glow);
-        color: var(--bg);
-    }
-}
 
 
 /* ========================================
@@ -70,12 +64,20 @@ main {
 h1,
 h2,
 h3 {
-    font-family: var(--font-syne-mono);
+    margin: 0;
+    color: #e8ebe4;
+    font-family: var(--font-syne-mono), sans-serif;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: -0.075em;
+    line-height: 0.82;
+    text-shadow:
+        0 0 2px #e8ebe4,
+        0 0 14px color-mix(in srgb, var(--glow) 52%, transparent);
 }
 
 h1 {
-    text-shadow: 0 0 3px var(--glow);
-    font-size: 2.4rem;
+    font-size: clamp(2.5rem, 6vw, 4rem);
 
 }
 
@@ -88,16 +90,42 @@ h2 {
 
 }
 
-a {
-    color: inherit;
+p.machine-glow {
     color: var(--glow);
-    text-decoration: underline;
+    text-shadow: 0 0 3px color-mix(in srgb, var(--glow) 75%, transparent);
 }
 
-p {
+p.copy {
     line-height: 1.6;
     font-family: monospace;
     justify-content: center;
+    color: var(--light);
+    font-size: 1.125rem;
+    margin: 2rem;
+}
+
+a {
+    text-decoration: underline;
+    display: inline-block;
+    color: var(--glow);
+    text-decoration: underline;
+    font-family: monospace;
+    text-shadow: 0 0 1px var(--glow);
+    transition:
+        transform 200ms ease,
+        color 200ms ease;
+    transform-origin: center;
+}
+
+a:hover {
+    color: var(--light);
+    text-shadow: 0 0 4px var(--glow);
+}
+
+a:active {
+    color: var(--glow);
+    text-shadow: 0 0 4px var(--glow);
+    transform: translateY(2px);
 }
 
 img {
@@ -106,28 +134,37 @@ img {
     height: auto;
 }
 
-button {
-    font-family: monospace;
-    color: var(--bg);
-    height: 30px;
-    font-size: 1rem;
-    padding: 0 1rem;
-    background: var(--glow);
+
+nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 15px 30px;
 }
 
-button:focus {
-    box-shadow: #D6D6E7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
+nav ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
 }
 
-button:hover {
-    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
-    transform: translateY(-2px);
+nav a {
+    text-decoration: none;
+    color: var(--dark);
+    padding: 8px 16px;
+    background-color: var(--glow);
+    transition: background 0.3s;
+    border: 3px outset #c0c0c0;
 }
 
-button:active {
-    box-shadow: #D6D6E7 0 3px 7px inset;
-    transform: translateY(2px);
+nav a:hover {
+    background-color: var(--glow-dark);
 }
+
+nav a:active {
+    border-style: inset;
+}
+
 
 /* ========================================
    Accessibility

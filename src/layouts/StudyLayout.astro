@@ -8,42 +8,49 @@ interface Props {
   trackId: string;
   inkblotSrc: string;
   imageSrc: string;
+  trinketSrc: string;
+  trinketAlt?: string;
+
   imageAlt?: string;
 }
 
-const { number, artist, trackId, inkblotSrc, imageSrc, imageAlt } = Astro.props;
+const {
+  number,
+  artist,
+  trackId,
+  inkblotSrc,
+  imageSrc,
+  imageAlt,
+  trinketSrc,
+  trinketAlt,
+} = Astro.props;
 const title = `mood study ${number} — ${artist}`;
 const isFirst = number === "001";
 const isLast = number === "001";
 ---
 
 <BaseLayout title={title}>
-  <button
-    onclick="location.href='/archive'"
-    slot="header-actions"
-    aria-label="Return to archive"
-  >
-    <span aria-hidden="true">index</span>
-  </button>
-  <article>
-    <header class="study-heading">
+  <header>
+    <section class="study-heading">
       <h1>{artist}</h1>
       <SoundCloudPlayer trackId={trackId} />
-    </header>
+    </section>
+  </header>
 
+  <article>
     <section class="inkblot">
-      <h2>what do you see?</h2>
+      <h2>•• ━━━━━ what do you see? ━━━━━ ••</h2>
       <img
         src={inkblotSrc}
         alt="Rorschach style inkblot on paper"
-        class="inkblot-img expandable"
+        class="inkblot-img"
       />
 
-      <p><i><slot name="inkblot response" /></i></p>
+      <p><slot name="inkblot response" /></p>
     </section>
 
     <section class="dream">
-      <h2>dream log</h2>
+      <h2>•• ━━━━━ dream log #{number} ━━━━━ ••</h2>
       <p><slot name="dream log" /></p>
 
       <figure class="dream-img">
@@ -51,48 +58,71 @@ const isLast = number === "001";
       </figure>
       <figcaption><slot name="caption" /></figcaption>
     </section>
+
+    <section class="bio">
+      <p>
+        <slot name="bio" />
+      </p>
+      <img class="trinket" src={trinketSrc} alt={trinketAlt ?? "image"} />
+    </section>
   </article>
 
-  <div class="nav">
-    {
-      !isFirst && (
-        <button
-          onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
-        >
-          previous
-        </button>
-      )
-    }
-    {
-      !isLast && (
-        <button
-          onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
-        >
-          next
-        </button>
-      )
-    }
-  </div>
-  <footer><p><i><slot name="bio" /></i></p></footer>
+  <ul class="study-nav">
+    <li>
+      {
+        !isFirst && (
+          <a
+            onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
+          >
+            previous
+          </a>
+        )
+      }
+    </li>
+    <li>
+      {
+        !isLast && (
+          <a
+            onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
+          >
+            next
+          </a>
+        )
+      }
+    </li>
+  </ul>
 
   <style>
     header {
-      text-align: center;
+      align-items: center;
+      margin-top: 5rem;
     }
 
-    h1 {
-      text-align: center;
+    .soundcloud-player {
+      display: block;
+      width: 50%;
+      justify-self: center;
+      border: 0;
+      padding: 0;
+    }
+
+    .bio img {
+      display: block;
+      margin: 0 auto 2rem auto;
+      width: 30svw;
+      padding: 2rem;
     }
 
     h2 {
-      text-align: center;
       margin-bottom: 5rem;
+      text-align: center;
     }
 
     article {
       display: flex;
       flex-direction: column;
       gap: 7rem;
+      align-items: center;
     }
 
     .study-cover {
@@ -102,18 +132,8 @@ const isLast = number === "001";
       padding-block: 4rem;
     }
 
-    .study-heading {
-      display: grid;
-      gap: 0.5rem;
-    }
-
     .inkblot-img {
       justify-self: center;
-    }
-
-    p {
-      font-size: 1.125rem;
-      margin: 2rem;
     }
 
     figure {
@@ -126,24 +146,37 @@ const isLast = number === "001";
       font-family: monospace;
       color: var(--muted);
     }
-    nav {
+
+    .study-nav {
       display: flex;
       justify-content: center;
       margin-top: 4rem;
       gap: 2rem;
+      margin-bottom: 10rem;
+      list-style: none;
     }
 
     section {
       margin-bottom: 3rem;
     }
 
-    footer p {
+    p {
+      line-height: 1.6;
+      font-family: monospace;
+      justify-content: center;
+      color: var(--light);
+      font-size: 1.125rem;
+      margin: 2rem;
+    }
+
+    .bio p {
       text-align: center;
       margin-top: 4rem;
-      font-size: 0.9rem;
+      font-size: clamp(0.9rem, 2vw, 1rem);
       text-shadow: 0 0 2px var(--glow);
       font-family: var(--font-syne-mono);
       margin-bottom: 4rem;
+      font-style: italic;
     }
 
     @media (max-width: 767px) {

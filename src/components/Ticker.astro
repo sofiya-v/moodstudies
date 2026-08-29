@@ -15,7 +15,7 @@ const text = items.join("... ");
 </head>
 <div class="ticker" aria-label={text}>
   <div class="ticker-track" style={`--ticker-duration: ${duration}s`}>
-    <span>{text}... </span>
+    <span>{text}...</span>
     <span aria-hidden="true">{text}... </span>
   </div>
 </div>
@@ -23,9 +23,10 @@ const text = items.join("... ");
 <style>
   .ticker {
     width: 100%;
+    color: var(--glow);
     overflow: hidden;
     padding-block: 0.6rem;
-    text-shadow: 1px 1px 1px #01f9c6;
+    text-shadow: 0px 0px 4px var(--light);
     font-family: var(--font-silkscreen);
     font-size: 1.5rem;
   }
@@ -33,7 +34,7 @@ const text = items.join("... ");
   @media (max-width: 480px) {
     .ticker {
       font-size: 0.75rem;
-      text-shadow: 0.5px 0.5px 0.5px #01f9c6;
+      text-shadow: 0.5px 0.5px 0.5px white;
     }
   }
   .ticker-track {
