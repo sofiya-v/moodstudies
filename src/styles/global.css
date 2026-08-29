@@ -3,11 +3,11 @@
 ======================================== */
 
 :root {
-    --light: #e8ebe4;
-    --dark: #030503;
+    --light: #fbfff5;
+    --dark: #130b0b;
     --muted: #a8a8a8;
-    --glow: #b3ffbd;
-    --glow-dark: #96d49e;
+    --glow: #8effca;
+    --glow-dark: #77d6a9;
 }
 
 /* ========================================
@@ -57,6 +57,8 @@ main {
 }
 
 
+
+
 /* ========================================
    Typography and elements
 ======================================== */
@@ -65,20 +67,23 @@ h1,
 h2,
 h3 {
     margin: 0;
-    color: #e8ebe4;
-    font-family: var(--font-syne-mono), sans-serif;
+    color: white;
+    font-family: var(--font-syne-mono), monospace;
     font-weight: 500;
     text-align: center;
     letter-spacing: -0.075em;
     line-height: 0.82;
     text-shadow:
-        0 0 2px #e8ebe4,
-        0 0 14px color-mix(in srgb, var(--glow) 52%, transparent);
+        0 0 4px rgba(255, 255, 255, 1),
+        0 0 10px rgba(0, 255, 200, 0.8),
+        /* Intense inner color */
+        0 0 10px rgba(0, 255, 200, 0.6),
+        /* Mid-range spread */
+        3px 5px 5px rgba(0, 0, 0, 0.7);
 }
 
 h1 {
     font-size: clamp(2.5rem, 6vw, 4rem);
-
 }
 
 h2 {
@@ -90,12 +95,8 @@ h2 {
 
 }
 
-p.machine-glow {
-    color: var(--glow);
-    text-shadow: 0 0 3px color-mix(in srgb, var(--glow) 75%, transparent);
-}
 
-p.copy {
+.copy {
     line-height: 1.6;
     font-family: monospace;
     justify-content: center;
@@ -108,22 +109,42 @@ a {
     text-decoration: underline;
     display: inline-block;
     color: var(--glow);
-    text-decoration: underline;
     font-family: monospace;
     text-shadow: 0 0 1px var(--glow);
-    transition:
-        transform 200ms ease,
-        color 200ms ease;
     transform-origin: center;
+
+    /* 1. Pre-prepare graphics engine to handle dynamic calculations smoothly */
+    will-change: transform, color, text-shadow;
+
+    /* 2. Fixed the millisecond typo to perfectly sync transforms and colors */
+    transition:
+        transform 0.3s ease,
+        color 0.3s ease,
+        text-shadow 0.3s ease;
 }
 
 a:hover {
-    color: var(--light);
-    text-shadow: 0 0 4px var(--glow);
+    color: white;
+    /* 3. Globalized the intense multi-layered radioactive glow */
+    text-shadow:
+        0 0 4px rgba(255, 255, 255, 1),
+        0 0 10px rgba(0, 255, 200, 0.8),
+        /* Intense inner color */
+        0 0 10px rgba(0, 255, 200, 0.6),
+        /* Mid-range spread */
+        3px 5px 5px rgba(0, 0, 0, 0.7);
+    /* Dark structural drop shadow */
+    overflow: visible;
 }
 
 a:active {
-    color: var(--glow);
+    color: white;
+    text-shadow: 0 0 4px var(--glow);
+    transform: translateY(2px);
+}
+
+a:active {
+    color: white;
     text-shadow: 0 0 4px var(--glow);
     transform: translateY(2px);
 }
@@ -135,35 +156,54 @@ img {
 }
 
 
-nav {
-    display: flex;
-    justify-content: flex-end;
+.main-nav {
+    display: grid;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    right: 0;
+    left: 0;
+    box-sizing: border-box;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
-    padding: 15px 30px;
+    padding: max(1rem, env(safe-area-inset-top)) clamp(1rem, 4vw, 4rem);
+    pointer-events: auto;
+
 }
 
-nav ul {
-    display: flex;
-    gap: 20px;
-    list-style: none;
-}
 
-nav a {
+.nav-button {
     text-decoration: none;
     color: var(--dark);
     padding: 8px 16px;
     background-color: var(--glow);
     transition: background 0.3s;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
     border: 3px outset #c0c0c0;
 }
 
-nav a:hover {
+.nav-button:hover {
     background-color: var(--glow-dark);
+    text-shadow: none;
+    color: var(--dark);
 }
 
-nav a:active {
+.nav-button:active {
     border-style: inset;
 }
+
+.nav-home {
+    grid-column: 1;
+    justify-self: start;
+}
+
+.nav-archive {
+    grid-column: 2;
+    justify-self: end;
+}
+
+
 
 
 /* ========================================

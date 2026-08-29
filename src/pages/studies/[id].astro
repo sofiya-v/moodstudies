@@ -1,0 +1,66 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import StudyLayout from "../../layouts/StudyLayout.astro";
+
+export async function getStaticPaths() {
+  const allStudies = await getCollection("studies");
+
+  const paths = allStudies.map((study: CollectionEntry<"studies">) => {
+    const rawId = study.id;
+    const cleanId = rawId.replace(/\.mdx?$/, "");
+
+    return {
+      params: { id: cleanId },
+      props: { study },
+    };
+  });
+
+  return paths;
+}
+
+interface Props {
+  study: CollectionEntry<"studies">;
+}
+
+const { study } = Astro.props;
+const { Content } = await render(study);
+---
+
+<StudyLayout
+  studyNumber={study.data.studyNumber}
+  date={study.data.date}
+  artist={study.data.artist}
+  trackId={study.data.trackId}
+  inkblotSrc={study.data.inkblotSrc}
+  dreamImageSrc={study.data.dreamImageSrc}
+  dreamImageAlt={study.data.dreamImageAlt}
+  trinketSrc={study.data.trinketSrc}
+  trinketAlt={study.data.trinketAlt}
+>
+  <fragment slot="bio">{study.data.bio}</fragment>
+
+  <fragment slot="inkblot response">
+    {
+      study.data.inkblotResponse.map((item: string, index: number) => (
+        <>
+          {item}
+          {index < study.data.inkblotResponse.length - 1 && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
+        </>
+      ))
+    }
+  </fragment>
+
+  <fragment slot="dream log">
+    <Content />
+  </fragment>
+
+  <fragment slot="caption">
+    {study.data.caption.label}
+    <a href={study.data.caption.authorUrl}>{study.data.caption.author}</a>
+  </fragment>
+</StudyLayout>

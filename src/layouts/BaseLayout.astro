@@ -43,21 +43,22 @@ import Font from "astro/components/Font.astro";
       <source src="/film_mobile.mp4" type="video/mp4" />
     </video>
     <nav class="main-nav">
-      <ul>
-        <li>
-          {!isHome && <a href="/">home</a>}
-        </li>
-        <li>
-          {
-            !isArchive && (
-              <a class="nav-button" href="/archive">
-                index
-              </a>
-            )
-          }
-        </li>
-      </ul>
+      {
+        !isHome && (
+          <a class="nav-button nav-home" href="/">
+            home
+          </a>
+        )
+      }
+      {
+        !isArchive && (
+          <a class="nav-button nav-archive" href="/archive">
+            index
+          </a>
+        )
+      }
     </nav>
+
     <main>
       <slot />
     </main>

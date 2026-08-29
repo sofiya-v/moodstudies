@@ -23,10 +23,14 @@ const text = items.join("... ");
 <style>
   .ticker {
     width: 100%;
-    color: var(--glow);
+    color: white;
     overflow: hidden;
     padding-block: 0.6rem;
-    text-shadow: 0px 0px 4px var(--light);
+    text-shadow:
+      0 0 4px rgba(255, 255, 255, 1),
+      0 0 7px rgba(0, 255, 200, 0.8),
+      /* Intense inner color */ 0 0 30px rgba(0, 255, 200, 0.6),
+      /* Mid-range spread */ 3px 5px 5px rgba(0, 0, 0, 0.7);
     font-family: var(--font-silkscreen);
     font-size: 1.5rem;
   }

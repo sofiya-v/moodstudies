@@ -1,10 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import type { CollectionEntry } from "astro:content";
 
+interface Props {
+  study: CollectionEntry<"studies">;
+}
+
+const { study } = Astro.props;
 const studies = [
   {
     number: "001",
     artist: "Sofiya V",
+    date: "2026-03-03",
     duration: "56:05",
     href: "/studies/001",
     observation: "Unsettling, melancholic machine music with no resolution.",
@@ -37,6 +44,7 @@ const studies = [
                     {study.artist}
                   </a>
                 </div>
+                <span class="date">{study.date}</span>
 
                 <span class="duration">{study.duration}</span>
 
@@ -93,7 +101,7 @@ const studies = [
 
   .record-row {
     display: grid;
-    grid-template-columns: 8rem minmax(14rem, 1fr) 6rem 8.5rem;
+    grid-template-columns: auto auto auto auto auto;
     gap: clamp(1rem, 3vw, 3rem);
     align-items: center;
     min-height: 7rem;
@@ -101,7 +109,8 @@ const studies = [
   }
 
   .figure-number,
-  .duration {
+  .duration,
+  .date {
     font-family: monospace;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
@@ -212,16 +221,19 @@ const studies = [
     line-height: 1.55;
   }
 
-  .observation-text {
-    font-weight: thin;
+  .observation-inner p {
+    margin-left: 2rem;
+    margin-top: 2rem;
   }
 
   .observation-inner a {
     align-content: right;
     gap: 2rem;
     margin-top: 2rem;
-    text-transform: uppercase;
+    margin-left: 2rem;
+    font-family: serif;
   }
+
   .observation-inner a span {
     color: color-mix(in srgb, var(--text, #e3e5de) 63%, transparent);
     font-family: monospace;

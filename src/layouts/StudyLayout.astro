@@ -3,240 +3,512 @@ import BaseLayout from "./BaseLayout.astro";
 import SoundCloudPlayer from "../components/SoundCloudPlayer.astro";
 
 interface Props {
-  number: string;
+  studyNumber: string;
+  date: string;
   artist: string;
   trackId: string;
   inkblotSrc: string;
-  imageSrc: string;
+  dreamImageSrc: string;
   trinketSrc: string;
   trinketAlt?: string;
-
-  imageAlt?: string;
+  dreamImageAlt?: string;
 }
 
 const {
-  number,
+  studyNumber,
+  date,
   artist,
   trackId,
   inkblotSrc,
-  imageSrc,
-  imageAlt,
+  dreamImageSrc,
+  dreamImageAlt,
   trinketSrc,
   trinketAlt,
 } = Astro.props;
-const title = `mood study ${number} — ${artist}`;
-const isFirst = number === "001";
-const isLast = number === "001";
+
+const title = `mood study ${studyNumber} — ${artist}`;
+const isFirst = studyNumber === "001";
+const isLast = studyNumber === "002";
+
+const ARROWS = {
+  left: "M16,7 H11 V4 H9 V5 H7 V6 H5 V7 H3 V9 H5 V10 H7 V11 H9 V12 H11 V9 H16 Z",
+  right:
+    "M0,7 H5 V4 H7 V5 H9 V6 H11 V7 H13 V9 H11 V10 H9 V11 H7 V12 H5 V9 H0 Z",
+};
+
+const previousStudyHref = isFirst
+  ? undefined
+  : `/studies/${String(Number(studyNumber) - 1).padStart(3, "0")}`;
+
+const nextStudyHref = isLast
+  ? undefined
+  : `/studies/${String(Number(studyNumber) + 1).padStart(3, "0")}`;
 ---
 
 <BaseLayout title={title}>
-  <header>
-    <section class="study-heading">
-      <h1>{artist}</h1>
-      <SoundCloudPlayer trackId={trackId} />
+  <div class="booklet" data-booklet data-study-number={studyNumber}>
+    <section
+      id="intro"
+      class="booklet-page study-heading"
+      data-booklet-page
+      aria-label="Introduction"
+    >
+      <header class="study-header">
+        <h1>{artist}</h1>
+        <SoundCloudPlayer trackId={trackId} />
+      </header>
     </section>
-  </header>
 
-  <article>
-    <section class="inkblot">
-      <h2>•• ━━━━━ what do you see? ━━━━━ ••</h2>
+    <section
+      id="rorschach"
+      class="booklet-page inkblot"
+      data-booklet-page
+      aria-label="Inkblot response"
+      hidden
+    >
+      <h1>what do you see?</h1>
       <img
         src={inkblotSrc}
         alt="Rorschach style inkblot on paper"
         class="inkblot-img"
       />
-
-      <p><slot name="inkblot response" /></p>
+      <p class="copy"><slot name="inkblot response" /></p>
     </section>
 
-    <section class="dream">
-      <h2>•• ━━━━━ dream log #{number} ━━━━━ ••</h2>
-      <p><slot name="dream log" /></p>
+    <section id="dream-log" class="booklet-page dream" data-booklet-page hidden>
+      <h1>dream log #{studyNumber}</h1>
+      <div class="copy dream-log-content">
+        <slot name="dream log" />
+      </div>
 
       <figure class="dream-img">
-        <img src={imageSrc} alt={imageAlt ?? "image"} class="expandable" />
+        <img
+          src={dreamImageSrc}
+          alt={dreamImageAlt ?? "image"}
+          class="expandable"
+        />
+        <figcaption><slot name="caption" /></figcaption>
       </figure>
-      <figcaption><slot name="caption" /></figcaption>
     </section>
 
-    <section class="bio">
-      <p>
-        <slot name="bio" />
-      </p>
+    <section
+      id="bio"
+      class="booklet-page bio"
+      data-booklet-page
+      aria-label="Artist biography"
+      hidden
+    >
       <img class="trinket" src={trinketSrc} alt={trinketAlt ?? "image"} />
+
+      <p><slot name="bio" /></p>
     </section>
-  </article>
 
-  <ul class="study-nav">
-    <li>
+    <nav class="booklet-controls" aria-label="Booklet pages">
+      <button type="button" class="page-button" data-booklet-previous>
+        <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+          <path d={ARROWS.left}></path>
+        </svg>
+      </button>
+
+      <button type="button" class="page-button" data-booklet-next>
+        <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+          <path d={ARROWS.right}></path>
+        </svg>
+      </button>
+
       {
-        !isFirst && (
-          <a
-            onclick={`location.href='/studies/${String(Number(number) - 1).padStart(3, "0")}'`}
-          >
-            previous
+        previousStudyHref && (
+          <a href={previousStudyHref} class="page-button" data-study-previous>
+            <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+              <path d={ARROWS.left} />
+            </svg>
+            study {String(Number(studyNumber) - 1).padStart(3, "0")}
           </a>
         )
       }
-    </li>
-    <li>
+
       {
-        !isLast && (
-          <a
-            onclick={`location.href='/studies/${String(Number(number) + 1).padStart(3, "0")}'`}
-          >
-            next
+        nextStudyHref && (
+          <a href={nextStudyHref} class="page-button" data-study-next>
+            study {String(Number(studyNumber) + 1).padStart(3, "0")}
+            <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+              <path d={ARROWS.right} />
+            </svg>
           </a>
         )
       }
-    </li>
-  </ul>
+    </nav>
+  </div>
+</BaseLayout>
 
-  <style>
-    header {
-      align-items: center;
-      margin-top: 5rem;
-    }
+<style>
+  :global(html),
+  :global(body) {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 
-    .soundcloud-player {
-      display: block;
-      width: 50%;
-      justify-self: center;
-      border: 0;
-      padding: 0;
-    }
+  .booklet {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: visible;
+  }
 
-    .bio img {
-      display: block;
-      margin: 0 auto 2rem auto;
-      width: 30svw;
-      padding: 2rem;
+  .booklet-page:not(.dream) {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+    padding: 10rem 0;
+  }
+
+  .dream {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100dvh;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    padding: 10rem 0;
+  }
+
+  .booklet-page[hidden] {
+    display: none;
+  }
+
+  .study-heading {
+    display: grid;
+    place-items: center;
+  }
+
+  .study-header {
+    box-sizing: border-box;
+    width: min(100%, 48rem);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .study-header :global(.soundcloud-player),
+  .study-header :global(iframe) {
+    display: block;
+    width: min(100%, 42rem);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .inkblot-img {
+    display: block;
+    padding: 5rem 0;
+    max-width: 100%;
+    max-height: 50vh;
+    margin-inline: auto;
+    object-fit: contain;
+  }
+
+  .inkblot p {
+    color: var(--light);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: left;
+    margin: 2rem 0;
+  }
+
+  .dream-log-content :global(p) {
+    max-width: 52rem;
+    margin: 2rem auto;
+    color: var(--light);
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  figure {
+    margin: 2rem 0;
+  }
+
+  .dream-img img {
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  figcaption {
+    color: var(--muted);
+    font-family: monospace;
+    font-size: 0.725rem;
+  }
+
+  .bio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+
+  .bio > p {
+    max-width: 52rem;
+    margin: 0 auto 4rem;
+    color: var(--light);
+    font-family: var(--font-syne-mono);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-style: italic;
+    text-align: center;
+    text-shadow: 0 0 2px var(--glow);
+  }
+
+  .bio .trinket {
+    display: block;
+    width: min(80svw, 40rem);
+    max-width: 100%;
+    margin: 0 auto 2rem;
+    padding: 2rem;
+  }
+
+  .booklet-controls {
+    position: fixed;
+    z-index: 9999;
+    right: 10rem;
+    bottom: 2rem;
+    left: 10rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 2.5rem 1rem max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .arrow {
+    width: 2.5rem;
+    height: 2.5rem;
+    overflow: visible;
+    transition: filter 0.3s ease;
+  }
+
+  .arrow path {
+    fill: var(--light);
+    transition: fill 0.3s ease;
+  }
+
+  .page-button:hover .arrow {
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 1))
+      drop-shadow(0 0 10px rgba(0, 255, 200, 0.8))
+      drop-shadow(0 0 10px rgba(0, 255, 200, 0.6))
+      drop-shadow(3px 5px 5px rgba(0, 0, 0, 0.7));
+  }
+
+  .page-button:hover .arrow path {
+    fill: white;
+  }
+
+  .page-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 0;
+    padding: 0.5rem;
+    background: transparent;
+    font-family: monospace;
+    color: var(--light);
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    will-change: transform, color, text-shadow;
+    transition:
+      transform 0.3s ease,
+      color 0.3s ease,
+      text-shadow 0.3s ease;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  [data-booklet-previous],
+  [data-study-previous] {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  [data-booklet-next],
+  [data-study-next] {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .page-button:disabled,
+  .page-button[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .booklet-page {
+      padding: 1.25rem;
+      padding-bottom: 5rem;
     }
 
     h2 {
-      margin-bottom: 5rem;
-      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1rem;
     }
 
-    article {
-      display: flex;
-      flex-direction: column;
-      gap: 7rem;
-      align-items: center;
+    .dream p {
+      margin: 1.5rem auto;
+      font-size: 1rem;
+      line-height: 1.8;
+      letter-spacing: 0.01em;
+      text-align: left;
     }
 
-    .study-cover {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      padding-block: 4rem;
+    .bio .trinket {
+      width: min(55svw, 14rem);
+      padding: 1rem;
     }
 
-    .inkblot-img {
-      justify-self: center;
+    .page-button {
+      font-size: 0.8rem;
+    }
+  }
+
+  .expandable {
+    display: block;
+    cursor: zoom-in;
+  }
+
+  .expandable.is-expanded {
+    position: relative;
+
+    width: 100vw;
+    max-width: 100vw;
+    height: auto;
+
+    cursor: zoom-out;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .booklet-page:not([hidden]) {
+      animation: reveal-page 180ms ease-out;
     }
 
-    figure {
-      margin: 2rem 0;
-    }
-
-    figcaption {
-      text-align: center;
-      font-size: 0.725rem;
-      font-family: monospace;
-      color: var(--muted);
-    }
-
-    .study-nav {
-      display: flex;
-      justify-content: center;
-      margin-top: 4rem;
-      gap: 2rem;
-      margin-bottom: 10rem;
-      list-style: none;
-    }
-
-    section {
-      margin-bottom: 3rem;
-    }
-
-    p {
-      line-height: 1.6;
-      font-family: monospace;
-      justify-content: center;
-      color: var(--light);
-      font-size: 1.125rem;
-      margin: 2rem;
-    }
-
-    .bio p {
-      text-align: center;
-      margin-top: 4rem;
-      font-size: clamp(0.9rem, 2vw, 1rem);
-      text-shadow: 0 0 2px var(--glow);
-      font-family: var(--font-syne-mono);
-      margin-bottom: 4rem;
-      font-style: italic;
-    }
-
-    @media (max-width: 767px) {
-      article {
-        gap: 3rem;
+    @keyframes reveal-page {
+      from {
+        opacity: 0;
+        transform: translateX(0.75rem);
       }
-
-      .study-cover {
-        gap: 1.5rem;
-        padding-block: 2rem;
-      }
-
-      .study-heading h2 {
-        margin: 1.5rem;
-      }
-
-      .study-cover p {
-        margin: 1.5rem 0;
-      }
-
-      p {
-        margin: 1.5rem 0;
-      }
-      .dream > p {
-        margin: 1.5rem 0;
-        font-size: 1rem;
-        line-height: 1.8;
-        letter-spacing: 0.01em;
+      to {
+        opacity: 1;
+        transform: translateX(0);
       }
     }
+  }
+</style>
 
-    @media (min-width: 768px) and (hover: hover) {
-      .expandable {
-        cursor: zoom-in;
-      }
+<script>
+  function initializeBooklet(booklet: HTMLElement) {
+    if (booklet.dataset.initialized === "true") return;
+    booklet.dataset.initialized = "true";
 
-      .expandable.is-expanded {
-        width: 90vw;
-        max-width: 90vw;
-        margin-left: 50%;
-        transform: translateX(-50%);
-        cursor: zoom-out;
-      }
-    }
-  </style>
-
-  <script>
-    const expandableImages =
-      document.querySelectorAll<HTMLImageElement>(".expandable");
-
-    const desktopOnly = window.matchMedia(
-      "(min-width: 768px) and (hover: hover)",
+    const pages = Array.from(
+      booklet.querySelectorAll<HTMLElement>("[data-booklet-page]"),
+    );
+    const previousButton = booklet.querySelector<HTMLButtonElement>(
+      "[data-booklet-previous]",
+    );
+    const nextButton = booklet.querySelector<HTMLButtonElement>(
+      "[data-booklet-next]",
     );
 
-    expandableImages.forEach((image) => {
-      image.addEventListener("click", () => {
-        if (!desktopOnly.matches) return;
+    const previousStudyLink = booklet.querySelector<HTMLAnchorElement>(
+      "[data-study-previous]",
+    );
+    const nextStudyLink =
+      booklet.querySelector<HTMLAnchorElement>("[data-study-next]");
 
-        image.classList.toggle("is-expanded");
+    let currentPage = 0;
+
+    function showPage(index: number, updateHash = true) {
+      currentPage = Math.max(0, Math.min(index, pages.length - 1));
+
+      pages.forEach((page, pageIndex) => {
+        const isActive = pageIndex === currentPage;
+        page.hidden = !isActive;
+        page.setAttribute("aria-hidden", String(!isActive));
+
+        if (isActive) {
+          page.scrollTop = 0;
+          if (updateHash && page.id) {
+            history.replaceState(null, "", `#${page.id}`);
+          }
+        }
       });
+
+      const isFirstPage = currentPage === 0;
+      const isLastPage = currentPage === pages.length - 1;
+
+      if (previousButton) previousButton.disabled = isFirstPage;
+      if (nextButton) nextButton.disabled = isLastPage;
+      if (previousStudyLink) previousStudyLink.hidden = !isFirstPage;
+      if (nextStudyLink) nextStudyLink.hidden = !isLastPage;
+    }
+
+    const initialHash = window.location.hash.replace("#", "");
+    const hashIndex = pages.findIndex((p) => p.id === initialHash);
+
+    if (hashIndex !== -1) {
+      showPage(hashIndex, false);
+    } else {
+      showPage(0, false);
+    }
+
+    window.addEventListener("hashchange", () => {
+      const currentHash = window.location.hash.replace("#", "");
+      const index = pages.findIndex((p) => p.id === currentHash);
+      if (index !== -1) showPage(index, false);
     });
-  </script>
-</BaseLayout>
+
+    previousButton?.addEventListener("click", () => showPage(currentPage - 1));
+    nextButton?.addEventListener("click", () => showPage(currentPage + 1));
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target as HTMLElement | null;
+      const isTyping =
+        target?.matches("input, textarea, select") || target?.isContentEditable;
+
+      if (isTyping || !booklet.isConnected) return;
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        showPage(currentPage - 1);
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        showPage(currentPage + 1);
+      }
+    });
+  }
+
+  function initializePage() {
+    document
+      .querySelectorAll<HTMLElement>("[data-booklet]")
+      .forEach(initializeBooklet);
+
+    document
+      .querySelectorAll<HTMLImageElement>(".expandable")
+      .forEach((image) => {
+        if (image.dataset.expandableInitialized === "true") return;
+        image.dataset.expandableInitialized = "true";
+
+        image.addEventListener("click", () => {
+          image.classList.toggle("is-expanded");
+        });
+      });
+  }
+
+  initializePage();
+  document.addEventListener("astro:page-load", initializePage);
+</script>
