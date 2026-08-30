@@ -1,42 +1,552 @@
 ---
 interface Props {
   trackId: string;
+  tapeName?: string;
 }
 
-const { trackId } = Astro.props;
+const { trackId, tapeName = "TAPE-01 // NTSC" } = Astro.props;
 
-const playerUrl =
-  `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A${trackId}` +
-  `&color=%23b01e1e` +
-  `&inverse=true` +
-  `&auto_play=false` +
-  `&style="color: %23b3ffbd"` +
-  `&show_user=false`;
+const targetUrl = encodeURIComponent(
+  `https://api.soundcloud.com/tracks/${trackId}`,
+);
+const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=true`;
 ---
 
-<iframe
-  class="soundcloud-player"
-  width="100%"
-  height="20"
-  allow="autoplay; encrypted-media"
-  src={playerUrl}
-  title="SoundCloud player"
->
-</iframe>
+<script is:inline src="https://w.soundcloud.com/player/api.js"></script>
+<iframe id="sc-hidden-iframe" src={iframeSrc} allow="autoplay"></iframe>
 
-<style>
-  .soundcloud-player {
-    display: block;
-    width: 50%;
-    justify-self: center;
-    margin: 5rem;
-    border: 0;
+<div class="vcr-osd-player">
+  <!-- Outer Physical Cabinet / Altar Frame -->
+  <div class="sacred-relic-frame">
+    <!-- Heavy Vignette + Organic Analog Degradation -->
+    <div class="vcr-crt-overlay"></div>
+    <div class="tape-tracking-glitch"></div>
+
+    <!-- TIER 1: Parajanov "Icon Badge" Header -->
+    <div class="relic-header">
+      <div class="relic-seal">
+        <span class="seal-icon">✦</span>
+        <span class="vcr-tape-id">{tapeName}</span>
+        <span class="seal-icon">✦</span>
+      </div>
+
+      <div class="title-tableau">
+        <a
+          id="sc-title-link"
+          class="tableau-text"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          LOADING TAPE DATA...
+        </a>
+        <a
+          id="sc-artist-link"
+          class="tableau-subtext"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          UNKNOWN SOURCE
+        </a>
+      </div>
+    </div>
+
+    <!-- TIER 2: Lynchian "Electrified" Waveform Shrine -->
+    <div class="shrine-viewport">
+      <div class="viewport-vignette"></div>
+
+      <!-- Center Frequency Engine -->
+      <div class="vcr-waveform-box" id="vcr-waveform-box" title="SEEK SIGNAL">
+        <div class="raster-lines" id="raster-lines">
+          <!-- Waveform columns render here -->
+        </div>
+      </div>
+
+      <div class="shrine-status-overlay">
+        <span id="vcr-mode" class="status-glyph">STOP &#9632;</span>
+        <span class="channel-readout">CH 03</span>
+      </div>
+    </div>
+
+    <!-- TIER 3: Asymmetrical Control Altar -->
+    <div class="altar-controls">
+      <button id="sc-play-btn" class="ritual-btn" type="button">
+        <span id="play-symbol">TRANSMIT &#9654;</span>
+        <span id="pause-symbol" class="hidden">HALT &#10073;&#10073;</span>
+      </button>
+
+      <div class="tracking-shrine">
+        <span class="tracking-label">TRACKING:</span>
+        <div class="meter-bar">||||||||||</div>
+      </div>
+
+      <div class="time-readout">
+        <span id="time-current">0:00:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  declare global {
+    interface Window {
+      SC: any;
+    }
   }
 
-  @media (max-width: 768px) {
-    .soundcloud-player {
-      width: 100%;
-      margin: 2rem 0;
+  const BLOCK_COLUMNS = 72;
+
+  const setupPlayer = () => {
+    const iframe = document.getElementById(
+      "sc-hidden-iframe",
+    ) as HTMLIFrameElement;
+    if (!iframe || typeof window.SC === "undefined") return;
+
+    const widget = window.SC.Widget(iframe);
+    const titleLink = document.getElementById(
+      "sc-title-link",
+    ) as HTMLAnchorElement;
+    const artistLink = document.getElementById(
+      "sc-artist-link",
+    ) as HTMLAnchorElement;
+    const vcrMode = document.getElementById("vcr-mode");
+    const playBtn = document.getElementById("sc-play-btn");
+    const playSymbol = document.getElementById("play-symbol");
+    const pauseSymbol = document.getElementById("pause-symbol");
+    const rasterContainer = document.getElementById("raster-lines");
+    const waveformBox = document.getElementById("vcr-waveform-box");
+    const timeCurrent = document.getElementById("time-current");
+
+    let isPlaying = false;
+    let progressRatio = 0;
+    let animFrame: number;
+    let time = 0;
+    let isScrubbing = false;
+
+    const formatVCRTime = (ms: number) => {
+      if (!ms || isNaN(ms)) return "0:00:00";
+      const totalSec = Math.floor(ms / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    };
+
+    const renderRasterWave = () => {
+      if (!rasterContainer) return;
+      time += isPlaying ? 0.035 : 0.005;
+
+      let html = "";
+      const activeCutoff = Math.floor(progressRatio * BLOCK_COLUMNS);
+
+      for (let i = 0; i < BLOCK_COLUMNS; i++) {
+        const freq1 = Math.sin(i * 0.35 + time * 1.4);
+        const freq2 = Math.cos(i * 0.18 - time * 1.8);
+        const freq3 = Math.sin(i * 0.8 + time * 0.5);
+
+        const rawLevel = freq1 * 0.35 + freq2 * 0.35 + freq3 * 0.3 + 0.3;
+        const level = isPlaying
+          ? Math.max(1, Math.min(6, Math.floor(rawLevel * 5) + 1))
+          : Math.max(1, Math.floor((Math.sin(i * 0.15) + 1) * 1.5) + 1);
+
+        const isActive = i <= activeCutoff;
+        const colClass = isActive ? "raster-col active" : "raster-col";
+
+        let blocks = "";
+        for (let b = 0; b < 6; b++) {
+          const blockActive = b < level ? "block-on" : "block-off";
+          blocks += `<span class="raster-block ${blockActive}"></span>`;
+        }
+
+        html += `<div class="${colClass}">${blocks}</div>`;
+      }
+      rasterContainer.innerHTML = html;
+    };
+
+    renderRasterWave();
+
+    const animate = () => {
+      renderRasterWave();
+      if (isPlaying) {
+        animFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    widget.bind(window.SC.Widget.Events.READY, () => {
+      widget.getCurrentSound((sound: any) => {
+        if (sound) {
+          if (titleLink) {
+            titleLink.textContent = sound.title.toUpperCase();
+            titleLink.href = sound.permalink_url;
+          }
+          if (artistLink) {
+            artistLink.textContent = `ARTIST: ${sound.user.username.toUpperCase()}`;
+            artistLink.href = sound.user.permalink_url;
+          }
+        }
+      });
+    });
+
+    playBtn?.addEventListener("click", () => widget.toggle());
+
+    widget.bind(window.SC.Widget.Events.PLAY, () => {
+      isPlaying = true;
+      if (vcrMode) vcrMode.innerHTML = "PLAY &#9654;";
+      playSymbol?.classList.add("hidden");
+      pauseSymbol?.classList.remove("hidden");
+      animate();
+    });
+
+    widget.bind(window.SC.Widget.Events.PAUSE, () => {
+      isPlaying = false;
+      if (vcrMode) vcrMode.innerHTML = "PAUSE &#10073;&#10073;";
+      playSymbol?.classList.remove("hidden");
+      pauseSymbol?.classList.add("hidden");
+      cancelAnimationFrame(animFrame);
+      renderRasterWave();
+    });
+
+    widget.bind(
+      window.SC.Widget.Events.PLAY_PROGRESS,
+      (data: { relativePosition: number; currentPosition: number }) => {
+        if (!isScrubbing) {
+          progressRatio = data.relativePosition;
+          if (timeCurrent)
+            timeCurrent.textContent = formatVCRTime(data.currentPosition);
+        }
+      },
+    );
+
+    const performSeek = (e: MouseEvent) => {
+      if (!waveformBox) return;
+
+      const rect = waveformBox.getBoundingClientRect();
+      const rawRatio = (e.clientX - rect.left) / rect.width;
+      const clickPos = Math.max(0, Math.min(1, rawRatio));
+
+      progressRatio = clickPos;
+      renderRasterWave();
+
+      widget.getDuration((duration: number) => {
+        if (duration && duration > 0) {
+          const targetMs = Math.floor(duration * clickPos);
+          if (timeCurrent) timeCurrent.textContent = formatVCRTime(targetMs);
+
+          widget.isPaused((paused: boolean) => {
+            widget.seekTo(targetMs);
+            if (paused) {
+              setTimeout(() => widget.pause(), 50);
+            }
+          });
+        }
+      });
+    };
+
+    waveformBox?.addEventListener("mousedown", (e: MouseEvent) => {
+      isScrubbing = true;
+      performSeek(e);
+    });
+
+    window.addEventListener("mousemove", (e: MouseEvent) => {
+      if (isScrubbing) {
+        performSeek(e);
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (isScrubbing) {
+        isScrubbing = false;
+      }
+    });
+  };
+
+  if (document.readyState === "complete") {
+    setupPlayer();
+  } else {
+    window.addEventListener("load", setupPlayer);
+  }
+</script>
+
+<style>
+  :root {
+    /* Inherit global glow or fallback to mint phosphor */
+
+    /* Primary Phosphor mapped to your global glow */
+    --gold-leaf: var(--glow);
+
+    /* Rich Armenian Velvet Red for deep contrast */
+    --crimson-velvet: #5a0808;
+    --void-black: #060709;
+
+    /* Dynamic glowing shadows built from your global color */
+    --phosphor-glow: color-mix(in srgb, var(--glow) 20%, transparent);
+  }
+
+  #sc-hidden-iframe {
+    position: fixed !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    border: 0 !important;
+  }
+
+  .vcr-osd-player {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 2rem auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .sacred-relic-frame {
+    position: relative;
+    margin: 0 auto !important; /* Forces block-level centering fallback */
+
+    box-sizing: border-box;
+    width: min(100%, 32rem);
+    background: var(--void-black);
+    padding: 1.5rem;
+
+    /* Curved CRT Glass Illusion */
+    border-radius: 12px / 8px;
+    border: 1px solid var(--gold-leaf);
+
+    /* Double Framing (Tableau Effect) */
+    outline: 6px double var(--crimson-velvet);
+    outline-offset: -12px;
+
+    /* Heavy Peripheral Vignette & Glow */
+    box-shadow:
+      inset 0 0 60px rgba(0, 0, 0, 0.95),
+      inset 0 0 20px var(--crimson-velvet),
+      0 10px 30px rgba(0, 0, 0, 0.9);
+
+    font-family: "Courier New", monospace;
+    color: var(--gold-leaf);
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+
+  /* Analog Physical Glitch Bar (Lynch Tape Decay) */
+  .tape-tracking-glitch {
+    position: absolute;
+    top: -20%;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: rgba(224, 190, 104, 0.2);
+    filter: blur(2px);
+    pointer-events: none;
+    z-index: 12;
+    animation: tracking-tear 7s infinite linear;
+  }
+
+  @keyframes tracking-tear {
+    0% {
+      top: -20%;
     }
+    88% {
+      top: -20%;
+    }
+    92% {
+      top: 110%;
+    }
+    100% {
+      top: 110%;
+    }
+  }
+
+  /* Fixed Analog CRT Overlay (No Flicker) */
+  .vcr-crt-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.18; /* Lowered opacity so video shows through cleanly */
+    mix-blend-mode: screen;
+
+    background:
+    /* CRT Tube Scanlines */
+      linear-gradient(rgba(5, 4, 6, 0) 50%, rgba(0, 0, 0, 0.85) 50%),
+      /* High-density Static Grain */
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+
+    background-size:
+      100% 4px,
+      100px 100px;
+    /* animation: crt-flicker REMOVED */
+  }
+
+  @keyframes crt-flicker {
+    0% {
+      opacity: 0.28;
+    }
+    100% {
+      opacity: 0.38;
+    }
+  }
+
+  /* TIER 1: Header / Seal */
+  .relic-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+  }
+
+  .relic-seal {
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    color: var(--gold-leaf);
+    border-bottom: 1px solid var(--gold-leaf);
+    padding-bottom: 2px;
+  }
+
+  .title-tableau {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Inverted High-Contrast Tag (Parajanov Miniature Style) */
+  .tableau-text {
+    background: var(--gold-leaf);
+    color: var(--void-black);
+    padding: 3px 12px;
+    font-weight: 900;
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    box-shadow: 3px 3px 0px var(--crimson-velvet);
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tableau-subtext {
+    font-size: 0.75rem;
+    color: var(--gold-leaf);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    text-decoration: none;
+  }
+
+  /* TIER 2: Shrine Viewport & Waveform */
+  .shrine-viewport {
+    position: relative;
+    border: 1px solid var(--crimson-velvet);
+    background: rgba(107, 12, 12, 0.12);
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .vcr-waveform-box {
+    height: 64px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .raster-lines {
+    display: flex;
+    gap: 2px;
+    height: 100%;
+    align-items: flex-end;
+  }
+
+  :global(.raster-col) {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    height: 100%;
+  }
+
+  :global(.raster-block) {
+    width: 100%;
+    height: 8px;
+    background: rgba(107, 12, 12, 0.3);
+  }
+
+  /* Off-State Peaks (Crimson Velvet) */
+  :global(.raster-block.block-on) {
+    background: var(--crimson-velvet);
+  }
+
+  /* Played/Active Peaks (Gold Leaf Burning Bright) */
+  :global(.raster-col.active .raster-block.block-on) {
+    background: var(--gold-leaf);
+    box-shadow: 0 0 8px var(--gold-leaf);
+  }
+
+  .shrine-status-overlay {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+
+  /* TIER 3: Asymmetrical Controls */
+  .altar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed var(--gold-leaf);
+    padding-top: 0.85rem;
+  }
+
+  .ritual-btn {
+    background: var(--crimson-velvet);
+    color: var(--gold-leaf);
+    border: 1px solid var(--gold-leaf);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 4px 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+  }
+
+  .ritual-btn:hover {
+    background: var(--gold-leaf);
+    color: var(--void-black);
+  }
+
+  .tracking-shrine {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+
+  .meter-bar {
+    color: var(--crimson-velvet);
+    font-weight: bold;
+  }
+
+  .time-readout {
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    /* Red Signal Fringe */
+    text-shadow:
+      -1px 0 var(--crimson-velvet),
+      1px 0 rgba(224, 190, 104, 0.5);
+  }
+
+  .hidden {
+    display: none;
   }
 </style>

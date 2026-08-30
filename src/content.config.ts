@@ -8,6 +8,7 @@ const studies = defineCollection({
     schema: z.object({
         studyNumber: z.string(),
         date: z.string(),
+        duration: z.string(),
         artist: z.string(),
         trackId: z.string(),
         inkblotSrc: z.string(),
@@ -16,6 +17,7 @@ const studies = defineCollection({
         trinketSrc: z.string(),
         trinketAlt: z.string(),
         bio: z.string(),
+        observation: z.string(),
         inkblotResponse: z.array(z.string()),
         caption: z.object({
             label: z.string(),

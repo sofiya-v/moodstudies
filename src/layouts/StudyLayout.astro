@@ -4,7 +4,6 @@ import SoundCloudPlayer from "../components/SoundCloudPlayer.astro";
 
 interface Props {
   studyNumber: string;
-  date: string;
   artist: string;
   trackId: string;
   inkblotSrc: string;
@@ -16,7 +15,6 @@ interface Props {
 
 const {
   studyNumber,
-  date,
   artist,
   trackId,
   inkblotSrc,
@@ -66,7 +64,7 @@ const nextStudyHref = isLast
       aria-label="Inkblot response"
       hidden
     >
-      <h1>what do you see?</h1>
+      <h1>inkblot {studyNumber}</h1>
       <img
         src={inkblotSrc}
         alt="Rorschach style inkblot on paper"
@@ -76,7 +74,7 @@ const nextStudyHref = isLast
     </section>
 
     <section id="dream-log" class="booklet-page dream" data-booklet-page hidden>
-      <h1>dream log #{studyNumber}</h1>
+      <h1>dream log {studyNumber}</h1>
       <div class="copy dream-log-content">
         <slot name="dream log" />
       </div>

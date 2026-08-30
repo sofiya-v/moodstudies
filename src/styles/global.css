@@ -25,6 +25,7 @@ body {
 
 }
 
+
 body {
     position: relative;
     isolation: isolate;
@@ -74,12 +75,10 @@ h3 {
     letter-spacing: -0.075em;
     line-height: 0.82;
     text-shadow:
-        0 0 4px rgba(255, 255, 255, 1),
-        0 0 10px rgba(0, 255, 200, 0.8),
-        /* Intense inner color */
-        0 0 10px rgba(0, 255, 200, 0.6),
-        /* Mid-range spread */
-        3px 5px 5px rgba(0, 0, 0, 0.7);
+        0 0 2px #fff,
+        0 0 8px rgba(0, 255, 200, 0.95),
+        0 0 22px rgba(0, 255, 200, 0.5);
+    mix-blend-mode: color-dodge;
 }
 
 h1 {
@@ -91,7 +90,6 @@ h2 {
     font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
-    text-shadow: 0 0 2px var(--glow);
 
 }
 
@@ -157,17 +155,15 @@ img {
 
 
 .main-nav {
-    display: grid;
     position: fixed;
+    top: 5rem;
+    right: 5rem;
     z-index: 1000;
-    top: 0;
-    right: 0;
-    left: 0;
-    box-sizing: border-box;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    padding: max(1rem, env(safe-area-inset-top)) clamp(1rem, 4vw, 4rem);
-    pointer-events: auto;
+
+    display: flex;
+    flex-direction: column;
+    /* Or 'row' for horizontal */
+    gap: 0.5rem;
 
 }
 

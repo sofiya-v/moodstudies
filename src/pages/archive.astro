@@ -1,22 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
-interface Props {
-  study: CollectionEntry<"studies">;
-}
-
-const { study } = Astro.props;
-const studies = [
-  {
-    number: "001",
-    artist: "Sofiya V",
-    date: "2026-03-03",
-    duration: "56:05",
-    href: "/studies/001",
-    observation: "Unsettling, melancholic machine music with no resolution.",
-  },
-];
+const allStudies = await getCollection("studies");
+const studies = allStudies
+  .sort((b, a) => a.data.studyNumber.localeCompare(b.data.studyNumber))
+  .map((entry) => ({
+    studyNumber: entry.data.studyNumber,
+    artist: entry.data.artist,
+    date: entry.data.date,
+    duration: entry.data.duration,
+    observation: entry.data.observation,
+    href: `/studies/${entry.id}`,
+  }));
 ---
 
 <BaseLayout
@@ -32,12 +28,12 @@ const studies = [
     <ol class="ledger">
       {
         studies.map((study) => {
-          const panelId = `observation-${study.number}`;
+          const panelId = `observation-${study.studyNumber}`;
 
           return (
             <li class="record">
               <div class="record-row">
-                <span class="figure-number">Fig. {study.number}</span>
+                <span class="figure-number">Fig. {study.studyNumber}</span>
 
                 <div class="record-identity">
                   <a class="artist-link" href={study.href}>
@@ -106,6 +102,10 @@ const studies = [
     align-items: center;
     min-height: 7rem;
     padding: 1.25rem 0.5rem;
+  }
+
+  .record-row:hover {
+    background-color: color-mix(in srgb, var(--glow) 20%, transparent);
   }
 
   .figure-number,
