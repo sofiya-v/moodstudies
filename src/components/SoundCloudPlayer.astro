@@ -78,6 +78,8 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     let phase = 0;
     let isScrubbing = false;
     let waveformPeaks: number[] = [];
+    let maxTrackPeak = 1;
+    let currentPulse = 0;
 
     const resizeCanvases = () => {
       if (scrubCanvas && scrubCanvas.parentElement) {
@@ -104,129 +106,269 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
     };
 
-    const getCurrentPeak = () => {
-      if (!waveformPeaks.length) return 0;
-      const index = Math.floor(masterProgressRatio * waveformPeaks.length);
-      return waveformPeaks[index] || 0;
-    };
-
-    // 1. RENDER STATIC WAVEFORM SCRUBBER (Track Map)
+    // STATIC WAVEFORM SCRUBBER
     const renderScrubber = () => {
       if (!ctxScrub || !scrubCanvas) return;
       const w = scrubCanvas.width;
       const h = scrubCanvas.height;
       ctxScrub.clearRect(0, 0, w, h);
 
-      const cy = h / 2;
-      const scrubX = masterProgressRatio * w;
-      const maxAmp = h * 0.4;
-      const STEP = 3;
+      const paddingY = 8;
+      const paddingX = 6;
+      const usableWidth = w - paddingX * 2;
+      const cy = h - paddingY;
+      const maxAmp = h - paddingY * 2;
+      const scrubX = paddingX + masterProgressRatio * usableWidth;
 
-      if (!waveformPeaks.length) {
-        ctxScrub.strokeStyle = PHOSPHOR_DIM;
-        ctxScrub.lineWidth = 1;
-        ctxScrub.beginPath();
-        ctxScrub.moveTo(0, cy);
-        ctxScrub.lineTo(w, cy);
-        ctxScrub.stroke();
-        return;
-      }
-
-      for (let x = 0; x < w; x += STEP) {
-        const sampleIndex = Math.floor((x / w) * waveformPeaks.length);
-        const peak = waveformPeaks[sampleIndex] || 0;
-        const shapedPeak = Math.pow(peak, 1.8);
-        const ampHeight = Math.max(1, shapedPeak * maxAmp);
-
-        const isPlayed = x <= scrubX;
-        ctxScrub.strokeStyle = isPlayed ? PHOSPHOR_COLOR : PHOSPHOR_DIM;
-        ctxScrub.lineWidth = 1.5;
-
-        ctxScrub.beginPath();
-        ctxScrub.moveTo(x, cy - ampHeight);
-        ctxScrub.lineTo(x, cy + ampHeight);
-        ctxScrub.stroke();
-      }
-
-      // Playhead Needle
-      ctxScrub.strokeStyle = "#ffffff";
+      // Bookends & Frame
+      ctxScrub.strokeStyle = PHOSPHOR_DIM;
       ctxScrub.lineWidth = 1;
       ctxScrub.beginPath();
-      ctxScrub.moveTo(scrubX, cy - maxAmp - 2);
-      ctxScrub.lineTo(scrubX, cy + maxAmp + 2);
+      ctxScrub.moveTo(paddingX, 0);
+      ctxScrub.lineTo(paddingX, h);
+      ctxScrub.moveTo(paddingX, cy);
+      ctxScrub.lineTo(paddingX + 4, cy);
+      ctxScrub.moveTo(w - paddingX, 0);
+      ctxScrub.lineTo(w - paddingX, h);
+      ctxScrub.moveTo(w - paddingX, cy);
+      ctxScrub.lineTo(w - paddingX - 4, cy);
       ctxScrub.stroke();
+
+      // Zero-line baseline
+      ctxScrub.strokeStyle = "rgba(51, 255, 204, 0.12)";
+      ctxScrub.beginPath();
+      ctxScrub.moveTo(paddingX, cy);
+      ctxScrub.lineTo(w - paddingX, cy);
+      ctxScrub.stroke();
+
+      if (!waveformPeaks.length) return;
+
+      const step = 2;
+      const getScaledY = (sampleIndex: number) => {
+        const rawPeak = waveformPeaks[sampleIndex] || 0;
+        const normalized = rawPeak / (maxTrackPeak || 1);
+        return cy - Math.pow(normalized, 0.85) * maxAmp;
+      };
+
+      const buildGraphPath = (startX: number, endX: number) => {
+        ctxScrub.beginPath();
+        let started = false;
+        for (let x = startX; x <= endX; x += step) {
+          const ratio = (x - paddingX) / usableWidth;
+          const sampleIndex = Math.floor(ratio * waveformPeaks.length);
+          const y = getScaledY(sampleIndex);
+          if (!started) {
+            ctxScrub.moveTo(x, y);
+            started = true;
+          } else {
+            ctxScrub.lineTo(x, y);
+          }
+        }
+      };
+
+      // Ghost Unplayed Trace
+      if (scrubX < w - paddingX) {
+        ctxScrub.save();
+        ctxScrub.strokeStyle = PHOSPHOR_DIM;
+        ctxScrub.lineWidth = 1.2;
+        buildGraphPath(scrubX, w - paddingX);
+        ctxScrub.stroke();
+        ctxScrub.restore();
+      }
+
+      // Bright Played Trace
+      if (scrubX > paddingX) {
+        ctxScrub.save();
+        ctxScrub.strokeStyle = PHOSPHOR_COLOR;
+        ctxScrub.lineWidth = 1.8;
+        ctxScrub.shadowColor = PHOSPHOR_COLOR;
+        ctxScrub.shadowBlur = 10;
+        buildGraphPath(paddingX, scrubX);
+        ctxScrub.stroke();
+        ctxScrub.restore();
+      }
+
+      // Playhead Cursor
+      const currentIdx = Math.floor(masterProgressRatio * waveformPeaks.length);
+      const cursorY = getScaledY(currentIdx);
+
+      ctxScrub.save();
+      ctxScrub.strokeStyle = "rgba(255, 255, 255, 0.35)";
+      ctxScrub.lineWidth = 1;
+      ctxScrub.beginPath();
+      ctxScrub.moveTo(scrubX, 0);
+      ctxScrub.lineTo(scrubX, h);
+      ctxScrub.stroke();
+
+      ctxScrub.fillStyle = "#ffffff";
+      ctxScrub.shadowColor = "#ffffff";
+      ctxScrub.shadowBlur = 12;
+      ctxScrub.beginPath();
+      ctxScrub.arc(scrubX, cursorY, 3.5, 0, Math.PI * 2);
+      ctxScrub.fill();
+      ctxScrub.restore();
     };
 
-    let currentPulse = 0; // Holds our dynamic kick impulse
-
-    // RENDER RADIAL OSCILLOSCOPE (On-Beat Transient Reaction)
-    const renderRadial = () => {
+    // LISSAJOUS VECTOR OSCILLOSCOPE (FAIRLIGHT CMI CRT SCOPE)
+    const renderScope = () => {
       if (!ctxRadial || !radialCanvas) return;
       const w = radialCanvas.width;
       const h = radialCanvas.height;
-      ctxRadial.clearRect(0, 0, w, h);
-
       const cx = w / 2;
       const cy = h / 2;
-      const baseRadius = Math.min(w, h) * 0.28;
-      const maxOffset = 24;
-      const numPoints = 140;
+      const maxRadius = Math.min(w, h) * 0.42;
+
+      ctxRadial.clearRect(0, 0, w, h);
+
+      const CYAN_MAIN = "#33ffcc";
+      const CYAN_DIM = "rgba(51, 255, 204, 0.25)";
+      const CYAN_GRID = "rgba(51, 255, 204, 0.08)";
+
+      // Track Amplitude Analytics
+      const centerIdx = Math.floor(masterProgressRatio * waveformPeaks.length);
+      const currentPeak = waveformPeaks[centerIdx] || 0;
+
+      // Lookahead channel (Channel B) for phase differential
+      const lookaheadOffset = 4;
+      const nextIdx = Math.min(
+        waveformPeaks.length - 1,
+        centerIdx + lookaheadOffset,
+      );
+      const futurePeak = waveformPeaks[nextIdx] || 0;
+
+      const prevPeak = waveformPeaks[Math.max(0, centerIdx - 2)] || 0;
+
+      // Transient Detection
+      const delta = Math.max(0, currentPeak - prevPeak);
+      if (isPlaying && delta > 0.1) {
+        currentPulse = Math.min(1.0, currentPulse + delta * 1.8);
+      }
+      currentPulse *= 0.9; // Decay rate
+
+      const normCurrent = currentPeak / (maxTrackPeak || 1);
+      const normFuture = futurePeak / (maxTrackPeak || 1);
+      const ampA = Math.pow(normCurrent, 0.85);
+      const ampB = Math.pow(normFuture, 0.85);
 
       ctxRadial.save();
-      ctxRadial.strokeStyle = isPlaying ? PHOSPHOR_COLOR : PHOSPHOR_DIM;
-      ctxRadial.lineWidth = 1.5;
+
+      // --- 1. CRT Reticle Graticule & Calibration Rings ---
+      ctxRadial.strokeStyle = CYAN_GRID;
+      ctxRadial.lineWidth = 1;
+
+      // Polar grid circles
       ctxRadial.beginPath();
+      ctxRadial.arc(cx, cy, maxRadius * 0.35, 0, Math.PI * 2);
+      ctxRadial.arc(cx, cy, maxRadius * 0.7, 0, Math.PI * 2);
+      ctxRadial.arc(cx, cy, maxRadius, 0, Math.PI * 2);
+      ctxRadial.stroke();
+
+      // Crosshairs
+      ctxRadial.beginPath();
+      ctxRadial.moveTo(cx - maxRadius - 6, cy);
+      ctxRadial.lineTo(cx + maxRadius + 6, cy);
+      ctxRadial.moveTo(cx, cy - maxRadius - 6);
+      ctxRadial.lineTo(cx, cy + maxRadius + 6);
+      ctxRadial.stroke();
+
+      // Sub-division tick marks
+      ctxRadial.strokeStyle = CYAN_DIM;
+      const ticks = 16;
+      for (let i = 0; i < ticks; i++) {
+        const angle = (i / ticks) * Math.PI * 2;
+        const x1 = cx + Math.cos(angle) * (maxRadius + 1);
+        const y1 = cy + Math.sin(angle) * (maxRadius + 1);
+        const x2 = cx + Math.cos(angle) * (maxRadius + 5);
+        const y2 = cy + Math.sin(angle) * (maxRadius + 5);
+
+        ctxRadial.beginPath();
+        ctxRadial.moveTo(x1, y1);
+        ctxRadial.lineTo(x2, y2);
+        ctxRadial.stroke();
+      }
 
       if (!waveformPeaks.length) {
-        ctxRadial.arc(cx, cy, baseRadius, 0, Math.PI * 2);
-        ctxRadial.stroke();
+        // Idle central vector spot when no track loaded
+        ctxRadial.fillStyle = CYAN_DIM;
+        ctxRadial.beginPath();
+        ctxRadial.arc(cx, cy, 2, 0, Math.PI * 2);
+        ctxRadial.fill();
         ctxRadial.restore();
         return;
       }
 
-      // 1. Calculate local amplitude & dynamic beat transient (kick detector)
-      const centerIdx = Math.floor(masterProgressRatio * waveformPeaks.length);
-      const currentPeak = waveformPeaks[centerIdx] || 0;
-      const prevPeak = waveformPeaks[Math.max(0, centerIdx - 2)] || 0;
+      // --- 2. Lissajous Parametric Vector Generator ---
+      const numPoints = 180;
 
-      // High positive difference = transient audio hit (kick/snare)
-      const delta = Math.max(0, currentPeak - prevPeak);
+      // Dynamic frequency ratios for the parametric equations
+      const freqX = 3;
+      const freqY = 2;
+      const speedScale = isPlaying ? phase : phase * 0.1;
 
-      if (isPlaying && delta > 0.12) {
-        // Trigger instant impulse kick burst proportional to the spike
-        currentPulse = Math.min(1.5, currentPulse + delta * 3.5);
+      ctxRadial.strokeStyle = isPlaying ? CYAN_MAIN : CYAN_DIM;
+      ctxRadial.lineWidth = isPlaying ? 1.6 : 1.0;
+
+      if (isPlaying) {
+        ctxRadial.shadowColor = CYAN_MAIN;
+        ctxRadial.shadowBlur = 6 + currentPulse * 12;
       }
 
-      // Fast exponential decay to simulate dynamic physical speaker rebound
-      currentPulse *= 0.88;
+      // UNIFIED JITTER LOGIC:
+      // Calculate single global beam offsets ONCE per frame outside the vertex loop.
+      // This vibrates the ENTIRE curve intact rather than noise-deforming individual vertices.
+      const beamJitterX = isPlaying
+        ? (Math.random() - 0.5) * currentPulse * 6
+        : 0;
+      const beamJitterY = isPlaying
+        ? (Math.random() - 0.5) * currentPulse * 6
+        : 0;
 
-      // 2. Draw Vector Ring reacting to amplitude + beat pulse
+      // Global transient expansion (smooth radial "punch" on transients)
+      const pulseExpansion = 1 + currentPulse * 0.15;
+
+      ctxRadial.beginPath();
       for (let i = 0; i <= numPoints; i++) {
-        const angle = (i / numPoints) * Math.PI * 2 - Math.PI / 2;
+        const theta = (i / numPoints) * Math.PI * 2;
 
-        // Harmonically complex ring shape
-        const wave = Math.sin(angle * 5 + phase) * Math.cos(angle * 2);
+        // Channel A (X Axis) & Channel B (Y Axis) Modulations
+        const modX =
+          Math.sin(theta * freqX + speedScale * 1.4) *
+          (ampA * maxRadius * 0.42);
+        const modY =
+          Math.cos(theta * freqY - speedScale * 0.9) *
+          (ampB * maxRadius * 0.42);
 
-        // Dynamic expansion driven by peak baseline + kick drum impulse
-        const totalExpansion = currentPeak * 0.4 + currentPulse * 0.6;
-        const r = baseRadius + wave * totalExpansion * maxOffset;
+        // Base carrier radius scaled by playback state and transient pulse expansion
+        const baseRadius =
+          maxRadius * (isPlaying ? 0.38 : 0.28) * pulseExpansion;
+        const rx = baseRadius + modX;
+        const ry = baseRadius + modY;
 
-        const x = cx + Math.cos(angle) * r;
-        const y = cy + Math.sin(angle) * r;
+        // Apply unified global beam jitter to preserve exact Lissajous geometry
+        const x = cx + Math.cos(theta) * rx + beamJitterX;
+        const y = cy + Math.sin(theta) * ry + beamJitterY;
 
         if (i === 0) ctxRadial.moveTo(x, y);
         else ctxRadial.lineTo(x, y);
       }
-
       ctxRadial.closePath();
       ctxRadial.stroke();
+
+      // --- 3. Electron Beam Origin Spot ---
+      ctxRadial.fillStyle = isPlaying ? "#ffffff" : CYAN_DIM;
+      ctxRadial.shadowColor = CYAN_MAIN;
+      ctxRadial.shadowBlur = isPlaying ? 10 : 0;
+      ctxRadial.beginPath();
+      ctxRadial.arc(cx, cy, 2 + currentPulse * 2.5, 0, Math.PI * 2);
+      ctxRadial.fill();
+
       ctxRadial.restore();
     };
 
     const loop = () => {
-      phase += isPlaying ? 0.04 : 0.005;
+      phase += isPlaying ? 0.025 : 0.004;
       renderScrubber();
-      renderRadial();
+      renderScope();
       requestAnimationFrame(loop);
     };
 
@@ -253,6 +395,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
                   waveformPeaks = data.samples.map(
                     (s: number) => (s - min) / range,
                   );
+                  maxTrackPeak = 1;
                 }
               })
               .catch((err) =>

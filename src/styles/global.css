@@ -79,7 +79,6 @@ h3 {
         0 0 2px #fff,
         0 0 8px var(--glow),
         0 0 22px var(--glow-dark);
-    mix-blend-mode: color-dodge;
 }
 
 h1 {
