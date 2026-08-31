@@ -6,8 +6,9 @@
     --light: #fbfff5;
     --dark: #130b0b;
     --muted: #a8a8a8;
-    --glow: #8effca;
-    --glow-dark: #77d6a9;
+    --glow: rgba(0, 255, 200, 0.95);
+    --glow-dark: rgba(0, 255, 200, 0.5);
+    --machine-text: var(--font-silkscreen), monospace;
 }
 
 /* ========================================
@@ -76,8 +77,8 @@ h3 {
     line-height: 0.82;
     text-shadow:
         0 0 2px #fff,
-        0 0 8px rgba(0, 255, 200, 0.95),
-        0 0 22px rgba(0, 255, 200, 0.5);
+        0 0 8px var(--glow),
+        0 0 22px var(--glow-dark);
     mix-blend-mode: color-dodge;
 }
 

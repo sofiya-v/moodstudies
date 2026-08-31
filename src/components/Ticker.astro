@@ -10,10 +10,6 @@ const { items, duration = 75 } = Astro.props;
 const text = items.join("... ");
 ---
 
-<head>
-  <Font cssVariable="--font-silkscreen" preload />
-</head>
-
 <div class="film-ticker-container">
   <div class="ticker" aria-label={text}>
     <div class="ticker-track" style={`--ticker-duration: ${duration}s`}>
@@ -66,15 +62,22 @@ const text = items.join("... ");
 
     .ticker {
       width: 100%;
+      padding-left: 10rem;
       color: #6bfbe2;
       padding-block: 0.75rem;
-      font-family: var(--font-silkscreen);
-      font-size: 1.15rem;
+      font-family: var(--machine-text), monospace;
+      font-size: 1.2rem;
       letter-spacing: 0.08em;
-      text-transform: lowercase;
+      text-transform: uppercase;
+      -webkit-font-smoothing: none !important;
+      -moz-osx-font-smoothing: unset !important;
+      font-smooth: never !important;
+      text-rendering: optimizeSpeed !important;
+
+      color: var(--glow);
+      text-transform: uppercase;
 
       /* Composites the text and glow directly into your film background */
-      mix-blend-mode: screen;
       text-shadow:
         0 0 2px #fff,
         0 0 8px rgba(0, 255, 200, 0.95),
@@ -89,20 +92,9 @@ const text = items.join("... ");
       animation: ticker var(--ticker-duration) linear infinite;
     }
 
-    .ticker-track span {
-      white-space: nowrap;
-      padding-right: 0.5rem;
-    }
-
     @keyframes ticker {
       to {
         transform: translate3d(-50%, 0, 0);
-      }
-    }
-
-    @keyframes ticker {
-      to {
-        transform: translateX(-50%);
       }
     }
 

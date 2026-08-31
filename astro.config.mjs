@@ -17,7 +17,11 @@ export default defineConfig({
             name: 'Silkscreen',
             cssVariable: '--font-silkscreen',
         },
-
+        {
+            provider: fontProviders.google(),
+            name: 'VT323',
+            cssVariable: '--font-vt323',
+        },
     ],
 
     integrations: [mdx()],

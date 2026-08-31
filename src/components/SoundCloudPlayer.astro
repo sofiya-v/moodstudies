@@ -4,7 +4,7 @@ interface Props {
   tapeName?: string;
 }
 
-const { trackId, tapeName = "TAPE-01 // NTSC" } = Astro.props;
+const { trackId } = Astro.props;
 
 const targetUrl = encodeURIComponent(
   `https://api.soundcloud.com/tracks/${trackId}`,
@@ -12,77 +12,110 @@ const targetUrl = encodeURIComponent(
 const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=true`;
 ---
 
+<!-- Import authentic pixel phosphor font -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+  rel="stylesheet"
+/>
+
 <script is:inline src="https://w.soundcloud.com/player/api.js"></script>
 <iframe id="sc-hidden-iframe" src={iframeSrc} allow="autoplay"></iframe>
 
-<div class="vcr-osd-player">
-  <!-- Outer Physical Cabinet / Altar Frame -->
-  <div class="sacred-relic-frame">
-    <!-- Heavy Vignette + Organic Analog Degradation -->
-    <div class="vcr-crt-overlay"></div>
-    <div class="tape-tracking-glitch"></div>
+<div class="fairlight-container">
+  <div class="fairlight-screen">
+    <!-- CRT RASTER & PHOSPHOR OVERLAYS -->
+    <div class="crt-glare"></div>
+    <div class="crt-vignette"></div>
+    <div class="crt-scanlines"></div>
 
-    <!-- TIER 1: Parajanov "Icon Badge" Header -->
-    <div class="relic-header">
-      <div class="relic-seal">
-        <span class="seal-icon">✦</span>
-        <span class="vcr-tape-id">{tapeName}</span>
-        <span class="seal-icon">✦</span>
-      </div>
-
-      <div class="title-tableau">
-        <a
-          id="sc-title-link"
-          class="tableau-text"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          LOADING TAPE DATA...
-        </a>
-        <a
-          id="sc-artist-link"
-          class="tableau-subtext"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          UNKNOWN SOURCE
-        </a>
-      </div>
-    </div>
-
-    <!-- TIER 2: Lynchian "Electrified" Waveform Shrine -->
-    <div class="shrine-viewport">
-      <div class="viewport-vignette"></div>
-
-      <!-- Center Frequency Engine -->
-      <div class="vcr-waveform-box" id="vcr-waveform-box" title="SEEK SIGNAL">
-        <div class="raster-lines" id="raster-lines">
-          <!-- Waveform columns render here -->
+    <div class="fairlight-body">
+      <!-- 1. TOP CONTROL BAR -->
+      <div class="top-bar">
+        <div class="badge-inverted">Fairlight 64</div>
+        <div class="header-readout">
+          <span>i: 1 (SOUND)</span>
+          <span>v: 1 (SOUND)</span>
+          <span>sv: 1 M</span>
         </div>
       </div>
 
-      <div class="shrine-status-overlay">
-        <span id="vcr-mode" class="status-glyph">STOP &#9632;</span>
-        <span class="channel-readout">CH 03</span>
+      <!-- 2. PARAMETERS HEADER ROW -->
+      <div class="params-grid">
+        <div class="param-col">
+          <div class="param-row">
+            <span>SUBVOICE MODE:</span>
+            <strong>MONO</strong>
+          </div>
+          <div class="param-row">
+            <span>SAMPLE SIZE:</span>
+            <strong>16 bit</strong>
+          </div>
+          <div class="param-row">
+            <span>SCOPE MODE:</span>
+            <strong class="badge-inline">RADIAL</strong>
+          </div>
+          <div class="param-row">
+            <span>SAMPLE RATE:</span>
+            <strong>44100</strong>
+          </div>
+        </div>
+        <div class="param-col">
+          <div class="param-row"><span>SAMPLES:</span> <span>44544</span></div>
+          <div class="param-row"><span>BLOCKS (3k):</span> <span>87</span></div>
+          <div class="param-row">
+            <span>TIME (SECS):</span>
+            <span>001.010</span>
+          </div>
+        </div>
+        <div class="param-col right-align">
+          <div>GAIN: <span id="val-gain">100%</span></div>
+          <div>MUTE: <span id="val-mute">OFF</span></div>
+        </div>
       </div>
-    </div>
 
-    <!-- TIER 3: Asymmetrical Control Altar -->
-    <div class="altar-controls">
-      <button id="sc-play-btn" class="ritual-btn" type="button">
-        <span id="play-symbol">TRANSMIT &#9654;</span>
-        <span id="pause-symbol" class="hidden">HALT &#10073;&#10073;</span>
-      </button>
-
-      <div class="tracking-shrine">
-        <span class="tracking-label">TRACKING:</span>
-        <div class="meter-bar">||||||||||</div>
+      <!-- 3. TOP MAIN WAVEFORM BANNER (Global Playhead Scrub) -->
+      <div class="pane-box top-waveform-pane">
+        <canvas id="canvas-top-wave"></canvas>
+        <div class="banner-controls">
+          <span id="btn-rewind" title="Rewind 5s">&lt;&lt;</span>
+          <span id="btn-ffwd" title="Fast-Forward 5s">&gt;&gt;</span>
+        </div>
       </div>
 
-      <div class="time-readout">
-        <span id="time-current">0:00:00</span>
+      <!-- 4. DUAL SPLIT PANES -->
+      <div class="split-view">
+        <!-- LEFT: 3D Waterfall Scope -->
+        <div class="pane-box waterfall-pane">
+          <div class="pane-label">spacing: 5 aspect [x/y]: 1/1</div>
+          <canvas id="canvas-waterfall" width="180" height="110"></canvas>
+        </div>
+
+        <!-- RIGHT: Distorted Ellipse / Oblong CRT Visualizer -->
+        <div class="pane-box timeline-pane passive-pane">
+          <div class="pane-label">radial phosphor scope</div>
+          <canvas id="canvas-circle" width="220" height="110"></canvas>
+        </div>
+      </div>
+
+      <!-- 5. TRACK & METADATA BAR -->
+      <div class="metadata-row">
+        <a id="sc-title-link" href="#" target="_blank" rel="noopener"
+          >AWAITING TRANSMISSION...</a
+        >
+        <span id="time-current">00:00:00</span>
+      </div>
+
+      <!-- 6. BOTTOM FUNCTION KEYS -->
+      <div class="function-keys">
+        <button id="sc-play-btn" class="f-key active">&gt; PLAY &lt;</button>
+        <button id="btn-mute" class="f-key">MUTE</button>
+        <button id="btn-gain" class="f-key">GAIN BOOST</button>
+        <button id="btn-glitch" class="f-key">WAVE GLITCH</button>
+        <button id="btn-restart" class="f-key">RESTART</button>
+        <button id="btn-back10" class="f-key">-10S</button>
+        <button id="btn-fwd10" class="f-key">+10S</button>
       </div>
     </div>
   </div>
@@ -95,9 +128,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     }
   }
 
-  const BLOCK_COLUMNS = 72;
-
-  const setupPlayer = () => {
+  const setupFairlight = () => {
     const iframe = document.getElementById(
       "sc-hidden-iframe",
     ) as HTMLIFrameElement;
@@ -107,83 +138,242 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     const titleLink = document.getElementById(
       "sc-title-link",
     ) as HTMLAnchorElement;
-    const artistLink = document.getElementById(
-      "sc-artist-link",
-    ) as HTMLAnchorElement;
-    const vcrMode = document.getElementById("vcr-mode");
     const playBtn = document.getElementById("sc-play-btn");
-    const playSymbol = document.getElementById("play-symbol");
-    const pauseSymbol = document.getElementById("pause-symbol");
-    const rasterContainer = document.getElementById("raster-lines");
-    const waveformBox = document.getElementById("vcr-waveform-box");
     const timeCurrent = document.getElementById("time-current");
 
-    let isPlaying = false;
-    let progressRatio = 0;
-    let animFrame: number;
-    let time = 0;
-    let isScrubbing = false;
+    const valGain = document.getElementById("val-gain");
+    const valMute = document.getElementById("val-mute");
 
-    const formatVCRTime = (ms: number) => {
-      if (!ms || isNaN(ms)) return "0:00:00";
+    const topCanvas = document.getElementById(
+      "canvas-top-wave",
+    ) as HTMLCanvasElement;
+    const waterfallCanvas = document.getElementById(
+      "canvas-waterfall",
+    ) as HTMLCanvasElement;
+    const circleCanvas = document.getElementById(
+      "canvas-circle",
+    ) as HTMLCanvasElement;
+
+    const ctxTop = topCanvas?.getContext("2d");
+    const ctxWater = waterfallCanvas?.getContext("2d");
+    const ctxCircle = circleCanvas?.getContext("2d");
+
+    let isPlaying = false;
+    let masterProgressRatio = 0;
+    let trackDuration = 0;
+    let currentPosMs = 0;
+    let animFrame: number;
+    let phase = 0;
+    let glitchIntensity = 0;
+    let isMuted = false;
+    let gainBoost = false;
+
+    let isScrubbingTop = false;
+
+    // Dynamically resize the top canvas to match its container box perfectly
+    const resizeTopCanvas = () => {
+      if (!topCanvas || !topCanvas.parentElement) return;
+      const controls =
+        topCanvas.parentElement.querySelector(".banner-controls");
+      const controlsWidth = controls
+        ? controls.getBoundingClientRect().width
+        : 0;
+      const parentWidth = topCanvas.parentElement.clientWidth;
+
+      topCanvas.width = Math.max(100, parentWidth - controlsWidth - 12);
+      topCanvas.height = topCanvas.parentElement.clientHeight;
+    };
+
+    resizeTopCanvas();
+    window.addEventListener("resize", resizeTopCanvas);
+
+    const getGlowColors = () => {
+      const computedStyles = getComputedStyle(document.documentElement);
+      const glow =
+        computedStyles.getPropertyValue("--glow").trim() ||
+        "rgba(0, 255, 200, 0.95)";
+      const glowDark =
+        computedStyles.getPropertyValue("--glow-dark").trim() ||
+        "rgba(0, 255, 200, 0.35)";
+      return { glow, glowDark };
+    };
+
+    const triggerGlitch = (durationMs = 250) => {
+      glitchIntensity = 1;
+      setTimeout(() => {
+        glitchIntensity = 0;
+      }, durationMs);
+    };
+
+    const formatTime = (ms: number) => {
+      if (!ms || isNaN(ms)) return "00:00:00";
       const totalSec = Math.floor(ms / 1000);
       const h = Math.floor(totalSec / 3600);
       const m = Math.floor((totalSec % 3600) / 60);
       const s = totalSec % 60;
-      return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+      return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
     };
 
-    const renderRasterWave = () => {
-      if (!rasterContainer) return;
-      time += isPlaying ? 0.035 : 0.005;
+    // Render 1: Top Master Track Waveform
+    const renderTopWave = () => {
+      if (!ctxTop || !topCanvas) return;
+      const { glow } = getGlowColors();
+      const w = topCanvas.width;
+      const h = topCanvas.height;
+      ctxTop.clearRect(0, 0, w, h);
 
-      let html = "";
-      const activeCutoff = Math.floor(progressRatio * BLOCK_COLUMNS);
+      ctxTop.fillStyle = glow;
+      ctxTop.strokeStyle = glow;
+      ctxTop.shadowColor = glow;
+      ctxTop.shadowBlur = isPlaying ? 4 : 1;
+      ctxTop.lineWidth = 1;
 
-      for (let i = 0; i < BLOCK_COLUMNS; i++) {
-        const freq1 = Math.sin(i * 0.35 + time * 1.4);
-        const freq2 = Math.cos(i * 0.18 - time * 1.8);
-        const freq3 = Math.sin(i * 0.8 + time * 0.5);
+      const cy = h / 2;
+      const boostMult = gainBoost ? 1.8 : 1.0;
 
-        const rawLevel = freq1 * 0.35 + freq2 * 0.35 + freq3 * 0.3 + 0.3;
-        const level = isPlaying
-          ? Math.max(1, Math.min(6, Math.floor(rawLevel * 5) + 1))
-          : Math.max(1, Math.floor((Math.sin(i * 0.15) + 1) * 1.5) + 1);
+      ctxTop.beginPath();
+      for (let x = 0; x < w; x++) {
+        const noiseVal = (Math.random() - 0.5) * (glitchIntensity * 22);
+        const amp = isPlaying
+          ? (Math.sin(x * 0.08 + phase) * Math.cos(x * 0.03) * 12 +
+              (Math.random() - 0.5) * 4) *
+            boostMult
+          : Math.sin(x * 0.05) * 6;
+        ctxTop.lineTo(x, cy + amp + noiseVal);
+      }
+      ctxTop.stroke();
 
-        const isActive = i <= activeCutoff;
-        const colClass = isActive ? "raster-col active" : "raster-col";
+      // Master playhead vertical bar
+      const scrubX = masterProgressRatio * w;
 
-        let blocks = "";
-        for (let b = 0; b < 6; b++) {
-          const blockActive = b < level ? "block-on" : "block-off";
-          blocks += `<span class="raster-block ${blockActive}"></span>`;
+      ctxTop.strokeStyle = "#ffffff";
+      ctxTop.beginPath();
+      ctxTop.moveTo(scrubX, 0);
+      ctxTop.lineTo(scrubX, h);
+      ctxTop.stroke();
+    };
+
+    // Render 2: 3D Isometric Waterfall Scope
+    const renderWaterfall = () => {
+      if (!ctxWater || !waterfallCanvas) return;
+      const { glow } = getGlowColors();
+      const w = waterfallCanvas.width;
+      const h = waterfallCanvas.height;
+      ctxWater.clearRect(0, 0, w, h);
+
+      ctxWater.strokeStyle = glow;
+      ctxWater.shadowColor = glow;
+      ctxWater.shadowBlur = isPlaying ? 3 : 1;
+      ctxWater.lineWidth = 1;
+
+      const lines = 12;
+      const boostMult = gainBoost ? 1.6 : 1.0;
+
+      for (let i = 0; i < lines; i++) {
+        const yBase = 20 + i * 7;
+        const xOffset = 20 + i * 4;
+        const lineW = 100;
+
+        ctxWater.beginPath();
+        for (let x = 0; x <= lineW; x += 2) {
+          const glitchJitter = glitchIntensity
+            ? (Math.random() - 0.5) * (12 * glitchIntensity)
+            : 0;
+          const wave = isPlaying
+            ? Math.sin((x + phase * 10 + i * 5) * 0.1) *
+              Math.exp(-x * 0.03) *
+              10 *
+              boostMult
+            : Math.sin(x * 0.1) * 3;
+          ctxWater.lineTo(xOffset + x, yBase - wave + glitchJitter);
         }
-
-        html += `<div class="${colClass}">${blocks}</div>`;
-      }
-      rasterContainer.innerHTML = html;
-    };
-
-    renderRasterWave();
-
-    const animate = () => {
-      renderRasterWave();
-      if (isPlaying) {
-        animFrame = requestAnimationFrame(animate);
+        ctxWater.stroke();
       }
     };
 
+    // Render 3: Distorted Oblong (Elliptical) Radial Scope - Slow Motion
+    const renderCircle = () => {
+      if (!ctxCircle || !circleCanvas) return;
+      const { glow, glowDark } = getGlowColors();
+      const w = circleCanvas.width;
+      const h = circleCanvas.height;
+      ctxCircle.clearRect(0, 0, w, h);
+
+      const centerX = w / 2;
+      const centerY = h / 2;
+
+      // Radius scaled to fit quadrant dimensions horizontally & vertically
+      const radiusX = 75;
+      const radiusY = 32;
+      const points = 120;
+      const boostMult = gainBoost ? 1.7 : 1.0;
+
+      ctxCircle.strokeStyle = glow;
+      ctxCircle.shadowColor = glow;
+      ctxCircle.shadowBlur = isPlaying ? 6 : 2;
+      ctxCircle.lineWidth = 1.5;
+
+      ctxCircle.beginPath();
+      for (let i = 0; i <= points; i++) {
+        const angle = (i / points) * Math.PI * 2;
+
+        // Organic distortion with gentle, slow phase motion
+        const distortion = isPlaying
+          ? (Math.sin(angle * 5 + phase) * 14 +
+              Math.cos(angle * 9 - phase * 0.7) * 10 +
+              (Math.random() - 0.5) * (glitchIntensity * 16)) *
+            boostMult
+          : Math.sin(angle * 4 + phase) * 2;
+
+        const currentRadiusX = radiusX + distortion;
+        // Scaled radial extension so Y peaks reach proportionally outward
+        const currentRadiusY = radiusY + distortion * (radiusY / radiusX);
+
+        const x = centerX + Math.cos(angle) * currentRadiusX;
+        const y = centerY + Math.sin(angle) * currentRadiusY;
+
+        if (i === 0) ctxCircle.moveTo(x, y);
+        else ctxCircle.lineTo(x, y);
+      }
+      ctxCircle.closePath();
+      ctxCircle.stroke();
+
+      // Inner glowing core ellipse
+      ctxCircle.strokeStyle = glowDark;
+      ctxCircle.lineWidth = 1;
+      ctxCircle.beginPath();
+      ctxCircle.ellipse(
+        centerX,
+        centerY,
+        radiusX * 0.35,
+        radiusY * 0.35,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctxCircle.stroke();
+    };
+
+    const renderAll = () => {
+      // Slower animation increment (0.025 instead of 0.08)
+      phase += isPlaying ? 0.025 : 0.005;
+      renderTopWave();
+      renderWaterfall();
+      renderCircle();
+      animFrame = requestAnimationFrame(renderAll);
+    };
+
+    renderAll();
+
+    // SoundCloud API Hooks
     widget.bind(window.SC.Widget.Events.READY, () => {
+      widget.getDuration((d: number) => {
+        trackDuration = d;
+      });
       widget.getCurrentSound((sound: any) => {
-        if (sound) {
-          if (titleLink) {
-            titleLink.textContent = sound.title.toUpperCase();
-            titleLink.href = sound.permalink_url;
-          }
-          if (artistLink) {
-            artistLink.textContent = `ARTIST: ${sound.user.username.toUpperCase()}`;
-            artistLink.href = sound.user.permalink_url;
-          }
+        if (sound && titleLink) {
+          titleLink.textContent = sound.title.toUpperCase();
+          titleLink.href = sound.permalink_url;
         }
       });
     });
@@ -192,95 +382,177 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 
     widget.bind(window.SC.Widget.Events.PLAY, () => {
       isPlaying = true;
-      if (vcrMode) vcrMode.innerHTML = "PLAY &#9654;";
-      playSymbol?.classList.add("hidden");
-      pauseSymbol?.classList.remove("hidden");
-      animate();
+      if (playBtn) playBtn.textContent = "> PAUSE <";
+      triggerGlitch(150);
     });
 
     widget.bind(window.SC.Widget.Events.PAUSE, () => {
       isPlaying = false;
-      if (vcrMode) vcrMode.innerHTML = "PAUSE &#10073;&#10073;";
-      playSymbol?.classList.remove("hidden");
-      pauseSymbol?.classList.add("hidden");
-      cancelAnimationFrame(animFrame);
-      renderRasterWave();
+      if (playBtn) playBtn.textContent = "> PLAY <";
+      triggerGlitch(150);
     });
 
-    widget.bind(
-      window.SC.Widget.Events.PLAY_PROGRESS,
-      (data: { relativePosition: number; currentPosition: number }) => {
-        if (!isScrubbing) {
-          progressRatio = data.relativePosition;
-          if (timeCurrent)
-            timeCurrent.textContent = formatVCRTime(data.currentPosition);
-        }
-      },
-    );
+    widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (data: any) => {
+      if (!isScrubbingTop) {
+        masterProgressRatio = data.relativePosition;
+        currentPosMs = data.currentPosition;
+        if (timeCurrent) timeCurrent.textContent = formatTime(currentPosMs);
+      }
+    });
 
-    const performSeek = (e: MouseEvent) => {
-      if (!waveformBox) return;
+    // Top Canvas Scrubbing
+    const handleTopScrub = (e: MouseEvent) => {
+      if (!topCanvas) return;
+      const rect = topCanvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
 
-      const rect = waveformBox.getBoundingClientRect();
-      const rawRatio = (e.clientX - rect.left) / rect.width;
-      const clickPos = Math.max(0, Math.min(1, rawRatio));
-
-      progressRatio = clickPos;
-      renderRasterWave();
-
-      widget.getDuration((duration: number) => {
-        if (duration && duration > 0) {
-          const targetMs = Math.floor(duration * clickPos);
-          if (timeCurrent) timeCurrent.textContent = formatVCRTime(targetMs);
-
-          widget.isPaused((paused: boolean) => {
-            widget.seekTo(targetMs);
-            if (paused) {
-              setTimeout(() => widget.pause(), 50);
-            }
-          });
-        }
-      });
+      masterProgressRatio = ratio;
+      if (trackDuration) {
+        currentPosMs = Math.floor(trackDuration * ratio);
+        if (timeCurrent) timeCurrent.textContent = formatTime(currentPosMs);
+        widget.seekTo(currentPosMs);
+      }
+      triggerGlitch(80);
     };
 
-    waveformBox?.addEventListener("mousedown", (e: MouseEvent) => {
-      isScrubbing = true;
-      performSeek(e);
+    topCanvas?.addEventListener("mousedown", (e) => {
+      isScrubbingTop = true;
+      handleTopScrub(e);
     });
 
-    window.addEventListener("mousemove", (e: MouseEvent) => {
-      if (isScrubbing) {
-        performSeek(e);
-      }
+    window.addEventListener("mousemove", (e) => {
+      if (isScrubbingTop) handleTopScrub(e);
     });
 
     window.addEventListener("mouseup", () => {
-      if (isScrubbing) {
-        isScrubbing = false;
-      }
+      isScrubbingTop = false;
     });
+
+    // Function Buttons
+    document.getElementById("btn-mute")?.addEventListener("click", () => {
+      isMuted = !isMuted;
+      widget.setVolume(isMuted ? 0 : gainBoost ? 100 : 70);
+      if (valMute) valMute.textContent = isMuted ? "ON" : "OFF";
+      triggerGlitch(100);
+    });
+
+    document.getElementById("btn-gain")?.addEventListener("click", () => {
+      gainBoost = !gainBoost;
+      if (!isMuted) widget.setVolume(gainBoost ? 100 : 70);
+      if (valGain) valGain.textContent = gainBoost ? "150%" : "100%";
+      triggerGlitch(200);
+    });
+
+    document
+      .getElementById("btn-glitch")
+      ?.addEventListener("click", () => triggerGlitch(500));
+
+    document.getElementById("btn-restart")?.addEventListener("click", () => {
+      widget.seekTo(0);
+      triggerGlitch(250);
+    });
+
+    const shiftTime = (offsetMs: number) => {
+      if (!trackDuration) return;
+      const target = Math.max(
+        0,
+        Math.min(trackDuration, currentPosMs + offsetMs),
+      );
+      widget.seekTo(target);
+      triggerGlitch(150);
+    };
+
+    document
+      .getElementById("btn-rewind")
+      ?.addEventListener("click", () => shiftTime(-5000));
+    document
+      .getElementById("btn-ffwd")
+      ?.addEventListener("click", () => shiftTime(5000));
+    document
+      .getElementById("btn-back10")
+      ?.addEventListener("click", () => shiftTime(-10000));
+    document
+      .getElementById("btn-fwd10")
+      ?.addEventListener("click", () => shiftTime(10000));
   };
 
-  if (document.readyState === "complete") {
-    setupPlayer();
-  } else {
-    window.addEventListener("load", setupPlayer);
-  }
+  if (document.readyState === "complete") setupFairlight();
+  else window.addEventListener("load", setupFairlight);
 </script>
 
 <style>
   :root {
-    /* Inherit global glow or fallback to mint phosphor */
+    --glow: #38fcd3; /* Matches the vibrant green phosphor core */
+    --glow-dark: rgba(24, 140, 115, 0.4);
+    --glow-active: #ffffff;
+    --bg-dark: #02120e; /* Deep green-black tint for CRT background */
+    --font-pixel: "VT323", monospace;
+  }
 
-    /* Primary Phosphor mapped to your global glow */
-    --gold-leaf: var(--glow);
+  .fairlight-screen {
+    position: relative;
+    width: min(100%, 36rem);
+    background: var(--bg-dark);
+    border-radius: 28px; /* Curved screen corners matching the CRT glass shape */
+    border: 4px solid #1a221f;
+    box-shadow:
+      inset 0 0 40px rgba(0, 0, 0, 0.9),
+      inset 0 0 15px rgba(56, 252, 211, 0.15),
+      0 0 25px rgba(0, 0, 0, 0.5);
+    font-family: var(--font-pixel);
+    color: var(--glow);
+    padding: 1.25rem;
+    overflow: hidden;
+    text-shadow: 0 0 6px rgba(56, 252, 211, 0.6);
+  }
 
-    /* Rich Armenian Velvet Red for deep contrast */
-    --crimson-velvet: #5a0808;
-    --void-black: #060709;
+  /* 1. SOFTENED SCANLINES & RASTER MESH (Removes dark black stripes) */
+  .crt-scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* Micro-mesh pattern instead of thick horizontal stripes */
+    background:
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
+      linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.02),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.02)
+      );
+    background-size:
+      100% 2px,
+      3px 100%;
+    z-index: 4;
+  }
 
-    /* Dynamic glowing shadows built from your global color */
-    --phosphor-glow: color-mix(in srgb, var(--glow) 20%, transparent);
+  /* 2. CRT GLASS VIGNETTE (Inner shadow around monitor edge) */
+  .crt-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 65%,
+      rgba(0, 15, 10, 0.55) 90%,
+      rgba(0, 5, 2, 0.95) 100%
+    );
+    z-index: 5;
+  }
+
+  /* 3. SUBTLE TOP GLASS REFLECTION */
+  .crt-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.01) 35%,
+      transparent 60%
+    );
+    z-index: 6;
   }
 
   #sc-hidden-iframe {
@@ -292,261 +564,199 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
-    border: 0 !important;
   }
 
-  .vcr-osd-player {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-    margin: 2rem auto !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
+  .fairlight-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 1.5rem auto;
   }
 
-  .sacred-relic-frame {
+  .fairlight-screen {
     position: relative;
-    margin: 0 auto !important; /* Forces block-level centering fallback */
-
-    box-sizing: border-box;
-    width: min(100%, 32rem);
-    background: var(--void-black);
-    padding: 1.5rem;
-
-    /* Curved CRT Glass Illusion */
-    border-radius: 12px / 8px;
-    border: 1px solid var(--gold-leaf);
-
-    /* Double Framing (Tableau Effect) */
-    outline: 6px double var(--crimson-velvet);
-    outline-offset: -12px;
-
-    /* Heavy Peripheral Vignette & Glow */
+    width: min(100%, 36rem);
+    background: var(--bg-dark);
+    border-radius: 12px;
     box-shadow:
-      inset 0 0 60px rgba(0, 0, 0, 0.95),
-      inset 0 0 20px var(--crimson-velvet),
-      0 10px 30px rgba(0, 0, 0, 0.9);
-
-    font-family: "Courier New", monospace;
-    color: var(--gold-leaf);
-    text-transform: uppercase;
+      inset 0 0 50px rgba(0, 0, 0, 0.95),
+      0 0 20px var(--glow-dark);
+    font-family: var(--font-pixel);
+    color: var(--glow);
+    padding: 1rem;
     overflow: hidden;
   }
 
-  /* Analog Physical Glitch Bar (Lynch Tape Decay) */
-  .tape-tracking-glitch {
-    position: absolute;
-    top: -20%;
-    left: 0;
-    right: 0;
-    height: 15px;
-    background: rgba(224, 190, 104, 0.2);
-    filter: blur(2px);
-    pointer-events: none;
-    z-index: 12;
-    animation: tracking-tear 7s infinite linear;
-  }
-
-  @keyframes tracking-tear {
-    0% {
-      top: -20%;
-    }
-    88% {
-      top: -20%;
-    }
-    92% {
-      top: 110%;
-    }
-    100% {
-      top: 110%;
-    }
-  }
-
-  /* Fixed Analog CRT Overlay (No Flicker) */
-  .vcr-crt-overlay {
+  .crt-glare {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 10;
-    opacity: 0.18; /* Lowered opacity so video shows through cleanly */
-    mix-blend-mode: screen;
-
-    background:
-    /* CRT Tube Scanlines */
-      linear-gradient(rgba(5, 4, 6, 0) 50%, rgba(0, 0, 0, 0.85) 50%),
-      /* High-density Static Grain */
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-
-    background-size:
-      100% 4px,
-      100px 100px;
-    /* animation: crt-flicker REMOVED */
+    background: radial-gradient(
+      ellipse at 25% 15%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 60%
+    );
+    z-index: 6;
   }
 
-  @keyframes crt-flicker {
-    0% {
-      opacity: 0.28;
-    }
-    100% {
-      opacity: 0.38;
-    }
+  .crt-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at center,
+      transparent 60%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
+    z-index: 5;
   }
 
-  /* TIER 1: Header / Seal */
-  .relic-header {
+  .fairlight-body {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1.25rem;
-    text-align: center;
+    font-size: 1.1rem;
   }
 
-  .relic-seal {
-    font-size: 0.75rem;
-    letter-spacing: 3px;
-    color: var(--gold-leaf);
-    border-bottom: 1px solid var(--gold-leaf);
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--glow);
     padding-bottom: 2px;
   }
 
-  .title-tableau {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .badge-inverted {
+    background: var(--glow);
+    color: var(--bg-dark);
+    padding: 0 4px;
+    font-weight: bold;
   }
 
-  /* Inverted High-Contrast Tag (Parajanov Miniature Style) */
-  .tableau-text {
-    background: var(--gold-leaf);
-    color: var(--void-black);
-    padding: 3px 12px;
-    font-weight: 900;
-    font-size: 1rem;
-    letter-spacing: 1.5px;
+  .header-readout {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .params-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.8fr;
+    font-size: 0.95rem;
+    line-height: 1.1;
+  }
+
+  .param-row {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 8px;
+  }
+
+  .badge-inline {
+    background: var(--glow);
+    color: var(--bg-dark);
+    padding: 0 2px;
+  }
+
+  .right-align {
+    text-align: right;
+  }
+
+  .pane-box {
+    border: 1px solid var(--glow);
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .top-waveform-pane {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #canvas-top-wave {
+    flex-grow: 1;
+    height: 100%;
+    cursor: crosshair;
+  }
+
+  .passive-pane {
+    cursor: default;
+    user-select: none;
+  }
+
+  .banner-controls {
+    display: flex;
+    gap: 6px;
+    padding: 0 6px;
+    cursor: pointer;
+    color: var(--glow);
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .banner-controls span:hover {
+    color: #fff;
+  }
+
+  .split-view {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 0.5rem;
+  }
+
+  .waterfall-pane,
+  .timeline-pane {
+    height: 120px;
+    padding: 2px;
+  }
+
+  .pane-label {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    text-transform: uppercase;
+  }
+
+  .metadata-row {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--glow-dark);
+    padding-top: 2px;
+  }
+
+  .metadata-row a {
+    color: var(--glow);
     text-decoration: none;
-    box-shadow: 3px 3px 0px var(--crimson-velvet);
-    max-width: 90%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .tableau-subtext {
-    font-size: 0.75rem;
-    color: var(--gold-leaf);
+  .function-keys {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
     margin-top: 4px;
-    letter-spacing: 1px;
-    opacity: 0.8;
-    text-decoration: none;
   }
 
-  /* TIER 2: Shrine Viewport & Waveform */
-  .shrine-viewport {
-    position: relative;
-    border: 1px solid var(--crimson-velvet);
-    background: rgba(107, 12, 12, 0.12);
-    padding: 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .vcr-waveform-box {
-    height: 64px;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .raster-lines {
-    display: flex;
-    gap: 2px;
-    height: 100%;
-    align-items: flex-end;
-  }
-
-  :global(.raster-col) {
-    flex: 1;
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 2px;
-    height: 100%;
-  }
-
-  :global(.raster-block) {
-    width: 100%;
-    height: 8px;
-    background: rgba(107, 12, 12, 0.3);
-  }
-
-  /* Off-State Peaks (Crimson Velvet) */
-  :global(.raster-block.block-on) {
-    background: var(--crimson-velvet);
-  }
-
-  /* Played/Active Peaks (Gold Leaf Burning Bright) */
-  :global(.raster-col.active .raster-block.block-on) {
-    background: var(--gold-leaf);
-    box-shadow: 0 0 8px var(--gold-leaf);
-  }
-
-  .shrine-status-overlay {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-  }
-
-  /* TIER 3: Asymmetrical Controls */
-  .altar-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px dashed var(--gold-leaf);
-    padding-top: 0.85rem;
-  }
-
-  .ritual-btn {
-    background: var(--crimson-velvet);
-    color: var(--gold-leaf);
-    border: 1px solid var(--gold-leaf);
-    font-family: inherit;
+  .f-key {
+    background: var(--glow);
+    color: var(--bg-dark);
+    border: none;
+    font-family: var(--font-pixel);
     font-size: 0.8rem;
     font-weight: bold;
-    padding: 4px 12px;
+    padding: 3px 0;
     cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.2s ease;
+    text-align: center;
+    user-select: none;
   }
 
-  .ritual-btn:hover {
-    background: var(--gold-leaf);
-    color: var(--void-black);
-  }
-
-  .tracking-shrine {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-  }
-
-  .meter-bar {
-    color: var(--crimson-velvet);
-    font-weight: bold;
-  }
-
-  .time-readout {
-    font-size: 1rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    /* Red Signal Fringe */
-    text-shadow:
-      -1px 0 var(--crimson-velvet),
-      1px 0 rgba(224, 190, 104, 0.5);
-  }
-
-  .hidden {
-    display: none;
+  .f-key:hover {
+    filter: brightness(1.25);
   }
 </style>
