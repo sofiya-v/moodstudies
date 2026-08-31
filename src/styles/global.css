@@ -8,7 +8,7 @@
     --muted: #a8a8a8;
     --glow: rgba(0, 255, 200, 0.95);
     --glow-dark: rgba(0, 255, 200, 0.5);
-    --machine-text: var(--font-silkscreen), monospace;
+    --machine-text: var(--font-vt323), monospace;
 }
 
 /* ========================================
