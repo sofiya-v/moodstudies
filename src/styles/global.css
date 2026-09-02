@@ -3,7 +3,7 @@
 ======================================== */
 
 :root {
-    --light: #fbfff5;
+    --light: #ebe5df;
     --dark: #130b0b;
     --muted: #a8a8a8;
     --glow: rgba(0, 255, 200, 0.95);
@@ -68,17 +68,14 @@ main {
 h1,
 h2,
 h3 {
-    margin: 0;
-    color: white;
-    font-family: var(--font-syne-mono), monospace;
-    font-weight: 500;
-    text-align: center;
-    letter-spacing: -0.075em;
-    line-height: 0.82;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(232 235 228 / 88%);
+    filter: blur(0.35px);
     text-shadow:
-        0 0 2px #fff,
-        0 0 8px var(--glow),
-        0 0 22px var(--glow-dark);
+        0 0 2px rgb(232 235 228 / 70%),
+        0 0 8px rgb(232 235 228 / 28%),
+        0 0 20px rgb(232 235 228 / 14%),
+        0 0 42px rgb(179 255 189 / 6%);
 }
 
 h1 {
@@ -103,49 +100,24 @@ h2 {
     margin: 2rem;
 }
 
-a {
-    text-decoration: underline;
-    display: inline-block;
+.machine-link {
+    font-family: var(--machine-text);
     color: var(--glow);
-    font-family: monospace;
-    text-shadow: 0 0 1px var(--glow);
-    transform-origin: center;
-
-    /* 1. Pre-prepare graphics engine to handle dynamic calculations smoothly */
-    will-change: transform, color, text-shadow;
-
-    /* 2. Fixed the millisecond typo to perfectly sync transforms and colors */
-    transition:
-        transform 0.3s ease,
-        color 0.3s ease,
-        text-shadow 0.3s ease;
-}
-
-a:hover {
-    color: white;
-    /* 3. Globalized the intense multi-layered radioactive glow */
+    text-decoration: none;
+    font-size: clamp(1rem, 2vw, 1.2rem);
     text-shadow:
-        0 0 4px rgba(255, 255, 255, 1),
-        0 0 10px rgba(0, 255, 200, 0.8),
-        /* Intense inner color */
-        0 0 10px rgba(0, 255, 200, 0.6),
-        /* Mid-range spread */
-        3px 5px 5px rgba(0, 0, 0, 0.7);
-    /* Dark structural drop shadow */
-    overflow: visible;
+        0 0 1px #fff,
+        0 0 5px rgba(0, 255, 200, 0.95),
+        0 0 15px rgba(0, 255, 200, 0.5);
 }
 
-a:active {
-    color: white;
-    text-shadow: 0 0 4px var(--glow);
-    transform: translateY(2px);
+.machine-link:hover {
+    color: var(--dark);
+    background: var(--glow);
+    text-shadow: none;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--glow) 45%, transparent);
 }
 
-a:active {
-    color: white;
-    text-shadow: 0 0 4px var(--glow);
-    transform: translateY(2px);
-}
 
 img {
     display: block;
@@ -162,7 +134,6 @@ img {
 
     display: flex;
     flex-direction: column;
-    /* Or 'row' for horizontal */
     gap: 0.5rem;
 
 }
@@ -174,9 +145,12 @@ img {
     padding: 8px 16px;
     background-color: var(--glow);
     transition: background 0.3s;
-    font-size: 0.75rem;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    font-family: var(--machine-text);
     letter-spacing: 0.08em;
     border: 3px outset #c0c0c0;
+    text-align: center;
 }
 
 .nav-button:hover {

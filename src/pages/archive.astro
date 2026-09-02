@@ -60,7 +60,9 @@ const studies = allStudies
                     <p class="observation-text">
                       <i>{study.observation}</i>
                     </p>
-                    <a href={study.href}>open &gt;&gt;&gt;</a>
+                    <a class="machine-link" href={study.href}>
+                      open &gt;&gt;&gt;
+                    </a>
                   </article>
                 </div>
               </div>
@@ -224,14 +226,6 @@ const studies = allStudies
   .observation-inner p {
     margin-left: 2rem;
     margin-top: 2rem;
-  }
-
-  .observation-inner a {
-    align-content: right;
-    gap: 2rem;
-    margin-top: 2rem;
-    margin-left: 2rem;
-    font-family: serif;
   }
 
   .observation-inner a span {

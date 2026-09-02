@@ -438,6 +438,13 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       }
     };
 
+    window.addEventListener("keydown", function (event) {
+      if (event.code === "Space") {
+        event.preventDefault();
+        widget.toggle();
+      }
+    });
+
     scrubCanvas?.addEventListener("mousedown", (e) => {
       isScrubbing = true;
       handleScrub(e);
@@ -457,11 +464,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 </script>
 
 <style>
-  :root {
-    --ph-color: #33ffcc;
-    --font-pixel: "VT323", monospace;
-  }
-
   #sc-hidden-iframe {
     position: fixed !important;
     top: -9999px !important;
@@ -478,8 +480,12 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     flex-direction: column;
     align-items: center;
     gap: 1.25rem;
-    font-family: var(--font-pixel);
-    color: var(--ph-color);
+    font-family: var(--machine-text);
+    color: var(--glow);
+    text-shadow:
+      0 0 1px #fff,
+      0 0 5px var(--glow),
+      0 0 15px var(--glow-dark);
   }
 
   .radial-stage {
@@ -510,6 +516,24 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     font-size: 1.1rem;
     letter-spacing: 0.05em;
     gap: 1rem;
+    color: var(--glow);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: ellipsis;
+  }
+
+  .signal-readout a {
+    color: var(--glow);
+    font-family: var(--machine-text);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: ellipsis;
+    text-shadow:
+      0 0 1px #fff,
+      0 0 5px var(--glow),
+      0 0 15px var(--glow-dark);
   }
 
   .signal-trigger {
@@ -518,21 +542,9 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     transition: opacity 0.2s ease;
   }
 
+  .signal-readout a:hover,
   .signal-trigger:hover {
-    opacity: 0.6;
-  }
-
-  .signal-readout a {
-    color: var(--ph-color);
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 0.85;
-  }
-
-  .signal-readout a:hover {
-    opacity: 1;
+    text-shadow: none;
   }
 
   .time-code {

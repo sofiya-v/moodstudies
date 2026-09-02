@@ -26,10 +26,14 @@ const observations = [
     <h1 aria-label="mood studies">
       <span aria-hidden="true">mood studies</span>
     </h1>
-    <a id="archival-index" href="/archive">&gt; ENTER &lt;</a>
+    <a class="machine-link" href="/archive"> &gt; ENTER &lt; </a>
   </div>
 
   <style>
+    .main-nav {
+      visibility: hidden;
+    }
+
     .page {
       box-sizing: border-box;
       height: 100svh;
@@ -54,18 +58,11 @@ const observations = [
         0 0 22px rgba(0, 255, 200, 0.5);
     }
 
-    a#archival-index:hover {
-      color: white;
-      text-shadow:
-        0 0 2px #fff,
-        0 0 8px rgba(0, 255, 200, 0.95),
-        0 0 22px rgba(0, 255, 200, 0.5);
-      mix-blend-mode: color-dodge;
-      transform: scale(1.3);
-    }
-
-    a#archival-index:active {
-      transform: translateY(2px);
+    a#machine-link:hover {
+      color: var(--dark);
+      background: var(--glow);
+      text-shadow: none;
+      box-shadow: 0 0 8px color-mix(in srgb, var(--glow) 45%, transparent);
     }
 
     @media (max-width: 768px) {
