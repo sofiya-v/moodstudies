@@ -33,9 +33,15 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 
   <!-- READOUT & CONTROLS -->
   <div class="signal-readout">
-    <span id="sk-play" class="signal-trigger">&gt; PLAY &lt;</span>
-    <a id="sc-title-link" href="#" target="_blank" rel="noopener"
-      >TRANSMISSION</a
+    <span class="machine-link" id="sk-play" class="signal-trigger"
+      >&gt; PLAY &lt;</span
+    >
+    <a
+      class="machine-link"
+      id="sc-title-link"
+      href="#"
+      target="_blank"
+      rel="noopener">TRANSMISSION</a
     >
     <span id="time-current" class="time-code">00:00:00</span>
   </div>
@@ -237,7 +243,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       continuousPhase += currentSpeed;
 
       // Breathing pulse at rest
-      const idlePulse = (Math.sin(continuousPhase * 1.8) + 1) / 2;
+      const idlePulse = (Math.sin(continuousPhase * 5) + 1) / 2;
 
       // --- Audio Modulations ---
       const centerIdx = Math.floor(masterProgressRatio * waveformPeaks.length);
@@ -528,28 +534,10 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     text-overflow: ellipsis;
   }
 
-  .signal-readout a {
-    color: var(--glow);
-    font-family: var(--machine-text);
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: visible;
-    text-overflow: ellipsis;
-    text-shadow:
-      0 0 1px #fff,
-      0 0 5px var(--glow),
-      0 0 15px var(--glow-dark);
-  }
-
   .signal-trigger {
     cursor: pointer;
     user-select: none;
     transition: opacity 0.2s ease;
-  }
-
-  .signal-readout a:hover,
-  .signal-trigger:hover {
-    text-shadow: none;
   }
 
   .time-code {

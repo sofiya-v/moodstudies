@@ -5,24 +5,57 @@ import StudyLayout from "../../layouts/StudyLayout.astro";
 export async function getStaticPaths() {
   const allStudies = await getCollection("studies");
 
-  const paths = allStudies.map((study: CollectionEntry<"studies">) => {
-    const rawId = study.id;
-    const cleanId = rawId.replace(/\.mdx?$/, "");
+  allStudies.sort(
+    (a, b) => Number(a.data.studyNumber) - Number(b.data.studyNumber),
+  );
 
-    return {
-      params: { id: cleanId },
-      props: { study },
-    };
-  });
+  const paths = allStudies.map(
+    (study: CollectionEntry<"studies">, index: number) => {
+      const rawId = study.id;
+      const cleanId = rawId.replace(/\.mdx?$/, "");
+
+      const prevStudy = allStudies[index - 1];
+      const nextStudy = allStudies[index + 1];
+
+      const getCleanId = (entry?: CollectionEntry<"studies">) =>
+        entry ? entry.id.replace(/\.mdx?$/, "") : null;
+
+      return {
+        params: { id: cleanId },
+        props: {
+          study,
+          previousStudyHref: prevStudy
+            ? `/studies/${getCleanId(prevStudy)}`
+            : undefined,
+          nextStudyHref: nextStudy
+            ? `/studies/${getCleanId(nextStudy)}`
+            : undefined,
+          previousStudyNumber: prevStudy?.data.studyNumber,
+          nextStudyNumber: nextStudy?.data.studyNumber,
+        },
+      };
+    },
+  );
 
   return paths;
 }
 
 interface Props {
   study: CollectionEntry<"studies">;
+  previousStudyHref?: string;
+  nextStudyHref?: string;
+  previousStudyNumber?: string;
+  nextStudyNumber?: string;
 }
 
-const { study } = Astro.props;
+const {
+  study,
+  previousStudyHref,
+  nextStudyHref,
+  previousStudyNumber,
+  nextStudyNumber,
+} = Astro.props;
+
 const { Content } = await render(study);
 ---
 
@@ -30,11 +63,18 @@ const { Content } = await render(study);
   studyNumber={study.data.studyNumber}
   artist={study.data.artist}
   trackId={study.data.trackId}
-  inkblotSrc={study.data.inkblotSrc}
+  blueHourSrc={study.data.blueHourSrc}
+  blueHourMetadata={study.data.blueHourMetadata}
+  blackInkblotSrc={study.data.blackInkblotSrc}
+  whiteInkblotSrc={study.data.whiteInkblotSrc}
   dreamImageSrc={study.data.dreamImageSrc}
   dreamImageAlt={study.data.dreamImageAlt}
   trinketSrc={study.data.trinketSrc}
   trinketAlt={study.data.trinketAlt}
+  previousStudyHref={previousStudyHref}
+  nextStudyHref={nextStudyHref}
+  previousStudyNumber={previousStudyNumber}
+  nextStudyNumber={nextStudyNumber}
 >
   <fragment slot="bio">{study.data.bio}</fragment>
 
