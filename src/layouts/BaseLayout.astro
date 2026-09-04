@@ -46,13 +46,32 @@ import Font from "astro/components/Font.astro";
     <nav class="main-nav">
       {
         !isHome && (
-          <a class="nav-button nav-home" href="/">
-            home
-          </a>
-          <a class="nav-button nav-archive" href="/archive"> index </a>
+          <>
+            <a
+              class:list={[
+                "nav-button nav-home",
+                { active: Astro.url.pathname === "/" },
+              ]}
+              aria-current={Astro.url.pathname === "/" ? "page" : undefined}
+              href="/"
+            >
+              home
+            </a>
+            <a
+              class:list={[
+                "nav-button nav-archive",
+                { active: Astro.url.pathname === "/archive" },
+              ]}
+              aria-current={
+                Astro.url.pathname === "/archive" ? "page" : undefined
+              }
+              href="/archive"
+            >
+              index
+            </a>
+          </>
         )
       }
-      
     </nav>
 
     <main>
@@ -98,5 +117,40 @@ import Font from "astro/components/Font.astro";
       z-index: -1;
       pointer-events: none;
     }
+  }
+
+  .nav-button {
+    text-decoration: none;
+    color: var(--dark);
+    padding: 8px 16px;
+    background-color: var(--glow);
+    transition: background 0.3s;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    font-family: var(--machine-text);
+    letter-spacing: 0.08em;
+    border: 3px outset #c0c0c0;
+    text-align: center;
+  }
+
+  .nav-button:hover {
+    background-color: var(--glow-dark);
+    text-shadow: none;
+    color: var(--dark);
+  }
+
+  .nav-button.active {
+    border-style: inset;
+    transform: translateY(2px);
+  }
+
+  .nav-home {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .nav-archive {
+    grid-column: 2;
+    justify-self: end;
   }
 </style>

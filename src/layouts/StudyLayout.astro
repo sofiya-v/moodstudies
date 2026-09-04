@@ -47,14 +47,14 @@ const nextStudyHref = isLast
   <div class="booklet" data-booklet data-study-number={studyNumber}>
     <section
       id="intro"
-      class="booklet-page study-heading"
+      class="booklet-page intro"
       data-booklet-page
       aria-label="Introduction"
     >
-      <header class="study-header">
-        <h1>{artist}</h1>
+      <h1>{artist}</h1>
+      <div class="audio-player">
         <SoundCloudPlayer trackId={trackId} />
-      </header>
+      </div>
     </section>
 
     <section
@@ -98,18 +98,26 @@ const nextStudyHref = isLast
     >
       <img class="trinket" src={trinketSrc} alt={trinketAlt ?? "image"} />
 
-      <p><slot name="bio" /></p>
+      <p class="copy"><slot name="bio" /></p>
     </section>
 
     <nav class="booklet-controls" aria-label="Booklet pages">
       <button type="button" class="page-button" data-booklet-previous>
-        <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+        <svg
+          class="arrow"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path d={ARROWS.left}></path>
         </svg>
       </button>
 
       <button type="button" class="page-button" data-booklet-next>
-        <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+        <svg
+          class="arrow"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path d={ARROWS.right}></path>
         </svg>
       </button>
@@ -117,7 +125,11 @@ const nextStudyHref = isLast
       {
         previousStudyHref && (
           <a href={previousStudyHref} class="page-button" data-study-previous>
-            <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+            <svg
+              class="arrow"
+              viewBox="0 0 16 16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path d={ARROWS.left} />
             </svg>
             study {String(Number(studyNumber) - 1).padStart(3, "0")}
@@ -129,7 +141,11 @@ const nextStudyHref = isLast
         nextStudyHref && (
           <a href={nextStudyHref} class="page-button" data-study-next>
             study {String(Number(studyNumber) + 1).padStart(3, "0")}
-            <svg class="arrow" viewBox="0 0 16 16" xmlns="http://w3.org">
+            <svg
+              class="arrow"
+              viewBox="0 0 16 16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path d={ARROWS.right} />
             </svg>
           </a>
@@ -163,7 +179,38 @@ const nextStudyHref = isLast
     height: 100dvh;
     margin: 0;
     overflow: hidden;
-    padding: 10rem 0;
+    padding: 3rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .intro {
+    box-sizing: border-box;
+    width: min(100%, 48rem);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .intro :global(.soundcloud-player),
+  .intro :global(iframe) {
+    display: block;
+    width: min(100%, 42rem);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .audio-player {
+    width: 100%;
+  }
+
+  .inkblot-img {
+    display: block;
+    padding: 5rem 0;
+    max-width: 100%;
+    max-height: 50vh;
+    margin-inline: auto;
+    object-fit: contain;
   }
 
   .dream {
@@ -178,43 +225,6 @@ const nextStudyHref = isLast
 
   .booklet-page[hidden] {
     display: none;
-  }
-
-  .study-heading {
-    display: grid;
-    place-items: center;
-  }
-
-  .study-header {
-    box-sizing: border-box;
-    width: min(100%, 48rem);
-    margin-inline: auto;
-    padding-inline: 1.5rem;
-  }
-
-  .study-header :global(.soundcloud-player),
-  .study-header :global(iframe) {
-    display: block;
-    width: min(100%, 42rem);
-    max-width: 100%;
-    margin-inline: auto;
-  }
-
-  .inkblot-img {
-    display: block;
-    padding: 5rem 0;
-    max-width: 100%;
-    max-height: 50vh;
-    margin-inline: auto;
-    object-fit: contain;
-  }
-
-  .inkblot p {
-    color: var(--light);
-    font-size: 1rem;
-    line-height: 1.6;
-    text-align: left;
-    margin: 2rem 0;
   }
 
   .dream-log-content :global(p) {
@@ -249,17 +259,6 @@ const nextStudyHref = isLast
     margin: 2rem 0;
   }
 
-  .bio > p {
-    max-width: 52rem;
-    margin: 0 auto 4rem;
-    color: var(--light);
-    font-family: var(--font-syne-mono);
-    font-size: clamp(1rem, 2vw, 1.5rem);
-    font-style: italic;
-    text-align: center;
-    text-shadow: 0 0 2px var(--glow);
-  }
-
   .bio .trinket {
     display: block;
     width: min(80svw, 40rem);
@@ -290,7 +289,7 @@ const nextStudyHref = isLast
   }
 
   .arrow path {
-    fill: var(--light);
+    fill: var(--glow);
     transition: fill 0.3s ease;
   }
 
@@ -379,11 +378,9 @@ const nextStudyHref = isLast
 
   .expandable.is-expanded {
     position: relative;
-
     width: 100vw;
     max-width: 100vw;
     height: auto;
-
     cursor: zoom-out;
   }
 

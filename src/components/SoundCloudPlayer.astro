@@ -209,7 +209,10 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxScrub.restore();
     };
 
-    // LISSAJOUS VECTOR OSCILLOSCOPE (FAIRLIGHT CMI CRT SCOPE)
+    let scopeMorph = 0;
+    let continuousPhase = 0;
+
+    // LISSAJOUS
     const renderScope = () => {
       if (!ctxRadial || !radialCanvas) return;
       const w = radialCanvas.width;
@@ -224,18 +227,28 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       const CYAN_DIM = "rgba(51, 255, 204, 0.25)";
       const CYAN_GRID = "rgba(51, 255, 204, 0.08)";
 
-      // Track Amplitude Analytics
+      // --- Smooth State & Phase Transitions ---
+      // Smoothly ease `scopeMorph` toward 1 (playing) or 0 (idle)
+      const targetMorph = isPlaying ? 1 : 0;
+      scopeMorph += (targetMorph - scopeMorph) * 0.05; // Adjust 0.05 for faster/slower morphing
+
+      // Speed ramps smoothly without phase jumps
+      const currentSpeed = 0.003 + scopeMorph * 0.022;
+      continuousPhase += currentSpeed;
+
+      // Breathing pulse at rest
+      const idlePulse = (Math.sin(continuousPhase * 1.8) + 1) / 2;
+
+      // --- Audio Modulations ---
       const centerIdx = Math.floor(masterProgressRatio * waveformPeaks.length);
       const currentPeak = waveformPeaks[centerIdx] || 0;
 
-      // Lookahead channel (Channel B) for phase differential
       const lookaheadOffset = 4;
       const nextIdx = Math.min(
         waveformPeaks.length - 1,
         centerIdx + lookaheadOffset,
       );
       const futurePeak = waveformPeaks[nextIdx] || 0;
-
       const prevPeak = waveformPeaks[Math.max(0, centerIdx - 2)] || 0;
 
       // Transient Detection
@@ -243,10 +256,11 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       if (isPlaying && delta > 0.1) {
         currentPulse = Math.min(1.0, currentPulse + delta * 1.8);
       }
-      currentPulse *= 0.9; // Decay rate
+      currentPulse *= 0.9;
 
-      const normCurrent = currentPeak / (maxTrackPeak || 1);
-      const normFuture = futurePeak / (maxTrackPeak || 1);
+      // Blend audio amplitude from 0 (resting circle) to live audio peaks
+      const normCurrent = (currentPeak / (maxTrackPeak || 1)) * scopeMorph;
+      const normFuture = (futurePeak / (maxTrackPeak || 1)) * scopeMorph;
       const ampA = Math.pow(normCurrent, 0.85);
       const ampB = Math.pow(normFuture, 0.85);
 
@@ -256,14 +270,12 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxRadial.strokeStyle = CYAN_GRID;
       ctxRadial.lineWidth = 1;
 
-      // Polar grid circles
       ctxRadial.beginPath();
       ctxRadial.arc(cx, cy, maxRadius * 0.35, 0, Math.PI * 2);
       ctxRadial.arc(cx, cy, maxRadius * 0.7, 0, Math.PI * 2);
       ctxRadial.arc(cx, cy, maxRadius, 0, Math.PI * 2);
       ctxRadial.stroke();
 
-      // Crosshairs
       ctxRadial.beginPath();
       ctxRadial.moveTo(cx - maxRadius - 6, cy);
       ctxRadial.lineTo(cx + maxRadius + 6, cy);
@@ -271,7 +283,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxRadial.lineTo(cx, cy + maxRadius + 6);
       ctxRadial.stroke();
 
-      // Sub-division tick marks
       ctxRadial.strokeStyle = CYAN_DIM;
       const ticks = 16;
       for (let i = 0; i < ticks; i++) {
@@ -287,64 +298,50 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
         ctxRadial.stroke();
       }
 
-      if (!waveformPeaks.length) {
-        // Idle central vector spot when no track loaded
-        ctxRadial.fillStyle = CYAN_DIM;
-        ctxRadial.beginPath();
-        ctxRadial.arc(cx, cy, 2, 0, Math.PI * 2);
-        ctxRadial.fill();
-        ctxRadial.restore();
-        return;
-      }
-
-      // --- 2. Lissajous Parametric Vector Generator ---
+      // --- 2. Scope Vector Generator ---
       const numPoints = 180;
 
-      // Dynamic frequency ratios for the parametric equations
-      const freqX = 3;
-      const freqY = 2;
-      const speedScale = isPlaying ? phase : phase * 0.1;
+      // Interpolate frequencies: 1.0 (rest circle) <---> 3.0 / 2.0 (active shape)
+      const freqX = 1 + (3 - 1) * scopeMorph;
+      const freqY = 1 + (2 - 1) * scopeMorph;
 
-      ctxRadial.strokeStyle = isPlaying ? CYAN_MAIN : CYAN_DIM;
-      ctxRadial.lineWidth = isPlaying ? 1.6 : 1.0;
+      // Visual Styles Interpolation
+      const lineAlpha =
+        0.25 + idlePulse * 0.45 * (1 - scopeMorph) + scopeMorph * 0.75;
+      const glowBlur =
+        (4 + idlePulse * 10) * (1 - scopeMorph) +
+        (6 + currentPulse * 12) * scopeMorph;
 
-      if (isPlaying) {
-        ctxRadial.shadowColor = CYAN_MAIN;
-        ctxRadial.shadowBlur = 6 + currentPulse * 12;
-      }
+      ctxRadial.strokeStyle = `rgba(51, 255, 204, ${lineAlpha})`;
+      ctxRadial.lineWidth =
+        (1.0 + idlePulse * 0.5) * (1 - scopeMorph) + 1.6 * scopeMorph;
+      ctxRadial.shadowColor = CYAN_MAIN;
+      ctxRadial.shadowBlur = glowBlur;
 
-      // UNIFIED JITTER LOGIC:
-      // Calculate single global beam offsets ONCE per frame outside the vertex loop.
-      // This vibrates the ENTIRE curve intact rather than noise-deforming individual vertices.
-      const beamJitterX = isPlaying
-        ? (Math.random() - 0.5) * currentPulse * 6
-        : 0;
-      const beamJitterY = isPlaying
-        ? (Math.random() - 0.5) * currentPulse * 6
-        : 0;
+      const beamJitterX = (Math.random() - 0.5) * currentPulse * 6 * scopeMorph;
+      const beamJitterY = (Math.random() - 0.5) * currentPulse * 6 * scopeMorph;
 
-      // Global transient expansion (smooth radial "punch" on transients)
-      const pulseExpansion = 1 + currentPulse * 0.15;
+      const baseScale = 0.28 * (1 - scopeMorph) + 0.38 * scopeMorph;
+      const pulseExpansion =
+        1 +
+        currentPulse * 0.15 * scopeMorph +
+        idlePulse * 0.04 * (1 - scopeMorph);
 
       ctxRadial.beginPath();
       for (let i = 0; i <= numPoints; i++) {
         const theta = (i / numPoints) * Math.PI * 2;
 
-        // Channel A (X Axis) & Channel B (Y Axis) Modulations
         const modX =
-          Math.sin(theta * freqX + speedScale * 1.4) *
+          Math.sin(theta * freqX + continuousPhase * 1.4) *
           (ampA * maxRadius * 0.42);
         const modY =
-          Math.cos(theta * freqY - speedScale * 0.9) *
+          Math.cos(theta * freqY - continuousPhase * 0.9) *
           (ampB * maxRadius * 0.42);
 
-        // Base carrier radius scaled by playback state and transient pulse expansion
-        const baseRadius =
-          maxRadius * (isPlaying ? 0.38 : 0.28) * pulseExpansion;
+        const baseRadius = maxRadius * baseScale * pulseExpansion;
         const rx = baseRadius + modX;
         const ry = baseRadius + modY;
 
-        // Apply unified global beam jitter to preserve exact Lissajous geometry
         const x = cx + Math.cos(theta) * rx + beamJitterX;
         const y = cy + Math.sin(theta) * ry + beamJitterY;
 
@@ -355,11 +352,19 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxRadial.stroke();
 
       // --- 3. Electron Beam Origin Spot ---
-      ctxRadial.fillStyle = isPlaying ? "#ffffff" : CYAN_DIM;
+      const spotAlpha =
+        (0.4 + idlePulse * 0.6) * (1 - scopeMorph) + 1.0 * scopeMorph;
+      const spotRadius =
+        (1.8 + idlePulse * 1.2) * (1 - scopeMorph) +
+        (2 + currentPulse * 2.5) * scopeMorph;
+
+      ctxRadial.fillStyle = `rgba(51, 255, 204, ${spotAlpha})`;
       ctxRadial.shadowColor = CYAN_MAIN;
-      ctxRadial.shadowBlur = isPlaying ? 10 : 0;
+      ctxRadial.shadowBlur =
+        (3 + idlePulse * 8) * (1 - scopeMorph) + 10 * scopeMorph;
+
       ctxRadial.beginPath();
-      ctxRadial.arc(cx, cy, 2 + currentPulse * 2.5, 0, Math.PI * 2);
+      ctxRadial.arc(cx, cy, spotRadius, 0, Math.PI * 2);
       ctxRadial.fill();
 
       ctxRadial.restore();
