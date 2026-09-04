@@ -3,8 +3,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
 const allStudies = await getCollection("studies");
+
+// Sort entries by date descending (newest first)
 const studies = allStudies
-  .sort((b, a) => a.data.studyNumber.localeCompare(b.data.studyNumber))
+  .sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+  )
   .map((entry) => ({
     studyNumber: entry.data.studyNumber,
     artist: entry.data.artist,
@@ -16,299 +20,259 @@ const studies = allStudies
 ---
 
 <BaseLayout
-  title="mood studies archive"
+  title="mood studies index"
   summary="Field notes from the in-between."
 >
-  <div class="archive">
-    <header class="archive-header">
-      <h1>archival index</h1>
-      <div class="header-rule" aria-hidden="true"></div>
-    </header>
+  <div class="split-ledger" data-split-ledger>
+    {/* Left Column: Fixed / Scrollable Index */}
+    <aside class="ledger-index">
+      <header class="ledger-header">
+        <h1>index</h1>
+        <span class="ledger-count">{studies.length} entries</span>
+      </header>
 
-    <ol class="ledger">
-      {
-        studies.map((study) => {
-          const panelId = `observation-${study.studyNumber}`;
-
-          return (
-            <li class="record">
-              <div class="record-row">
-                <span class="figure-number">Fig. {study.studyNumber}</span>
-
-                <div class="record-identity">
-                  <a class="artist-link" href={study.href}>
-                    {study.artist}
-                  </a>
-                </div>
-                <span class="date">{study.date}</span>
-
-                <span class="duration">{study.duration}</span>
-
-                <button
-                  class="observe-button"
-                  type="button"
-                  aria-expanded="false"
-                  aria-controls={panelId}
-                >
-                  <span class="observe-label">+ note</span>
-                </button>
-              </div>
-
-              <div class="observation" id={panelId} aria-hidden="true">
-                <div class="observation-clip">
-                  <article class="observation-inner">
-                    <p class="observation-text">
-                      <i>{study.observation}</i>
-                    </p>
-                    <a class="machine-link" href={study.href}>
-                      open &gt;&gt;&gt;
-                    </a>
-                  </article>
-                </div>
-              </div>
+      <ul class="ledger-list" role="list">
+        {
+          studies.map((study, index) => (
+            <li class="ledger-item">
+              <a
+                href={study.href}
+                class="ledger-link"
+                class:list={[{ active: index === 0 }]}
+                data-ledger-trigger
+                data-target-index={index}
+              >
+                <span class="item-num">{study.studyNumber}</span>
+                <span class="item-artist">{study.artist}</span>
+              </a>
             </li>
-          );
-        })
+          ))
+        }
+      </ul>
+    </aside>
+
+    {/* Right Column: Pinned Active Fragment Stage */}
+    <main class="fragment-stage">
+      {
+        studies.map((study, index) => (
+          <article
+            class="fragment-card"
+            data-fragment-card
+            data-index={index}
+            hidden={index !== 0}
+          >
+            <div class="fragment-meta">
+              <span class="meta-label">mood study {study.studyNumber}</span>
+              <span class="meta-divider">—</span>
+              <span class="meta-date">{study.date}</span>
+            </div>
+
+            <h2 class="fragment-artist">{study.artist}</h2>
+
+            <p class="fragment-text">{study.observation}</p>
+
+            <div class="fragment-action">
+              <a href={study.href} class="machine-link">
+                open &gt;&gt;
+              </a>
+            </div>
+          </article>
+        ))
       }
-    </ol>
+    </main>
   </div>
 </BaseLayout>
 
 <style>
-  .archive {
-    width: min(calc(100% - 2rem), 1120px);
+  /* --- LAYOUT STRUCTURE --- */
+
+  .split-ledger {
+    width: min(calc(100% - 3rem), 1100px);
     margin-inline: auto;
-    padding-block: clamp(3.5rem, 9vw, 8rem);
-    color: var(--text, #e3e5de);
+    min-height: 100dvh;
+    padding-block: clamp(4rem, 8vw, 8rem);
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) 1.5fr;
+    gap: clamp(2.5rem, 5vw, 6rem);
+    align-items: start;
   }
 
-  .archive-header {
-    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+  /* --- LEFT COLUMN: LEDGER INDEX --- */
+
+  .ledger-index {
+    position: sticky;
+    top: clamp(4rem, 8vw, 8rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
-  .ledger {
+  .ledger-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--text, #e3e5de) 15%, transparent);
+  }
+
+  .ledger-header h1 {
+    margin: 0;
+  }
+
+  .ledger-count {
+    font-family: var(--machine-text, monospace);
+    font-size: 0.8rem;
+    opacity: 0.4;
+  }
+
+  .ledger-list {
     margin: 0;
     padding: 0;
-  }
-
-  .record {
     list-style: none;
-    border-top: 1px solid color-mix(in srgb, var(--light) 48%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--light) 48%, transparent);
+    display: flex;
+    flex-direction: column;
   }
 
-  .record-row {
-    display: grid;
-    grid-template-columns: auto auto auto auto auto;
-    gap: clamp(1rem, 3vw, 3rem);
-    align-items: center;
-    min-height: 7rem;
-    padding: 1.25rem 0.5rem;
-  }
-
-  .record-row:hover {
-    background-color: color-mix(in srgb, var(--glow) 20%, transparent);
-  }
-
-  .figure-number,
-  .duration,
-  .date {
-    font-family: monospace;
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-  }
-
-  .record-identity {
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  .artist-link {
-    width: fit-content;
+  .ledger-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.5rem 0;
     color: var(--text, #e3e5de);
-    font-family: monospace;
+    text-decoration: none;
+    opacity: 0.4;
+    transition: opacity 150ms ease;
+  }
+
+  .ledger-link:hover,
+  .ledger-link:focus-visible,
+  .ledger-link.active {
+    opacity: 1;
+  }
+
+  .item-num {
+    font-family: var(--machine-text, monospace);
+    font-size: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .item-artist {
+    font-size: 1rem;
+    font-weight: 300;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  /* --- RIGHT COLUMN: FRAGMENT STAGE --- */
+
+  .fragment-stage {
+    position: sticky;
+    top: clamp(4rem, 8vw, 8rem);
+    min-height: 20rem;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .fragment-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .fragment-card[hidden] {
+    display: none !important;
+  }
+
+  .fragment-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-family: var(--machine-text, monospace);
+    font-size: 0.8rem;
+    color: var(--light, #e3e5de);
     text-transform: uppercase;
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    line-height: 1;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.18em;
+    opacity: 0.5;
   }
 
-  .artist-link:hover,
-  .artist-link:focus-visible {
-    color: var(--glow-bright, #d1f5d5);
-    text-shadow: 0 0 7px color-mix(in srgb, var(--glow) 55%, transparent);
-  }
-
-  .observe-button {
-    justify-self: end;
-    min-width: 8rem;
-    min-height: 2.75rem;
-    padding: 0.55rem 0.75rem;
-    border: 0;
-    background: transparent;
-    color: var(--glow);
-    font-family: var(--machine-text), monospace;
-    font-size: 0.64rem;
-    cursor: pointer;
-  }
-
-  .observe-button::before,
-  .observe-button::after {
-    color: currentColor;
-  }
-
-  .observe-button::before {
-    content: "[ ";
-  }
-
-  .observe-button::after {
-    content: " ]";
-  }
-
-  .observe-button:hover,
-  .observe-button:focus-visible,
-  .observe-button[aria-expanded="true"] {
-    color: var(--glow-bright, #d1f5d5);
-    text-shadow: 0 0 6px var(--glow, #a9d9b0);
-  }
-
-  .observe-button:focus-visible {
-    outline: 1px dotted var(--glow-bright, #d1f5d5);
-    outline-offset: 2px;
-  }
-
-  .observe-button[aria-expanded="true"] .observe-label {
-    font-size: 0;
-  }
-
-  .observe-button[aria-expanded="true"] .observe-label::after {
-    content: "- note";
-    font-size: 0.64rem;
-  }
-
-  .observation {
-    display: grid;
-    grid-template-rows: 0fr;
-    visibility: hidden;
-    transition:
-      grid-template-rows 520ms cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 520ms;
-
-    font-weight: thin;
-  }
-
-  .observation[aria-hidden="false"] {
-    grid-template-rows: 1fr;
-    visibility: visible;
-    transition:
-      grid-template-rows 520ms cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s;
-  }
-
-  .observation-clip {
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .observation-inner p {
-    position: relative;
-    min-height: clamp(5rem, 42vw, 10rem);
-    border-top: 1px solid color-mix(in srgb, var(--light) 35%, transparent);
-    max-width: 48rem;
+  .fragment-artist {
     margin: 0;
-    color: var(--light);
-    font-family: serif;
-    font-size: clamp(0.8rem, 2.6vw, 1rem);
-    line-height: 1.55;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 300;
+    color: var(--text, #e3e5de);
   }
 
-  .observation-inner a span {
-    color: color-mix(in srgb, var(--text, #e3e5de) 63%, transparent);
-    font-family: monospace;
-    font-size: 0.9rem;
+  .fragment-text {
+    margin: 0;
+    color: var(--light, #e3e5de);
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-weight: 300;
+    line-height: 1.6;
+    opacity: 0.85;
+    max-width: 34rem;
   }
 
-  @media (max-width: 720px) {
-    .archive {
-      width: 100%;
+  /* --- RESPONSIVE ADJUSTMENTS --- */
+
+  @media (max-width: 768px) {
+    .split-ledger {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding-block: 3rem 4rem;
     }
 
-    .archive-header,
-    .record-row,
-    .observation-inner {
-      padding-inline: 1rem;
+    .ledger-index,
+    .fragment-stage {
+      position: relative;
+      top: 0;
     }
 
-    .record-row {
-      grid-template-columns: 4.5rem 1fr auto;
-      gap: 0.8rem;
-      min-height: 6rem;
-    }
-
-    .record-description {
-      font-size: 0.82rem;
-    }
-
-    .observe-button {
-      min-width: auto;
-      padding-inline: 0.25rem;
-    }
-
-    .observe-label {
-      font-size: 0;
-    }
-
-    .observe-label::after {
-      content: "+";
-      font-size: 0.8rem;
-    }
-
-    .observe-button[aria-expanded="true"] .observe-label::after {
-      content: "−";
-      font-size: 0.8rem;
-    }
-
-    .observation-copy > p {
-      font-size: 1.25rem;
-    }
-
-    .observation-copy footer {
-      align-items: flex-start;
-      flex-direction: column;
-    }
-
-    .annotation {
-      display: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .observation {
-      transition-duration: 0.01ms;
+    .fragment-stage {
+      min-height: auto;
+      border-top: 1px solid
+        color-mix(in srgb, var(--text, #e3e5de) 15%, transparent);
+      padding-top: 2rem;
     }
   }
 </style>
 
 <script>
-  const controls =
-    document.querySelectorAll<HTMLButtonElement>(".observe-button");
+  function initSplitLedger() {
+    const container = document.querySelector<HTMLElement>(
+      "[data-split-ledger]",
+    );
+    if (!container || container.dataset.initialized === "true") return;
+    container.dataset.initialized = "true";
 
-  const setOpen = (control: HTMLButtonElement, open: boolean) => {
-    const panelId = control.getAttribute("aria-controls");
-    const panel = panelId ? document.getElementById(panelId) : null;
+    const triggers = Array.from(
+      container.querySelectorAll<HTMLElement>("[data-ledger-trigger]"),
+    );
+    const cards = Array.from(
+      container.querySelectorAll<HTMLElement>("[data-fragment-card]"),
+    );
 
-    control.setAttribute("aria-expanded", String(open));
-    panel?.setAttribute("aria-hidden", String(!open));
-  };
-
-  controls.forEach((control) => {
-    control.addEventListener("click", () => {
-      const willOpen = control.getAttribute("aria-expanded") !== "true";
-
-      controls.forEach((otherControl) => {
-        setOpen(otherControl, otherControl === control && willOpen);
+    function activateIndex(targetIdx: number) {
+      triggers.forEach((trigger) => {
+        const idx = Number(trigger.dataset.targetIndex);
+        trigger.classList.toggle("active", idx === targetIdx);
       });
+
+      cards.forEach((card) => {
+        const idx = Number(card.dataset.index);
+        card.hidden = idx !== targetIdx;
+      });
+    }
+
+    triggers.forEach((trigger) => {
+      const targetIdx = Number(trigger.dataset.targetIndex);
+
+      // Hover / Focus updates the preview on the right
+      trigger.addEventListener("mouseenter", () => activateIndex(targetIdx));
+      trigger.addEventListener("focus", () => activateIndex(targetIdx));
     });
-  });
+  }
+
+  initSplitLedger();
+  document.addEventListener("astro:page-load", initSplitLedger);
 </script>

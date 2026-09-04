@@ -48,6 +48,11 @@ const observations = [
       margin-inline: auto;
     }
 
+    .page:has(.machine-link:hover) :global(.ticker-track),
+    .page:has(.machine-link:hover) :global(.ticker-item) {
+      animation-play-state: paused;
+    }
+
     a#archival-index {
       font-family: var(--machine-text);
       text-decoration: none;
