@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "studyNumber": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "string"
+    },
+    "artist": {
+      "type": "string"
+    },
+    "trackId": {
+      "type": "string"
+    },
+    "blueHourSrc": {
+      "type": "string"
+    },
+    "blueHourMetadata": {
+      "type": "string"
+    },
+    "blackInkblotSrc": {
+      "type": "string"
+    },
+    "whiteInkblotSrc": {
+      "type": "string"
+    },
+    "dreamImageSrc": {
+      "type": "string"
+    },
+    "dreamImageAlt": {
+      "type": "string"
+    },
+    "trinketSrc": {
+      "type": "string"
+    },
+    "trinketAlt": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "observation": {
+      "type": "string"
+    },
+    "inkblotResponse": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "caption": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "authorUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "label",
+        "author",
+        "authorUrl"
+      ]
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "studyNumber",
+    "date",
+    "duration",
+    "artist",
+    "trackId",
+    "blueHourSrc",
+    "blueHourMetadata",
+    "blackInkblotSrc",
+    "whiteInkblotSrc",
+    "dreamImageSrc",
+    "dreamImageAlt",
+    "trinketSrc",
+    "trinketAlt",
+    "bio",
+    "observation",
+    "inkblotResponse",
+    "caption"
+  ]
+}
