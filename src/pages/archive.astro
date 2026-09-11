@@ -1,0 +1,130 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Fetch and sort studies in descending order (most recent at the top)
+const studies = await getCollection("studies");
+const sortedStudies = studies.sort((a, b) => {
+  const numA = parseInt(a.data.studyNumber);
+  const numB = parseInt(b.data.studyNumber);
+  return numB - numA;
+});
+---
+
+<BaseLayout title="INDEX — MOOD STUDIES">
+  <div class="catalog-container">
+    <ol class="catalog-list">
+      {
+        sortedStudies.map((study) => {
+          return (
+            <li class="catalog-item">
+              <a href={`/studies/${study.data.studyNumber}`} class="study-link">
+                <h2>
+                  <span class="catalog-num">{study.data.studyNumber}</span>
+                </h2>
+
+                <div class="content">
+                  <div class="header">
+                    <h2 class="artist">{study.data.artist}</h2>
+                    <span class="duration">{study.data.duration}</span>
+                  </div>
+
+                  <div class="catalog-meta">
+                    <span class="observation">{study.data.observation}</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </div>
+</BaseLayout>
+
+<style>
+  .catalog-container {
+    max-width: 38rem;
+    margin: 5rem auto 4rem;
+    padding: 2rem 1.5rem;
+    color: var(--light, #e3e5de);
+  }
+
+  .catalog-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .catalog-item {
+    margin: 0;
+  }
+
+  .study-link {
+    display: flex;
+    align-items: stretch; /* Stretch children to full row height */
+    gap: 1.25rem;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 150ms ease;
+  }
+
+  .study-link:hover {
+    opacity: 0.5;
+  }
+
+  .catalog-num {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center; /* Centered vertically relative to the row content */
+  }
+
+  .content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--light, #e3e5de);
+  }
+
+  .catalog-item:first-child .content {
+    border-top: 1px solid var(--light, #e3e5de);
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .artist,
+  .catalog-num {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .duration {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .catalog-meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .observation {
+    font-style: italic;
+  }
+</style>

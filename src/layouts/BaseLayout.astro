@@ -1,0 +1,236 @@
+---
+import "../styles/global.css";
+
+import Font from "astro/components/Font.astro";
+interface Props {
+  title?: string;
+  summary?: string;
+}
+
+const { title = "mood studies", summary = "The blue hour is now" } =
+  Astro.props;
+const pathname = Astro.url.pathname;
+const isHome = pathname === "/";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Font cssVariable="--font-syne-mono" preload />
+    <Font cssVariable="--font-silkscreen" preload />
+    <Font cssVariable="--font-vt323" preload />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={summary} />
+    <meta property="og:url" content="https://moodstudies.net" />
+    <script async src="https://tally.so/widgets/embed.js"></script>
+    <title>{title}</title>
+  </head>
+
+  <body>
+    <video autoplay muted loop playsinline preload="auto" class="bg-video-web">
+      <source src="/film_opt.mp4" type="video/mp4" />
+    </video>
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      class="bg-video-mobile"
+    >
+      <source src="/film_mobile.mp4" type="video/mp4" />
+    </video>
+
+    <header class="top-rail">
+      <div class="rail-left">
+        <slot name="header-left" />
+      </div>
+
+      <nav class="main-nav" aria-label="Site Navigation">
+        {
+          !isHome && (
+            <>
+              <a
+                class:list={[
+                  "machine-link nav-item nav-button",
+                  { active: pathname === "/" },
+                ]}
+                aria-current={pathname === "/" ? "page" : undefined}
+                href="/"
+              >
+                home
+              </a>
+              <a
+                class:list={[
+                  "machine-link nav-item nav-button",
+                  { active: pathname.startsWith("/archive") },
+                ]}
+                aria-current={
+                  pathname.startsWith("/archive") ? "page" : undefined
+                }
+                href="/archive"
+              >
+                index
+              </a>
+              <a
+                class:list={[
+                  "machine-link nav-item nav-button",
+                  { active: pathname.startsWith("/observatory") },
+                ]}
+                aria-current={
+                  pathname.startsWith("/observatory") ? "page" : undefined
+                }
+                href="/observatory"
+              >
+                observatory
+              </a>
+            </>
+          )
+        }
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  .top-rail {
+    position: fixed;
+    top: 3.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 6rem);
+    max-width: 1100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10000;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .top-rail {
+      top: 1.5rem;
+      left: 1.25rem;
+      right: 1.25rem;
+      width: auto;
+      transform: none;
+    }
+  }
+
+  .rail-left {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .main-nav {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Unified Modular Softkey Class */
+  :global(.nav-button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+
+    padding: 0.25rem 1.15rem;
+
+    background: rgba(51, 255, 204, 0.05);
+
+    font-family: "VT323", var(--font-vt323, monospace) !important;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+      background 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  /* Interactive & Active States */
+  :global(.nav-button:hover),
+  :global(.nav-button:focus-visible),
+  :global(.machine-link.active),
+  :global(.nav-button.active),
+  :global(.nav-button[aria-current="page"]) {
+    background: var(--glow, #00ffc8) !important;
+    color: #000 !important;
+    border-color: var(--glow, #00ffc8) !important;
+    box-shadow: 0 0 10px rgba(51, 255, 204, 0.6) !important;
+    outline: none;
+  }
+
+  :global(.nav-button:active) {
+    transform: scale(0.96);
+  }
+
+  /* Video background rules */
+  .bg-video-web {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .bg-video-mobile {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    main {
+      padding-top: 5rem;
+    }
+
+    .bg-video-web {
+      display: none;
+    }
+    .bg-video-mobile {
+      display: block;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100dvh;
+      object-fit: cover;
+      object-position: center;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .main-nav {
+      gap: 0.5rem;
+    }
+
+    :global(.nav-button) {
+      padding: 0.2rem 0.75rem;
+      font-size: 1rem;
+    }
+  }
+</style>

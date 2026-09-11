@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="how strange...">
+  <div class="not-found">
+    <h1>404</h1>
+    <img
+      src="/images/crying eye.png"
+      alt="golden trinket resembling an eye with a teardrop"
+    />
+
+    <p class="copy">...you find yourself in a place that does not exist.</p>
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    font-size: 4rem;
+    text-align: center;
+  }
+
+  img {
+    height: 50vh;
+  }
+
+  .not-found {
+    display: grid;
+    place-items: center;
+  }
+</style>

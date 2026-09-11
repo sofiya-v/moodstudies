@@ -1,0 +1,205 @@
+/* ========================================
+   Theme
+======================================== */
+
+:root {
+    --light: #ebe5df;
+    --dark: #130b0b;
+    --muted: #a8a8a8;
+    --glow: rgba(0, 255, 200, 0.95);
+    --glow-dark: rgba(0, 255, 200, 0.5);
+
+    /* Use Astro's injected font variable with reliable fallbacks */
+    --machine-text: var(--font-vt323, "VT323", monospace);
+}
+
+/* ========================================
+   Reset and base
+======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    overflow-x: hidden;
+    /* Uniform overflow handling across root elements */
+    overflow-y: visible;
+    cursor: url("/pluto_cursor.cur") 16 16, auto;
+    background-color: #000;
+    /* Or var(--dark) */
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+.bg-video-web,
+.bg-video-mobile {
+    background-color: #000;
+}
+
+body {
+    position: relative;
+    isolation: isolate;
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+}
+
+a,
+button,
+.clickable {
+    cursor: pointer;
+}
+
+/* ========================================
+   Layout
+======================================== */
+
+.site-header {
+    margin: 5rem auto;
+    max-width: 68rem;
+}
+
+main {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+
+/* ========================================
+   Typography and elements
+======================================== */
+
+h1,
+h2,
+h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(232 235 228 / 88%);
+    filter: blur(0.35px);
+    text-shadow:
+        0 0 2px rgb(232 235 228 / 70%),
+        0 0 8px rgb(232 235 228 / 28%),
+        0 0 20px rgb(232 235 228 / 14%),
+        0 0 42px rgb(179 255 189 / 6%);
+}
+
+h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+}
+
+h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.copy {
+    line-height: 1.7;
+    font-family: Arial, Helvetica, sans-serif;
+    justify-content: center;
+    color: rgb(236 229 220 / 82%);
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    margin: 2rem;
+    text-shadow: 0 0 6px rgb(236 229 220 / 5%);
+}
+
+a {
+    color: var(--light);
+    text-decoration: underline;
+}
+
+a:hover {
+    color: var(--glow);
+}
+
+/* Machine Link (Enforced Machine Typography) */
+a.machine-link,
+.machine-link,
+.machine-link * {
+    font-family: var(--machine-text);
+    color: var(--light);
+    text-decoration: none;
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1;
+
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    text-shadow: 0 0 6px var(--light);
+
+    transition: background 150ms ease, color 150ms ease, text-shadow 150ms ease, box-shadow 150ms ease;
+    user-select: none;
+    justify-items: center;
+}
+
+a.machine-link:hover,
+a.machine-link:focus-visible,
+a.machine-link.active,
+a.machine-link[aria-current="page"],
+.machine-link:hover,
+.machine-link:focus-visible,
+.machine-link.active,
+.machine-link[aria-current="page"] {
+    color: #000 !important;
+    background: var(--glow) !important;
+    text-shadow: none !important;
+    box-shadow: 0 0 8px var(--glow) !important;
+    outline: none;
+}
+
+a.machine-link:active,
+.machine-link:active {
+    transform: scale(0.96);
+}
+
+/* ========================================
+   Accessibility & Responsiveness
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body::before,
+    body::after {
+        animation: none;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        min-height: 100dvh;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        text-shadow: 0 0 2px var(--glow);
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        text-shadow: 0 0 2px var(--glow);
+    }
+
+    .site-header {
+        margin: 2rem 1.5rem;
+    }
+
+    /* Fixed: Removed fixed width (20rem) & margin on main so mobile screens allow full-bleed layouts */
+    main {
+        width: 100%;
+        margin: 0;
+    }
+}

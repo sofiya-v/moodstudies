@@ -1,0 +1,84 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Ticker from "../components/Ticker.astro";
+
+const observations = [
+  "the blue hour is now",
+  "please enjoy the twilit hush",
+  "visibility is rapidly waning",
+  "pay special attention to vespertine phenomena",
+  "reports of mutual dreaming are unverified but seductively plausible",
+  "you've been here before",
+  "your stay will be brief but its effects will linger",
+  "the archive changes as it's observed",
+  "you will intuit your way through",
+  "try to remember what you've found",
+  "there are dark times in which things glow",
+  "your demeanor is an incantation",
+  "the study of glittering images is a worthy pursuit",
+];
+---
+
+<BaseLayout>
+  <div class="page">
+    <Ticker items={observations} />
+    <h1 aria-label="mood studies">
+      <span aria-hidden="true">mood studies</span>
+    </h1>
+    <div id="entry-links">
+      <a class="machine-link" href="/archive">INDEX</a>
+      <a class="machine-link" href="/observatory">OBSERVATORY</a>
+    </div>
+
+    <style>
+      .main-nav {
+        visibility: hidden;
+      }
+
+      #entry-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 28rem;
+        justify-items: center;
+      }
+
+      .page {
+        box-sizing: border-box;
+        height: 100svh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        overflow: hidden;
+        position: fixed;
+        inset: 0;
+        width: min(100%, 48rem);
+        margin-inline: auto;
+      }
+
+      .page:has(.machine-link:hover) :global(.ticker-track),
+      .page:has(.machine-link:hover) :global(.ticker-item) {
+        animation-play-state: paused;
+      }
+
+      #entry-links {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .page img {
+          width: clamp(12rem, 55vw, 18rem);
+          max-height: 32svh;
+        }
+
+        a#archival-index {
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </div>
+</BaseLayout>

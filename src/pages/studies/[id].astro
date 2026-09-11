@@ -1,0 +1,95 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import StudyLayout from "../../layouts/StudyLayout.astro";
+
+export async function getStaticPaths() {
+  const allStudies = await getCollection("studies");
+
+  allStudies.sort(
+    (a, b) => Number(a.data.studyNumber) - Number(b.data.studyNumber),
+  );
+
+  const paths = allStudies.map(
+    (study: CollectionEntry<"studies">, index: number) => {
+      const rawId = study.id;
+      const cleanId = rawId.replace(/\.mdx?$/, "");
+
+      const prevStudy = allStudies[index - 1];
+      const nextStudy = allStudies[index + 1];
+
+      const getCleanId = (entry?: CollectionEntry<"studies">) =>
+        entry ? entry.id.replace(/\.mdx?$/, "") : null;
+
+      return {
+        params: { id: cleanId },
+        props: {
+          study,
+          previousStudyHref: prevStudy
+            ? `/studies/${getCleanId(prevStudy)}`
+            : undefined,
+          nextStudyHref: nextStudy
+            ? `/studies/${getCleanId(nextStudy)}`
+            : undefined,
+          previousStudyNumber: prevStudy?.data.studyNumber,
+          nextStudyNumber: nextStudy?.data.studyNumber,
+        },
+      };
+    },
+  );
+
+  return paths;
+}
+
+interface Props {
+  study: CollectionEntry<"studies">;
+  previousStudyHref?: string;
+  nextStudyHref?: string;
+  previousStudyNumber?: string;
+  nextStudyNumber?: string;
+}
+
+const { study } = Astro.props;
+
+const { Content } = await render(study);
+---
+
+<StudyLayout
+  studyNumber={study.data.studyNumber}
+  artist={study.data.artist}
+  trackId={study.data.trackId}
+  blueHourSrc={study.data.blueHourSrc}
+  blueHourMetadata={study.data.blueHourMetadata}
+  blackInkblotSrc={study.data.blackInkblotSrc}
+  whiteInkblotSrc={study.data.whiteInkblotSrc}
+  dreamImageSrc={study.data.dreamImageSrc}
+  dreamImageAlt={study.data.dreamImageAlt}
+  trinketSrc={study.data.trinketSrc}
+  trinketAlt={study.data.trinketAlt}
+>
+  <fragment slot="bio">{study.data.bio}</fragment>
+
+  <fragment slot="inkblot response">
+    {
+      study.data.inkblotResponse.map((item: string, index: number) => (
+        <>
+          {item}
+          {index < study.data.inkblotResponse.length - 1 && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
+        </>
+      ))
+    }
+  </fragment>
+
+  <fragment slot="dream log">
+    <Content />
+  </fragment>
+
+  <fragment slot="caption">
+    {study.data.caption.label}
+    <a href={study.data.caption.authorUrl}>{study.data.caption.author}</a>
+  </fragment>
+</StudyLayout>

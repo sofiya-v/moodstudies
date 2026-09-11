@@ -1,0 +1,256 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const audioFiles = import.meta.glob("/public/audio/*.{mp3,flac,wav,ogg,m4a}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+const playlist = Object.keys(audioFiles).map((path) => ({
+  src: path.replace("/public", ""),
+  title: path.split("/").pop() || "",
+}));
+
+const allSightings: CollectionEntry<"sightings">[] =
+  await getCollection("sightings");
+
+const sightings = [...allSightings].sort(() => Math.random() - 0.5);
+---
+
+<BaseLayout title="blue hour observatory">
+  <button
+    id="audio-toggle"
+    type="button"
+    class="nav-button audio-btn"
+    slot="header-left"
+    aria-label="Toggle Audio">[AUDIO: OFF]</button
+  >
+
+  <audio id="bg-player" preload="metadata"></audio>
+
+  <div class="page">
+    <h1 aria-label="blue hour observatory">
+      <span aria-hidden="true">observatory</span>
+    </h1>
+
+    <p class="copy">
+      Have you seen it too? <a
+        href="#tally-open=jaRg2R&tally-overlay=1&tally-auto-close=3000"
+        >Submit.</a
+      >
+    </p>
+
+    <section class="gallery" aria-label="Image Gallery">
+      {
+        sightings.map((sighting, index) => {
+          const metaString = [
+            sighting.data.date,
+            sighting.data.time,
+            sighting.data.location,
+            sighting.data.author ? `by ${sighting.data.author}` : null,
+          ]
+            .filter(Boolean)
+            .join(" // ");
+
+          return (
+            <div class="gallery-item">
+              <img
+                src={sighting.data.image}
+                alt={sighting.data.time ?? sighting.data.date ?? "Blue hour"}
+                title={metaString}
+                loading={index < 2 ? "eager" : "lazy"}
+                decoding="async"
+                style="filter: url(#universalGrain);"
+              />
+            </div>
+          );
+        })
+      }
+    </section>
+
+    <!-- Analog-calibrated organic film grain injection -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <filter id="universalGrain">
+        <!-- 1. Generate the base fine noise matrix -->
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="3"
+          numOctaves="4"
+          stitchTiles="stitch"
+          result="rawNoise"></feTurbulence>
+
+        <!-- 2. Strip color to keep it monochromatic -->
+        <feColorMatrix
+          type="matrix"
+          values="0.33 0.33 0.33 0 0
+                  0.33 0.33 0.33 0 0
+                  0.33 0.33 0.33 0 0
+                  0    0    0    1 0"
+          in="rawNoise"
+          result="monoNoise"></feColorMatrix>
+
+        <!-- 3. Soften the noise by a fraction of a pixel to emulate chemical halide bleed -->
+        <feGaussianBlur stdDeviation="0.35" in="monoNoise" result="blurredNoise"
+        ></feGaussianBlur>
+
+        <!-- 4. Control overall texture depth/opacity -->
+        <feComponentTransfer in="blurredNoise" result="softNoise">
+          <feFuncA type="linear" slope="0.60"></feFuncA>
+        </feComponentTransfer>
+
+        <!-- 5. Blend smoothly over the original photo -->
+        <feBlend mode="overlay" in="SourceGraphic" in2="softNoise"></feBlend>
+      </filter>
+    </svg>
+  </div>
+
+  <audio id="bg-player" preload="metadata"></audio>
+
+  <style>
+    .page {
+      box-sizing: border-box;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 3rem;
+      width: min(100% - 2rem, 48rem);
+      margin-inline: auto;
+      padding: 5rem 1rem; /* Generous breathing room that flows naturally */
+    }
+
+    .gallery {
+      width: min(100% - 3rem, 34rem);
+      margin-inline: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1.5rem 2rem;
+      border-left: 1px solid rgba(51, 255, 204, 0.1);
+      border-right: 1px solid rgba(51, 255, 204, 0.1);
+    }
+
+    .gallery-item {
+      position: relative;
+      background: #000;
+      border-top: 10px solid rgba(0, 0, 0, 0.85);
+      border-bottom: 10px solid rgba(0, 0, 0, 0.85);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+    }
+
+    /* Stable retro metadata readout below the frame instead of floating over it */
+    .gallery-meta {
+      font-family: "VT323", monospace;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      color: rgba(51, 255, 204, 0.6);
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+      opacity: 0;
+      transition: opacity 150ms ease;
+    }
+
+    .gallery-item:hover .gallery-meta {
+      opacity: 1;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      /* Dimm, moody unexposed scan state */
+      filter: url(#universalGrain) brightness(0.85) contrast(1.15) saturate(0.8);
+      opacity: 0.8;
+      transition:
+        filter 400ms ease,
+        opacity 400ms ease,
+        transform 400ms ease;
+    }
+
+    .audio-btn {
+      color: var(--light);
+      border: none;
+      background: transparent;
+      height: auto;
+      padding: 0;
+      line-height: 1;
+    }
+
+    /* Mobile adjustment */
+    @media (max-width: 600px) {
+      .gallery {
+        width: calc(100% - 2rem);
+      }
+    }
+  </style>
+</BaseLayout>
+
+<script define:vars={{ playlist }}>
+  // Fisher-Yates shuffle algorithm
+  function shuffle(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  // Randomized background audio queue setup
+  const shuffledPlaylist = shuffle(playlist || []);
+  let currentIndex = 0;
+  let isPlaying = false;
+
+  const audioBtn = document.getElementById("audio-toggle");
+  const player = document.getElementById("bg-player");
+
+  function loadAndPlay(index) {
+    if (!player || shuffledPlaylist.length === 0) return;
+    currentIndex = index % shuffledPlaylist.length;
+    player.src = shuffledPlaylist[currentIndex].src;
+
+    if (isPlaying) {
+      player.play().catch(() => {
+        setAudioState(false);
+      });
+    }
+  }
+
+  function setAudioState(active) {
+    isPlaying = active;
+    if (!audioBtn || !player) return;
+
+    if (isPlaying) {
+      audioBtn.textContent = "[ AUDIO: ON ]";
+      audioBtn.classList.add("active");
+
+      if (!player.src) {
+        loadAndPlay(0);
+      } else {
+        player.play().catch(() => setAudioState(false));
+      }
+    } else {
+      audioBtn.textContent = "[ AUDIO: OFF ]";
+      audioBtn.classList.remove("active");
+      player.pause();
+    }
+  }
+
+  if (audioBtn) {
+    audioBtn.addEventListener("click", () => {
+      setAudioState(!isPlaying);
+    });
+  }
+
+  // Consecutive playback sequence
+  if (player) {
+    player.addEventListener("ended", () => {
+      loadAndPlay(currentIndex + 1);
+    });
+  }
+</script>
