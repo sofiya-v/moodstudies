@@ -6,7 +6,7 @@
     --light: #ebe5df;
     --dark: #130b0b;
     --muted: #a8a8a8;
-    --glow: rgba(0, 255, 200, 0.95);
+    --glow: rgba(0, 255, 149, 0.95);
     --glow-dark: rgba(0, 255, 200, 0.5);
 
     /* Use Astro's injected font variable with reliable fallbacks */

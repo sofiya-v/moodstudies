@@ -8,6 +8,7 @@ interface Props {
   trackId: string;
 
   shrineColor?: string;
+  shrineFilter?: string;
 
   trinketSrc: string;
   trinketAlt?: string;
@@ -30,6 +31,7 @@ const {
   trackId,
 
   shrineColor = "#b3ffbd",
+  shrineFilter = "sepia(0.35) hue-rotate(345deg) saturate(2.4) brightness(0.85)",
 
   trinketSrc,
   trinketAlt = "Personal trinket contributed by the artist",
@@ -47,6 +49,15 @@ const {
 } = Astro.props;
 
 const pageTitle = `mood study ${studyNumber} — ${artist}`;
+
+/* 
+  Procedural SVG Pixel-Woven Persian Rug Motif Data URI.
+  Encodes a symmetric 32x32 pixel grid featuring:
+  - Deep red field background (#ba1c10)
+  - Multi-colored geometric border tracks (ochre, moss green, dark brown, black)
+  - Symmetrical central cyan/gold/blue kaleidoscopic medallion 
+*/
+const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="64" height="64"><rect width="32" height="32" fill="%23ba1c10"/><path d="M0 0h32v2H0zM0 30h32v2H0zM0 0h2v32H0zM30 0h2v32H30z" fill="%23140304"/><path d="M2 2h28v2H2zM2 28h28v2H2zM2 2h2v28H2zM28 2h2v28H28z" fill="%232a1610"/><path d="M4 4h24v2H4zM4 26h24v2H4zM4 4h2v24H4zM26 4h2v24H26z" fill="%23c88a32"/><path d="M6 6h20v2H6zM6 24h20v2H6zM6 6h2v20H6zM24 6h2v20H24z" fill="%232e4d32"/><path d="M14 10h4v12h-4zM10 14h12v4H10z" fill="%231e64a0"/><path d="M12 12h8v8h-8z" fill="%2387ceeb"/><path d="M15 15h2v2h-2z" fill="%23ffd700"/><path d="M8 8h2v2H8zM22 8h2v2H22zM8 22h2v2H8zM22 22h2v2H22z" fill="%23ffd700"/><path d="M10 10h2v2H10zM20 10h2v2H20zM10 20h2v2H10zM20 20h2v2H20z" fill="%236bb3f2"/></svg>`;
 ---
 
 <!doctype html>
@@ -63,29 +74,11 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
   </head>
 
   <body>
-    <!-- Background Video Elements -->
-    <video autoplay muted loop playsinline preload="auto" class="bg-video-web">
-      <source src="/film_opt.mp4" type="video/mp4" />
-    </video>
-    <video
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="auto"
-      class="bg-video-mobile"
-    >
-      <source src="/film_mobile.mp4" type="video/mp4" />
-    </video>
-
-    <!-- Translucent Overlay over Video -->
-    <div class="video-overlay" aria-hidden="true"></div>
-
     <div
       class="study-room"
       data-study-shell
       data-study-number={studyNumber}
-      style={`--shrine-accent: ${shrineColor};`}
+      style={`--shrine-accent: ${shrineColor}; --shrine-filter: ${shrineFilter}; --rug-pattern: url("${rugSvgPattern}");`}
       aria-label={`Mood study ${studyNumber}: ${artist}`}
     >
       <header class="audio-rail">
@@ -111,264 +104,215 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
         </nav>
       </header>
 
-      <!-- Interactive Canvas Room -->
+      <!-- Room Canvas with Pixelated Persian Rug Frames -->
       <main class="room-canvas">
-        <button
-          type="button"
-          class="blue-hour-window"
-          data-dialog-open="blue-hour-dialog"
-          aria-label="Open blue-hour photograph"
-        >
-          <img src="/images/studies/001/blue_hour_arch.png" alt="" />
-        </button>
+        <!-- 1. Blue Hour Dialog (Midground Landscape) -->
+        <div id="blue-hour-dialog" class="shrine-dialog blue-hour-dialog">
+          <div class="hanging-rod" aria-hidden="true"></div>
+          <div class="dialog-body">
+            <img src={blueHourSrc} alt={blueHourAlt} class="dialog-image" />
+            <p class="metadata">{blueHourMetadata}</p>
+          </div>
+        </div>
 
-        <!-- Dream fragment -->
-        <button
-          type="button"
-          class="room-artifact dream-artifact"
-          data-dialog-open="dream-dialog"
-          aria-label="Open the dream log"
+        <!-- 2. Dream Log Dialog -->
+        <div
+          id="dream-dialog"
+          class="shrine-dialog dream-dialog"
+          data-dream-dialog
         >
-          <span>{dreamExcerpt}</span>
-        </button>
+          <div class="hanging-rod" aria-hidden="true"></div>
+          <div class="dialog-body dream-dialog-body">
+            <div class="dream-teaser">
+              <p class="dream-teaser-text">DREAM LOG // ARCHIVE SCROLL</p>
+              <button
+                type="button"
+                class="interview-btn"
+                data-action="toggle-dream"
+              >
+                UNROLL TAPESTRY
+              </button>
+            </div>
+            <div class="dream-full-content" hidden>
+              <div class="dialog-copy dream-copy">
+                <slot name="dream log" />
+              </div>
+              <figure>
+                <img
+                  src={dreamImageSrc}
+                  alt={dreamImageAlt}
+                  class="dialog-image dream-image"
+                />
+                <figcaption>
+                  <slot name="caption" />
+                </figcaption>
+              </figure>
+              <div class="dream-footer-controls">
+                <button
+                  type="button"
+                  class="interview-btn"
+                  data-action="toggle-dream"
+                >
+                  ROLL UP
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <!-- Interview text artifact -->
-        <button
-          type="button"
-          class="room-artifact interview-artifact"
-          data-dialog-open="interview-dialog"
-          aria-label="Open inkblot interview"
+        <!-- 3. Interview Window -->
+        <div
+          id="interview-dialog"
+          class="shrine-dialog interview-dialog"
+          data-interview-container
         >
-          INTERVIEW
-        </button>
+          <div class="hanging-rod" aria-hidden="true"></div>
+          <div class="dialog-body interview-body">
+            <!-- Plate I -->
+            <div class="plate-step" data-plate="1">
+              <div class="inkblot-frame">
+                <img
+                  src={blackInkblotSrc}
+                  alt="Inkblot Plate I"
+                  class="interview-inkblot"
+                />
+              </div>
+              <div class="response-area" data-response hidden>
+                <div class="guest-answer">
+                  <slot name="inkblot-1-response">
+                    <p>A pair of moths resting on dark granite.</p>
+                  </slot>
+                </div>
+              </div>
+            </div>
 
-        <!-- Trinket (Bio artifact) -->
-        <button
-          type="button"
-          class="room-artifact trinket-artifact"
-          data-dialog-open="bio-dialog"
-          aria-label="Examine personal trinket and biographical note"
-        >
-          <img src={trinketSrc} alt="" />
-        </button>
+            <!-- Plate II -->
+            <div class="plate-step" data-plate="2" hidden>
+              <div class="inkblot-frame">
+                <img
+                  src={blackInkblotSrc}
+                  alt="Inkblot Plate II"
+                  class="interview-inkblot"
+                />
+              </div>
+              <div class="response-area" data-response hidden>
+                <div class="guest-answer">
+                  <slot name="inkblot-2-response">
+                    <p>Submerged root structures under still water.</p>
+                  </slot>
+                </div>
+              </div>
+            </div>
 
-        <!-- Guest offering -->
-        <button
-          type="button"
-          class="room-artifact offering-artifact"
-          data-dialog-open="offering-dialog"
-          aria-label="Examine the object contributed by the artist"
+            <!-- Plate III -->
+            <div class="plate-step" data-plate="3" hidden>
+              <div class="inkblot-frame">
+                <img
+                  src={blackInkblotSrc}
+                  alt="Inkblot Plate III"
+                  class="interview-inkblot"
+                />
+              </div>
+              <div class="response-area" data-response hidden>
+                <div class="guest-answer">
+                  <slot name="inkblot-3-response">
+                    <p>A doorway opening inward against light.</p>
+                  </slot>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Controls -->
+            <div class="interview-controls">
+              <button type="button" class="interview-btn" data-action="reveal">
+                REVEAL RESPONSE
+              </button>
+              <button
+                type="button"
+                class="interview-btn"
+                data-action="next-plate"
+                hidden
+              >
+                NEXT PLATE
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Sensory Field Notes Box -->
+        <div
+          id="sensory-dialog"
+          class="shrine-dialog sensory-dialog"
+          data-sensory-container
         >
-          <img src={trinketSrc} alt="" />
-        </button>
+          <div class="hanging-rod" aria-hidden="true"></div>
+          <div class="dialog-body interview-body">
+            <!-- Inquiry I -->
+            <div class="plate-step" data-sensory-step="1">
+              <p class="sensory-question">
+                What is your favorite non-musical sound?
+              </p>
+              <div class="guest-answer">
+                <p>
+                  The low, vibrating hum of a refrigerator through a thin
+                  apartment wall at 4 AM.
+                </p>
+              </div>
+            </div>
+
+            <!-- Inquiry II -->
+            <div class="plate-step" data-sensory-step="2" hidden>
+              <p class="sensory-question">
+                Describe the lighting where you are right now.
+              </p>
+              <div class="guest-answer">
+                <p>
+                  Filtered blue morning light refracted through water glasses
+                  and floating dust motes.
+                </p>
+              </div>
+            </div>
+
+            <!-- Inquiry III -->
+            <div class="plate-step" data-sensory-step="3" hidden>
+              <p class="sensory-question">
+                What recurring motifs do your dreams contain?
+              </p>
+              <div class="guest-answer">
+                <p>
+                  Endless subterranean parking garages, flooded basements, and
+                  distant radio towers.
+                </p>
+              </div>
+            </div>
+
+            <!-- Interactive Controls -->
+            <div class="interview-controls">
+              <button
+                type="button"
+                class="interview-btn"
+                data-sensory-action="next"
+              >
+                NEXT INQUIRY
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Biographical Note / Artist Bio -->
+        <div
+          id="bio-dialog"
+          class="shrine-dialog bio-dialog is-centered active-dialog"
+        >
+          <div class="hanging-rod" aria-hidden="true"></div>
+          <div class="dialog-body">
+            <img src={trinketSrc} alt={trinketAlt} class="dialog-offering" />
+            <div class="dialog-copy bio-copy">
+              <slot name="bio" />
+            </div>
+          </div>
+        </div>
       </main>
-
-      <!-- Dialog Windows -->
-      <dialog
-        id="blue-hour-dialog"
-        class="shrine-dialog blue-hour-dialog"
-        aria-labelledby="blue-hour-dialog-title"
-      >
-        <div class="dialog-bar">
-          <span id="blue-hour-dialog-title">BLUE HOUR</span>
-          <button
-            type="button"
-            class="close-button"
-            data-dialog-close
-            aria-label="Close blue-hour window"
-          >
-            [X]
-          </button>
-        </div>
-        <div class="dialog-body">
-          <img src={blueHourSrc} alt={blueHourAlt} class="dialog-image" />
-          <p class="metadata">{blueHourMetadata}</p>
-        </div>
-      </dialog>
-
-      <!-- 3-Plate Interview Window -->
-      <dialog
-        id="interview-dialog"
-        class="shrine-dialog interview-dialog"
-        aria-labelledby="interview-dialog-title"
-        data-interview-container
-      >
-        <div class="dialog-bar">
-          <span id="interview-dialog-title"
-            >INTERVIEW — INKBLOT EXAMINATION</span
-          >
-          <button
-            type="button"
-            class="close-button"
-            data-dialog-close
-            aria-label="Close interview window"
-          >
-            [X]
-          </button>
-        </div>
-
-        <div class="dialog-body interview-body">
-          <div class="plate-indicator">
-            PLATE <span data-plate-num>I</span> / III
-          </div>
-
-          <!-- Plate I -->
-          <div class="plate-step" data-plate="1">
-            <div class="inkblot-frame">
-              <img
-                src={blackInkblotSrc}
-                alt="Inkblot Plate I"
-                class="interview-inkblot"
-              />
-            </div>
-            <div class="response-area" data-response hidden>
-              <div class="guest-answer">
-                <slot name="inkblot-1-response">
-                  <p>A pair of moths resting on dark granite.</p>
-                </slot>
-              </div>
-            </div>
-          </div>
-
-          <!-- Plate II -->
-          <div class="plate-step" data-plate="2" hidden>
-            <div class="inkblot-frame">
-              <img
-                src={blackInkblotSrc}
-                alt="Inkblot Plate II"
-                class="interview-inkblot"
-              />
-            </div>
-            <div class="response-area" data-response hidden>
-              <div class="guest-answer">
-                <slot name="inkblot-2-response">
-                  <p>Submerged root structures under still water.</p>
-                </slot>
-              </div>
-            </div>
-          </div>
-
-          <!-- Plate III -->
-          <div class="plate-step" data-plate="3" hidden>
-            <div class="inkblot-frame">
-              <img
-                src={blackInkblotSrc}
-                alt="Inkblot Plate III"
-                class="interview-inkblot"
-              />
-            </div>
-            <div class="response-area" data-response hidden>
-              <div class="guest-answer">
-                <slot name="inkblot-3-response">
-                  <p>A doorway opening inward against light.</p>
-                </slot>
-              </div>
-            </div>
-          </div>
-
-          <!-- Interactive Controls -->
-          <div class="interview-controls">
-            <button type="button" class="interview-btn" data-action="reveal">
-              REVEAL RESPONSE
-            </button>
-            <button
-              type="button"
-              class="interview-btn"
-              data-action="next"
-              hidden
-            >
-              NEXT
-            </button>
-            <button
-              type="button"
-              class="interview-btn"
-              data-action="close"
-              data-dialog-close
-              hidden
-            >
-              [ CLOSE INTERVIEW ]
-            </button>
-          </div>
-        </div>
-      </dialog>
-
-      <dialog
-        id="bio-dialog"
-        class="shrine-dialog bio-dialog"
-        aria-labelledby="bio-dialog-title"
-      >
-        <div class="dialog-bar">
-          <span id="bio-dialog-title">TRINKET / BIOGRAPHICAL NOTE</span>
-          <button
-            type="button"
-            class="close-button"
-            data-dialog-close
-            aria-label="Close biographical note"
-          >
-            [X]
-          </button>
-        </div>
-        <div class="dialog-body">
-          <img src={trinketSrc} alt={trinketAlt} class="dialog-offering" />
-          <div class="dialog-copy bio-copy">
-            <slot name="bio" />
-          </div>
-        </div>
-      </dialog>
-
-      <dialog
-        id="offering-dialog"
-        class="shrine-dialog bio-dialog"
-        aria-labelledby="offering-dialog-title"
-      >
-        <div class="dialog-bar">
-          <span id="offering-dialog-title">ARTIST OFFERING</span>
-          <button
-            type="button"
-            class="close-button"
-            data-dialog-close
-            aria-label="Close offering window"
-          >
-            [X]
-          </button>
-        </div>
-        <div class="dialog-body">
-          <img src={trinketSrc} alt={trinketAlt} class="dialog-offering" />
-        </div>
-      </dialog>
-
-      <dialog
-        id="dream-dialog"
-        class="shrine-dialog dream-dialog"
-        aria-labelledby="dream-dialog-title"
-      >
-        <div class="dialog-bar">
-          <span id="dream-dialog-title">DREAM LOG</span>
-          <button
-            type="button"
-            class="close-button"
-            data-dialog-close
-            aria-label="Close dream log"
-          >
-            [X]
-          </button>
-        </div>
-        <div class="dialog-body dream-dialog-body">
-          <div class="dialog-copy dream-copy">
-            <slot name="dream log" />
-          </div>
-          <figure>
-            <img
-              src={dreamImageSrc}
-              alt={dreamImageAlt}
-              class="dialog-image dream-image"
-            />
-            <figcaption>
-              <slot name="caption" />
-            </figcaption>
-          </figure>
-        </div>
-      </dialog>
     </div>
   </body>
 </html>
@@ -390,7 +334,10 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     height: 100%;
     margin: 0;
     overflow: hidden;
-    background: #000;
+    background: #1a1816;
+    background-image: url("/stone.jpg");
+    background-size: cover;
+    background-position: center;
   }
 
   :global(body) {
@@ -403,51 +350,6 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     font: inherit;
   }
 
-  /* Shared background video rules */
-  .bg-video-web,
-  .bg-video-mobile {
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    width: 100vw;
-    height: 100dvh;
-    object-fit: cover;
-    object-position: center;
-    pointer-events: none;
-  }
-
-  .bg-video-mobile {
-    display: none;
-  }
-
-  @media (max-width: 768px) {
-    .bg-video-web {
-      display: none;
-    }
-    .bg-video-mobile {
-      display: block;
-    }
-  }
-
-  .video-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: 
-      /* Optional fine vignette to darken edges like an old lens */
-      radial-gradient(
-        circle at center,
-        rgba(0, 0, 0, 0.4) 0%,
-        rgba(0, 0, 0, 0.85) 100%
-      ),
-      /* Static SVG noise pattern tile */
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.35'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 180px 180px;
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-  }
-
   /* Main Room Container */
   .study-room {
     position: relative;
@@ -457,15 +359,22 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     overflow: hidden;
   }
 
+  .study-room.is-dragging,
+  .study-room.is-dragging * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
   .room-canvas {
     position: fixed;
     top: var(--audio-rail-height);
     inset-inline: 0;
     bottom: 0;
     z-index: 2;
+    overflow: auto;
+    overscroll-behavior: contain;
   }
 
-  /* Top rail holding player + navigation */
   .audio-rail {
     position: fixed;
     top: 2rem;
@@ -487,7 +396,6 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     pointer-events: none;
   }
 
-  /* Audio player wrapper */
   .deck-wrapper {
     pointer-events: auto;
     flex: 1 1 auto;
@@ -496,7 +404,6 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     align-items: center;
   }
 
-  /* Navigation container */
   .room-nav {
     pointer-events: auto;
     flex: 0 0 auto;
@@ -505,7 +412,6 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     gap: 1.25rem;
   }
 
-  /* Machine Link active state lock (Permanent Glow per shrine color) */
   :global(.machine-link.active),
   :global(.machine-link[aria-current="page"]) {
     color: #000 !important;
@@ -514,344 +420,262 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     box-shadow: 0 0 8px var(--shrine-accent, #33ffcc) !important;
   }
 
-  .blue-hour-window {
-    position: absolute;
-    top: 6%;
-    right: 6%;
-    z-index: 1;
-
-    display: grid;
-    place-items: center;
-
-    width: min(55vw, 42rem);
-    max-height: calc(100% - 4rem);
-    height: auto;
-    padding: 0;
-    border: 0;
-
-    background: transparent;
-    color: var(--light, #fff);
-    cursor: zoom-in;
-    transform: none;
-  }
-
-  .blue-hour-window img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: brightness(0.82) saturate(0.92);
-  }
-
-  .blue-hour-window:focus-visible {
-    outline: 1px dotted var(--shrine-accent, #b3ffbd);
-    outline-offset: -0.75rem;
-  }
-
-  .room-artifact {
-    position: absolute;
-    z-index: 3;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  .interview-artifact {
-    top: 32%;
-    left: clamp(1.5rem, 7vw, 8rem);
-    padding: 0.4rem 0.75rem;
-
-    border: 1px solid var(--shrine-accent, #b3ffbd);
-    background: #000;
-    color: var(--shrine-accent, #b3ffbd);
-
-    font-family: var(--machine-text, "VT323", monospace);
-    font-size: 1.15rem;
-    letter-spacing: 0.12em;
-
-    transition:
-      transform 150ms ease,
-      background 150ms ease,
-      color 150ms ease;
-  }
-
-  .interview-artifact:hover,
-  .interview-artifact:focus-visible {
-    background: var(--shrine-accent, #b3ffbd);
-    color: #000;
-    transform: translateY(-2px);
-  }
-
-  .dream-artifact {
-    position: absolute;
-    bottom: 10vh;
-    left: 5vw;
-    top: auto;
-
-    width: min(52rem, 65vw);
-    padding: 1.25rem 2rem;
-
-    background: rgba(0, 0, 0, 0.45);
-    border-left: 2px solid var(--shrine-accent, #b3ffbd);
-    color: var(--light, #fff);
-
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(1.15rem, 2.1vw, 1.6rem);
-    font-style: italic;
-    line-height: 1.45;
-    text-align: left;
-
-    transform: none;
-    transition:
-      transform 160ms ease-out,
-      color 160ly 160ms ease-out,
-      border-color 160ms ease-out;
-  }
-
-  .dream-artifact:hover,
-  .dream-artifact:focus-visible {
-    color: var(--shrine-accent, #b3ffbd);
-    border-color: var(--shrine-accent, #b3ffbd);
-    transform: translateY(-2px);
-  }
-
-  .dream-artifact:active {
-    transform: translateY(0);
-  }
-
-  .trinket-artifact {
-    top: 25%;
-    right: clamp(1.5rem, 7vw, 8rem);
-    width: clamp(8rem, 16vw, 15rem);
-
-    transform: rotate(-3deg);
-    transition:
-      transform 160ms ease-out,
-      filter 160ms ease-out;
-  }
-
-  .trinket-artifact img,
-  .offering-artifact img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .trinket-artifact img {
-    filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.65));
-  }
-
-  .trinket-artifact:hover,
-  .trinket-artifact:focus-visible {
-    transform: translateY(-4px) rotate(-1deg);
-    filter: brightness(1.08) drop-shadow(0 14px 16px rgb(0 0 0 / 0.75));
-  }
-
-  .trinket-artifact:active {
-    transform: translateY(-1px) rotate(-1deg) scale(0.985);
-  }
-
-  .offering-artifact {
-    right: clamp(1.5rem, 7vw, 8rem);
-    bottom: clamp(2.5rem, 8vh, 6rem);
-    width: clamp(9rem, 20vw, 19rem);
-
-    transform: rotate(1.5deg);
-    transition:
-      transform 170ms ease-out,
-      filter 170ms ease-out;
-  }
-
-  .offering-artifact img {
-    filter: drop-shadow(0 13px 14px rgb(0 0 0 / 0.7));
-  }
-
-  .offering-artifact:hover,
-  .offering-artifact:focus-visible {
-    transform: translateY(-5px) rotate(2deg);
-    filter: brightness(1.07);
-  }
-
-  .offering-artifact:active {
-    transform: translateY(-1px) rotate(2deg) scale(0.985);
-  }
-
-  /* Dialog System */
+  /* 
+    Procedural Pixelated Persian Rug & Woven Tapestry Frame System
+    Uses border-image with the SVG pattern and crisp pixel rendering.
+  */
   .shrine-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 2000;
-
-    width: min(90vw, 38rem);
-    max-height: calc(100dvh - var(--audio-rail-height) - 2rem);
+    position: absolute;
     margin: 0;
     padding: 0;
+    overflow: visible;
 
-    overflow: hidden;
-    border: 3px outset #b8b8b8;
+    border: 16px solid #ba1c10;
+    border-image: var(--rug-pattern) 12 round;
+    image-rendering: pixelated;
 
-    background: #090909;
+    background-color: #ba1c10;
+    background-image: var(--rug-pattern);
+    background-repeat: repeat;
+    background-size: 64px 64px;
+
     color: var(--light, #fff);
+    filter: var(--shrine-filter);
+    transform-origin: top center;
+    transition:
+      filter 300ms ease,
+      box-shadow 300ms ease,
+      width 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
 
     box-shadow:
-      0 18px 45px rgb(0 0 0 / 0.8),
-      0 0 20px
-        color-mix(in srgb, var(--shrine-accent, #b3ffbd) 10%, transparent);
+      inset 0 0 0 2px #d4af37,
+      inset 0 0 0 6px #140304,
+      inset 0 0 50px rgba(0, 0, 0, 0.9),
+      4px 8px 16px rgba(30, 15, 10, 0.35),
+      16px 32px 55px rgba(20, 10, 5, 0.45),
+      35px 70px 110px rgba(10, 5, 2, 0.55);
 
-    transform: translate(-50%, -50%);
-    cursor: grab;
+    pointer-events: auto;
     user-select: none;
+    cursor: grab;
   }
 
   .shrine-dialog:active {
     cursor: grabbing;
   }
-  .shrine-dialog::backdrop {
-    display: none;
+
+  .shrine-dialog.active-dialog {
+    filter: none;
+    z-index: 100;
+    box-shadow:
+      inset 0 0 0 2px #d4af37,
+      inset 0 0 0 6px #140304,
+      inset 0 0 50px rgba(0, 0, 0, 0.85),
+      6px 12px 22px rgba(30, 15, 10, 0.4),
+      24px 50px 75px rgba(20, 10, 5, 0.5),
+      50px 100px 140px rgba(10, 5, 2, 0.65);
   }
 
+  /* Antique Hanging Rod / Tapestry Bar Handle */
+  .hanging-rod {
+    position: absolute;
+    top: -14px;
+    left: -24px;
+    right: -24px;
+    height: 10px;
+    background: linear-gradient(180deg, #614a3d 0%, #2a1f18 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 5px;
+    box-shadow:
+      0 4px 10px rgba(0, 0, 0, 0.75),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .hanging-rod::before,
+  .hanging-rod::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    width: 8px;
+    height: 14px;
+    background: linear-gradient(90deg, #7c624e, #42261b);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+  .hanging-rod::before {
+    left: 4px;
+  }
+  .hanging-rod::after {
+    right: 4px;
+  }
+
+  /* Woven Wool Fringe / Tassels at the bottom edge */
+  .shrine-dialog::after {
+    content: "";
+    position: absolute;
+    bottom: -11px;
+    left: 0;
+    right: 0;
+    height: 11px;
+    background: repeating-linear-gradient(
+      90deg,
+      #e8d8b0,
+      #e8d8b0 3px,
+      #9c8c6f 3px,
+      #9c8c6f 5px,
+      transparent 5px,
+      transparent 9px
+    );
+    opacity: 0.95;
+    filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.6));
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Layout Variants */
   .blue-hour-dialog {
-    width: min(85vw, 42rem);
+    top: 2rem;
+    left: 3vw;
+    width: min(90vw, 26rem);
   }
-  .blue-hour-dialog .dialog-image {
-    max-height: 52dvh;
-  }
+
   .dream-dialog {
-    width: min(92vw, 52rem);
+    top: 5rem;
+    right: 4vw;
+    width: min(90vw, 18rem);
   }
+
+  .dream-dialog.is-expanded {
+    width: min(90vw, 42rem);
+  }
+
+  .interview-dialog {
+    top: 15rem;
+    left: 8vw;
+    width: min(90vw, 30rem);
+  }
+
+  .sensory-dialog {
+    top: 21rem;
+    right: 6vw;
+    width: min(90vw, 28rem);
+  }
+
   .bio-dialog {
-    width: min(90vw, 44rem);
+    top: 3.5rem;
+    width: min(90vw, 23rem);
+    z-index: 50;
   }
 
-  .dialog-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    min-height: 2rem;
-    padding: 0.25rem 0.5rem;
-
-    border-bottom: 1px solid var(--shrine-accent, #b3ffbd);
-    background: #121212;
-    color: var(--shrine-accent, #b3ffbd);
-
-    font-family: var(--machine-text, "VT323", monospace);
-    font-size: 0.82rem;
-    letter-spacing: 0.06em;
-  }
-
-  .close-button {
-    padding: 0.2rem 0.35rem;
-    border: 0;
-    background: transparent;
-    color: var(--shrine-accent, #b3ffbd);
-    font-family: inherit;
-    font-size: inherit;
-    cursor: pointer;
-  }
-
-  .close-button:hover,
-  .close-button:focus-visible {
-    background: var(--shrine-accent, #b3ffbd);
-    color: #000;
-    outline: 0;
+  .bio-dialog.is-centered {
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .dialog-body {
-    max-height: calc(100dvh - var(--audio-rail-height) - 5rem);
-    padding: 1rem;
-
+    max-height: 56dvh;
+    padding: 1.25rem 0.9rem 0.9rem;
     overflow-y: auto;
     overscroll-behavior: contain;
-
-    background: #090909;
-    scrollbar-color: var(--shrine-accent, #b3ffbd) #090909;
+    background: #0d0204;
+    scrollbar-color: #55222b #0d0204;
   }
 
   .dialog-image {
     display: block;
     width: auto;
     max-width: 100%;
-    max-height: 72dvh;
+    max-height: 36dvh;
     margin: 0 auto;
     object-fit: contain;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   }
 
   .dialog-offering {
     display: block;
     width: auto;
-    max-width: min(100%, 28rem);
-    max-height: 52dvh;
-    margin: 0 auto 1rem;
-
+    max-width: min(100%, 11rem);
+    max-height: 22dvh;
+    margin: 0 auto 0.65rem;
     object-fit: contain;
-    filter: drop-shadow(0 15px 16px rgb(0 0 0 / 0.65));
+    filter: drop-shadow(0 12px 14px rgb(0 0 0 / 0.65));
   }
 
   .metadata {
-    margin: 0.75rem 0 0;
+    margin: 0.5rem 0 0;
     color: var(--muted, #888);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     letter-spacing: 0.04em;
   }
 
   .dialog-copy {
     color: var(--light, #fff);
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 1rem;
-    line-height: 1.65;
+    font-size: 0.9rem;
+    line-height: 1.55;
     cursor: text;
     user-select: text;
   }
 
   .bio-copy {
-    margin-top: 1.5rem;
+    margin-top: 0.65rem;
     font-style: italic;
+    font-size: 0.88rem;
+  }
+
+  .dream-teaser {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.25rem;
+    text-align: center;
+  }
+
+  .dream-teaser-text {
+    font-family: var(--machine-text, "VT323", monospace);
+    font-size: 0.88rem;
+    color: var(--muted, #888);
+    letter-spacing: 0.08em;
+    margin: 0;
   }
 
   .dream-copy {
-    width: min(100%, 42rem);
-    margin-inline: auto;
+    width: 100%;
+    margin-bottom: 1.1rem;
   }
 
   .dream-dialog-body figure {
-    margin: 2.5rem 0 0;
+    margin: 1.1rem 0 0;
   }
   .dream-image {
     max-height: none;
   }
 
-  figcaption {
-    margin-top: 0.65rem;
-    color: var(--muted, #888);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.7rem;
-    line-height: 1.4;
+  .dream-footer-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.1rem;
   }
 
-  /* Interview Component */
-  .interview-dialog {
-    width: min(90vw, 36rem);
+  figcaption {
+    margin-top: 0.45rem;
+    color: var(--muted, #888);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.62rem;
+    line-height: 1.4;
   }
 
   .interview-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.25rem;
+    padding: 1.25rem 0.9rem 0.9rem;
     text-align: center;
-  }
-
-  .plate-indicator {
-    margin-bottom: 0.75rem;
-    color: color-mix(in srgb, var(--light, #fff) 60%, transparent);
-    font-family: var(--machine-text, "VT323", monospace);
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
   }
 
   .plate-step {
@@ -863,28 +687,34 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     justify-content: center;
     align-items: center;
     width: 100%;
-    min-height: 14rem;
+    min-height: 8rem;
   }
 
   .interview-inkblot {
     display: block;
     width: auto;
     max-width: 100%;
-    max-height: 38dvh;
+    max-height: 18dvh;
     object-fit: contain;
   }
 
-  .guest-answer {
-    margin-top: 1rem;
-    padding-top: 1rem;
-
-    border-top: 1px dashed
-      color-mix(in srgb, var(--shrine-accent, #b3ffbd) 40%, transparent);
-    color: var(--light, #fff);
-
+  .sensory-question {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--shrine-accent, #b3ffbd);
+    margin-bottom: 0.55rem;
+    line-height: 1.3;
+  }
+
+  .guest-answer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+    color: var(--light, #fff);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.5;
     text-align: left;
     cursor: text;
     user-select: text;
@@ -894,33 +724,47 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     display: flex;
     justify-content: center;
     width: 100%;
-    margin-top: 1.25rem;
+    margin-top: 0.9rem;
   }
 
   .interview-btn {
-    padding: 0.45rem 1.25rem;
-
-    border: 1px solid var(--shrine-accent, #b3ffbd);
+    padding: 0.38rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     background: transparent;
-    color: var(--shrine-accent, #b3ffbd);
-
+    color: var(--light, #fff);
     font-family: var(--machine-text, "VT323", monospace);
-    font-size: 1rem;
+    font-size: 0.92rem;
     letter-spacing: 0.08em;
     cursor: pointer;
-
     transition:
       background 150ms ease,
-      color 150ms ease;
+      color 150ms ease,
+      border-color 150ms ease;
   }
 
   .interview-btn:hover,
   .interview-btn:focus-visible {
-    background: var(--shrine-accent, #b3ffbd);
+    background: #fff;
     color: #000;
+    border-color: #fff;
   }
 
-  /* Responsive Overrides */
+  @media (max-width: 900px) {
+    .shrine-dialog {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      transform: none !important;
+      margin: 1.5rem auto;
+      width: 92vw !important;
+    }
+
+    .room-canvas {
+      padding: 1rem;
+    }
+  }
+
   @media (max-width: 767px) {
     :global(:root) {
       --audio-rail-height: 4rem;
@@ -932,48 +776,10 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
       right: 1rem;
       gap: 0.5rem;
     }
-
-    .blue-hour-window {
-      width: 96vw;
-      height: 60%;
-    }
-
-    .interview-artifact {
-      top: 28%;
-      left: 0.75rem;
-    }
-
-    .trinket-artifact {
-      top: 15%;
-      right: 0.75rem;
-      width: 7.5rem;
-    }
-
-    .offering-artifact {
-      right: 0.75rem;
-      bottom: 4rem;
-      width: 9rem;
-    }
-
-    .dream-artifact {
-      top: calc(40% + 20vh);
-      width: 90vw;
-    }
-
-    .shrine-dialog {
-      top: calc(var(--audio-rail-height) + 0.75rem);
-      left: 4vw;
-
-      width: 92vw;
-      max-height: calc(100dvh - var(--audio-rail-height) - 1.5rem);
-
-      transform: none;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .room-artifact,
-    .interview-artifact {
+    .shrine-dialog {
       transition-duration: 0.01ms;
     }
   }
@@ -984,9 +790,119 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
     if (shell.dataset.initialized) return;
     shell.dataset.initialized = "true";
 
-    let highestZ = 2000;
+    const dialogs = Array.from(
+      shell.querySelectorAll<HTMLElement>(".shrine-dialog"),
+    );
 
-    // Interview sequence controller
+    const roomCanvas = shell.querySelector<HTMLElement>(".room-canvas");
+    const bioDialog = shell.querySelector<HTMLElement>("#bio-dialog");
+
+    if (
+      bioDialog &&
+      roomCanvas &&
+      bioDialog.classList.contains("is-centered")
+    ) {
+      const centeredLeft = (roomCanvas.clientWidth - bioDialog.offsetWidth) / 2;
+      bioDialog.style.left = `${Math.max(0, centeredLeft)}px`;
+      bioDialog.classList.remove("is-centered");
+    }
+
+    let activeDrag: HTMLElement | null = null;
+    let dragStartX = 0;
+    let initialLeft = 0;
+    let lastDx = 0;
+    let activePointerId: number | null = null;
+
+    shell.addEventListener("pointerdown", (event) => {
+      const target = event.target as HTMLElement;
+      const dialog = target.closest<HTMLElement>(".shrine-dialog");
+      if (!dialog) return;
+
+      if (
+        target.closest(
+          "button, a, input, select, textarea, .dialog-copy, .guest-answer, figcaption",
+        )
+      ) {
+        return;
+      }
+
+      dialogs.forEach((d) => {
+        d.classList.remove("active-dialog");
+        d.style.transform = "";
+      });
+      dialog.classList.add("active-dialog");
+
+      event.preventDefault();
+
+      activeDrag = dialog;
+      activePointerId = event.pointerId;
+      shell.classList.add("is-dragging");
+
+      dragStartX = event.clientX;
+      initialLeft = dialog.offsetLeft;
+      lastDx = 0;
+
+      dialog.style.left = `${initialLeft}px`;
+      dialog.style.top = `${dialog.offsetTop}px`;
+      dialog.style.transform = "none";
+      dialog.style.right = "auto";
+      dialog.style.bottom = "auto";
+
+      target.setPointerCapture(event.pointerId);
+    });
+
+    shell.addEventListener("pointermove", (event) => {
+      if (!activeDrag || event.pointerId !== activePointerId) return;
+
+      const dx = event.clientX - dragStartX;
+      const currentX = initialLeft + dx;
+      const velocityX = dx - lastDx;
+      lastDx = dx;
+
+      const tilt = Math.max(Math.min(velocityX * 0.15, 4), -4);
+
+      activeDrag.style.left = `${currentX}px`;
+      activeDrag.style.transform = `rotate(${tilt}deg)`;
+    });
+
+    const stopDrag = (event: PointerEvent) => {
+      if (activeDrag && event.pointerId === activePointerId) {
+        try {
+          (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+        } catch (e) {}
+
+        shell.classList.remove("is-dragging");
+        activeDrag.style.transform = "";
+        activeDrag = null;
+        activePointerId = null;
+        lastDx = 0;
+      }
+    };
+
+    shell.addEventListener("pointerup", stopDrag);
+    shell.addEventListener("pointercancel", stopDrag);
+
+    const dreamDialog = shell.querySelector<HTMLElement>("[data-dream-dialog]");
+    if (dreamDialog) {
+      dreamDialog.addEventListener("click", (event) => {
+        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
+          '[data-action="toggle-dream"]',
+        );
+        if (!btn) return;
+
+        const isExpanded = dreamDialog.classList.toggle("is-expanded");
+        const teaser = dreamDialog.querySelector<HTMLElement>(".dream-teaser");
+        const fullContent = dreamDialog.querySelector<HTMLElement>(
+          ".dream-full-content",
+        );
+
+        if (teaser && fullContent) {
+          teaser.hidden = isExpanded;
+          fullContent.hidden = !isExpanded;
+        }
+      });
+    }
+
     const interviewContainer = shell.querySelector<HTMLElement>(
       "[data-interview-container]",
     );
@@ -994,47 +910,35 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
       const plates = Array.from(
         interviewContainer.querySelectorAll<HTMLElement>("[data-plate]"),
       );
-      const plateNumEl =
-        interviewContainer.querySelector<HTMLElement>("[data-plate-num]");
       const revealBtn = interviewContainer.querySelector<HTMLButtonElement>(
         '[data-action="reveal"]',
       );
-      const nextBtn = interviewContainer.querySelector<HTMLButtonElement>(
-        '[data-action="next"]',
-      );
-      const closeBtn = interviewContainer.querySelector<HTMLButtonElement>(
-        '[data-action="close"]',
+      const nextPlateBtn = interviewContainer.querySelector<HTMLButtonElement>(
+        '[data-action="next-plate"]',
       );
 
-      let currentIdx = 0;
-      const romanNumerals = ["I", "II", "III"];
+      let plateIdx = 0;
+      let isPlateRevealed = false;
 
-      const updateInterviewState = (idx: number, isRevealed: boolean) => {
-        currentIdx = idx;
-        if (plateNumEl)
-          plateNumEl.textContent = romanNumerals[idx] || String(idx + 1);
-
+      const updatePlateState = () => {
         plates.forEach((plate, i) => {
-          plate.hidden = i !== idx;
+          plate.hidden = i !== plateIdx;
           const responseEl =
             plate.querySelector<HTMLElement>("[data-response]");
           if (responseEl) {
-            responseEl.hidden = i === idx ? !isRevealed : true;
+            responseEl.hidden = i === plateIdx ? !isPlateRevealed : true;
           }
         });
 
-        if (!isRevealed) {
+        if (!isPlateRevealed) {
           if (revealBtn) revealBtn.hidden = false;
-          if (nextBtn) nextBtn.hidden = true;
-          if (closeBtn) closeBtn.hidden = true;
+          if (nextPlateBtn) nextPlateBtn.hidden = true;
         } else {
           if (revealBtn) revealBtn.hidden = true;
-          if (idx < plates.length - 1) {
-            if (nextBtn) nextBtn.hidden = false;
-            if (closeBtn) closeBtn.hidden = true;
+          if (plateIdx < plates.length - 1) {
+            if (nextPlateBtn) nextPlateBtn.hidden = false;
           } else {
-            if (nextBtn) nextBtn.hidden = true;
-            if (closeBtn) closeBtn.hidden = false;
+            if (nextPlateBtn) nextPlateBtn.hidden = true;
           }
         }
       };
@@ -1047,100 +951,52 @@ const pageTitle = `mood study ${studyNumber} — ${artist}`;
 
         const action = btn.dataset.action;
         if (action === "reveal") {
-          updateInterviewState(currentIdx, true);
-        } else if (action === "next") {
-          if (currentIdx < plates.length - 1) {
-            updateInterviewState(currentIdx + 1, false);
+          isPlateRevealed = true;
+          updatePlateState();
+        } else if (action === "next-plate") {
+          if (plateIdx < plates.length - 1) {
+            plateIdx++;
+            isPlateRevealed = false;
+            updatePlateState();
           }
         }
       });
-
-      // Reset to Plate I on close
-      const dialog = interviewContainer as HTMLDialogElement;
-      dialog.addEventListener("close", () => {
-        updateInterviewState(0, false);
-      });
     }
 
-    // Handle clicks for open buttons and close buttons
-    shell.addEventListener("click", (event) => {
-      const target = event.target as HTMLElement;
+    const sensoryContainer = shell.querySelector<HTMLElement>(
+      "[data-sensory-container]",
+    );
+    if (sensoryContainer) {
+      const steps = Array.from(
+        sensoryContainer.querySelectorAll<HTMLElement>("[data-sensory-step]"),
+      );
+      const nextBtn = sensoryContainer.querySelector<HTMLButtonElement>(
+        '[data-sensory-action="next"]',
+      );
 
-      const closeBtn = target.closest<HTMLButtonElement>("[data-dialog-close]");
-      if (closeBtn) {
-        closeBtn.closest<HTMLDialogElement>("dialog")?.close();
-        return;
-      }
+      let sensoryIdx = 0;
 
-      const openBtn = target.closest<HTMLButtonElement>("[data-dialog-open]");
-      if (openBtn) {
-        const dialogId = openBtn.dataset.dialogOpen;
-        const dialog = dialogId ? document.getElementById(dialogId) : null;
+      const updateSensoryState = () => {
+        steps.forEach((step, i) => {
+          step.hidden = i !== sensoryIdx;
+        });
 
-        if (dialog instanceof HTMLDialogElement) {
-          if (!dialog.open) dialog.show();
-          dialog.style.zIndex = String(++highestZ);
-          dialog.querySelector<HTMLElement>("[data-dialog-close]")?.focus();
+        if (nextBtn) {
+          nextBtn.textContent =
+            sensoryIdx < steps.length - 1 ? "NEXT INQUIRY" : "RESET INQUIRY";
         }
-      }
-    });
-
-    // Bring dialog to front on touch/click & handle window dragging
-    shell.addEventListener("pointerdown", (event) => {
-      const target = event.target as HTMLElement;
-      const dialog = target.closest<HTMLDialogElement>("dialog.shrine-dialog");
-
-      if (!dialog) return;
-
-      dialog.style.zIndex = String(++highestZ);
-
-      if (
-        target.closest(
-          "button, a, input, textarea, select, .dialog-copy, .guest-answer",
-        )
-      )
-        return;
-
-      const rect = dialog.getBoundingClientRect();
-      const offsetX = event.clientX - rect.left;
-      const offsetY = event.clientY - rect.top;
-
-      dialog.style.transform = "none";
-      dialog.style.left = `${rect.left}px`;
-      dialog.style.top = `${rect.top}px`;
-
-      const moveWindow = (moveEvent: PointerEvent) => {
-        const nextLeft = moveEvent.clientX - offsetX;
-        const nextTop = Math.max(76, moveEvent.clientY - offsetY);
-
-        dialog.style.left = `${nextLeft}px`;
-        dialog.style.top = `${nextTop}px`;
       };
 
-      const stopWindow = () => {
-        window.removeEventListener("pointermove", moveWindow);
-        window.removeEventListener("pointerup", stopWindow);
-      };
+      sensoryContainer.addEventListener("click", (event) => {
+        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
+          '[data-sensory-action="next"]',
+        );
+        if (!btn) return;
 
-      window.addEventListener("pointermove", moveWindow);
-      window.addEventListener("pointerup", stopWindow);
-    });
-
-    // Close active topmost dialog on Escape
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return;
-      const openDialogs = Array.from(
-        shell.querySelectorAll<HTMLDialogElement>("dialog[open]"),
-      );
-      if (!openDialogs.length) return;
-
-      const topDialog = openDialogs.reduce((top, current) =>
-        (Number(current.style.zIndex) || 0) > (Number(top.style.zIndex) || 0)
-          ? current
-          : top,
-      );
-      topDialog.close();
-    });
+        sensoryIdx = (sensoryIdx + 1) % steps.length;
+        updateSensoryState();
+      });
+    }
   }
 
   function init() {
