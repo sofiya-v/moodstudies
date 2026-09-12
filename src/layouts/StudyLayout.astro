@@ -30,15 +30,15 @@ const {
   artist,
   trackId,
 
-  shrineColor = "#b3ffbd",
-  shrineFilter = "sepia(0.35) hue-rotate(345deg) saturate(2.4) brightness(0.85)",
+  shrineColor = "#d4a373",
+  shrineFilter = "brightness(1.05) contrast(1.1) sepia(0.15)",
 
   trinketSrc,
   trinketAlt = "Personal trinket contributed by the artist",
 
   blueHourSrc,
   blueHourAlt = "Blue-hour photograph contributed by the artist",
-  blueHourMetadata = "BLUE HOUR",
+  blueHourMetadata = "BLUE HOUR // ARCHIVE RECORD",
 
   whiteInkblotSrc,
   blackInkblotSrc,
@@ -50,14 +50,15 @@ const {
 
 const pageTitle = `mood study ${studyNumber} — ${artist}`;
 
-/* 
-  Procedural SVG Pixel-Woven Persian Rug Motif Data URI.
-  Encodes a symmetric 32x32 pixel grid featuring:
-  - Deep red field background (#ba1c10)
-  - Multi-colored geometric border tracks (ochre, moss green, dark brown, black)
-  - Symmetrical central cyan/gold/blue kaleidoscopic medallion 
-*/
-const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="64" height="64"><rect width="32" height="32" fill="%23ba1c10"/><path d="M0 0h32v2H0zM0 30h32v2H0zM0 0h2v32H0zM30 0h2v32H30z" fill="%23140304"/><path d="M2 2h28v2H2zM2 28h28v2H2zM2 2h2v28H2zM28 2h2v28H28z" fill="%232a1610"/><path d="M4 4h24v2H4zM4 26h24v2H4zM4 4h2v24H4zM26 4h2v24H26z" fill="%23c88a32"/><path d="M6 6h20v2H6zM6 24h20v2H6zM6 6h2v20H6zM24 6h2v20H24z" fill="%232e4d32"/><path d="M14 10h4v12h-4zM10 14h12v4H10z" fill="%231e64a0"/><path d="M12 12h8v8h-8z" fill="%2387ceeb"/><path d="M15 15h2v2h-2z" fill="%23ffd700"/><path d="M8 8h2v2H8zM22 8h2v2H22zM8 22h2v2H8zM22 22h2v2H22z" fill="%23ffd700"/><path d="M10 10h2v2H10zM20 10h2v2H20zM10 20h2v2H10zM20 20h2v2H20z" fill="%236bb3f2"/></svg>`;
+/* Procedural SVG noise texture pattern for backdrop */
+const noiseTexturePattern = `data:image/svg+xml;utf8,${encodeURIComponent(`
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.07"/>
+  </svg>
+`)}`;
 ---
 
 <!doctype html>
@@ -78,7 +79,7 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
       class="study-room"
       data-study-shell
       data-study-number={studyNumber}
-      style={`--shrine-accent: ${shrineColor}; --shrine-filter: ${shrineFilter}; --rug-pattern: url("${rugSvgPattern}");`}
+      style={`--shrine-accent: ${shrineColor}; --shrine-filter: ${shrineFilter}; --noise-bg: url("${noiseTexturePattern}");`}
       aria-label={`Mood study ${studyNumber}: ${artist}`}
     >
       <header class="audio-rail">
@@ -104,40 +105,49 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
         </nav>
       </header>
 
-      <!-- Room Canvas with Pixelated Persian Rug Frames -->
+      <!-- Room Canvas -->
       <main class="room-canvas">
-        <!-- 1. Blue Hour Dialog (Midground Landscape) -->
+        <!-- Draggable Blue Hour Rug Window -->
         <div id="blue-hour-dialog" class="shrine-dialog blue-hour-dialog">
-          <div class="hanging-rod" aria-hidden="true"></div>
-          <div class="dialog-body">
-            <img src={blueHourSrc} alt={blueHourAlt} class="dialog-image" />
-            <p class="metadata">{blueHourMetadata}</p>
+          <div class="photo-border">
+            <div class="dialog-header-bar">
+              <span class="dialog-title-text">blue_hour.png</span>
+              <div class="dialog-controls">
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+              </div>
+            </div>
+            <div class="dialog-body window-body">
+              <div class="window-image-container">
+                <img src={blueHourSrc} alt={blueHourAlt} class="window-image" />
+              </div>
+              <div class="window-sill">
+                <span class="metadata">{blueHourMetadata}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 2. Dream Log Dialog -->
-        <div
-          id="dream-dialog"
-          class="shrine-dialog dream-dialog"
-          data-dream-dialog
-        >
-          <div class="hanging-rod" aria-hidden="true"></div>
-          <div class="dialog-body dream-dialog-body">
-            <div class="dream-teaser">
-              <p class="dream-teaser-text">DREAM LOG // ARCHIVE SCROLL</p>
-              <button
-                type="button"
-                class="interview-btn"
-                data-action="toggle-dream"
-              >
-                UNROLL TAPESTRY
-              </button>
-            </div>
-            <div class="dream-full-content" hidden>
-              <div class="dialog-copy dream-copy">
-                <slot name="dream log" />
+        <!-- 1. Dream Log Panel -->
+        <div id="dream-dialog" class="shrine-dialog dream-dialog">
+          <div class="photo-border">
+            <div class="dialog-header-bar">
+              <span class="dialog-title-text">dream_log_{studyNumber}.txt</span>
+              <div class="dialog-controls">
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
               </div>
-              <figure>
+            </div>
+            <div class="dialog-body dream-body">
+              <h3 class="dream-header">dream log {studyNumber}</h3>
+              <div class="dialog-copy dream-copy">
+                <slot name="dream log">
+                  <p>{dreamExcerpt}</p>
+                </slot>
+              </div>
+              <figure class="dream-figure">
                 <img
                   src={dreamImageSrc}
                   alt={dreamImageAlt}
@@ -147,168 +157,147 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
                   <slot name="caption" />
                 </figcaption>
               </figure>
-              <div class="dream-footer-controls">
-                <button
-                  type="button"
-                  class="interview-btn"
-                  data-action="toggle-dream"
-                >
-                  ROLL UP
-                </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Interview Window (Scrollable Tapestry) -->
+        <div id="interview-dialog" class="shrine-dialog interview-dialog">
+          <div class="photo-border">
+            <div class="dialog-header-bar">
+              <span class="dialog-title-text">interview_plates.dat</span>
+              <div class="dialog-controls">
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+              </div>
+            </div>
+            <div class="dialog-body interview-body">
+              <div class="tapestry-stack">
+                <!-- Plate I -->
+                <div class="tapestry-section">
+                  <div class="inkblot-frame">
+                    <img
+                      src={blackInkblotSrc}
+                      alt="Inkblot Plate I"
+                      class="interview-inkblot"
+                    />
+                  </div>
+                  <div class="guest-answer">
+                    <slot name="inkblot-1-response">
+                      <p>A pair of moths resting on dark granite.</p>
+                    </slot>
+                  </div>
+                </div>
+
+                <!-- Plate II -->
+                <div class="tapestry-section">
+                  <div class="inkblot-frame">
+                    <img
+                      src={blackInkblotSrc}
+                      alt="Inkblot Plate II"
+                      class="interview-inkblot"
+                    />
+                  </div>
+                  <div class="guest-answer">
+                    <slot name="inkblot-2-response">
+                      <p>Submerged root structures under still water.</p>
+                    </slot>
+                  </div>
+                </div>
+
+                <!-- Plate III -->
+                <div class="tapestry-section">
+                  <div class="inkblot-frame">
+                    <img
+                      src={blackInkblotSrc}
+                      alt="Inkblot Plate III"
+                      class="interview-inkblot"
+                    />
+                  </div>
+                  <div class="guest-answer">
+                    <slot name="inkblot-3-response">
+                      <p>A doorway opening inward against light.</p>
+                    </slot>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 3. Interview Window -->
-        <div
-          id="interview-dialog"
-          class="shrine-dialog interview-dialog"
-          data-interview-container
-        >
-          <div class="hanging-rod" aria-hidden="true"></div>
-          <div class="dialog-body interview-body">
-            <!-- Plate I -->
-            <div class="plate-step" data-plate="1">
-              <div class="inkblot-frame">
-                <img
-                  src={blackInkblotSrc}
-                  alt="Inkblot Plate I"
-                  class="interview-inkblot"
-                />
-              </div>
-              <div class="response-area" data-response hidden>
-                <div class="guest-answer">
-                  <slot name="inkblot-1-response">
-                    <p>A pair of moths resting on dark granite.</p>
-                  </slot>
-                </div>
+        <!-- 3. Sensory Field Notes Box (Scrollable Tapestry) -->
+        <div id="sensory-dialog" class="shrine-dialog sensory-dialog">
+          <div class="photo-border">
+            <div class="dialog-header-bar">
+              <span class="dialog-title-text">field_notes.log</span>
+              <div class="dialog-controls">
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
               </div>
             </div>
+            <div class="dialog-body sensory-body">
+              <div class="tapestry-stack">
+                <div class="tapestry-section">
+                  <p class="sensory-question">
+                    What is your favorite non-musical sound?
+                  </p>
+                  <div class="guest-answer">
+                    <p>
+                      The low, vibrating hum of a refrigerator through a thin
+                      apartment wall at 4 AM.
+                    </p>
+                  </div>
+                </div>
 
-            <!-- Plate II -->
-            <div class="plate-step" data-plate="2" hidden>
-              <div class="inkblot-frame">
-                <img
-                  src={blackInkblotSrc}
-                  alt="Inkblot Plate II"
-                  class="interview-inkblot"
-                />
-              </div>
-              <div class="response-area" data-response hidden>
-                <div class="guest-answer">
-                  <slot name="inkblot-2-response">
-                    <p>Submerged root structures under still water.</p>
-                  </slot>
+                <div class="tapestry-section">
+                  <p class="sensory-question">
+                    Describe the lighting where you are right now.
+                  </p>
+                  <div class="guest-answer">
+                    <p>
+                      Filtered blue morning light refracted through water
+                      glasses and floating dust motes.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="tapestry-section">
+                  <p class="sensory-question">
+                    What recurring motifs do your dreams contain?
+                  </p>
+                  <div class="guest-answer">
+                    <p>
+                      Endless subterranean parking garages, flooded basements,
+                      and distant radio towers.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Plate III -->
-            <div class="plate-step" data-plate="3" hidden>
-              <div class="inkblot-frame">
-                <img
-                  src={blackInkblotSrc}
-                  alt="Inkblot Plate III"
-                  class="interview-inkblot"
-                />
-              </div>
-              <div class="response-area" data-response hidden>
-                <div class="guest-answer">
-                  <slot name="inkblot-3-response">
-                    <p>A doorway opening inward against light.</p>
-                  </slot>
-                </div>
-              </div>
-            </div>
-
-            <!-- Interactive Controls -->
-            <div class="interview-controls">
-              <button type="button" class="interview-btn" data-action="reveal">
-                REVEAL RESPONSE
-              </button>
-              <button
-                type="button"
-                class="interview-btn"
-                data-action="next-plate"
-                hidden
-              >
-                NEXT PLATE
-              </button>
             </div>
           </div>
         </div>
 
-        <!-- 4. Sensory Field Notes Box -->
-        <div
-          id="sensory-dialog"
-          class="shrine-dialog sensory-dialog"
-          data-sensory-container
-        >
-          <div class="hanging-rod" aria-hidden="true"></div>
-          <div class="dialog-body interview-body">
-            <!-- Inquiry I -->
-            <div class="plate-step" data-sensory-step="1">
-              <p class="sensory-question">
-                What is your favorite non-musical sound?
-              </p>
-              <div class="guest-answer">
-                <p>
-                  The low, vibrating hum of a refrigerator through a thin
-                  apartment wall at 4 AM.
-                </p>
-              </div>
-            </div>
-
-            <!-- Inquiry II -->
-            <div class="plate-step" data-sensory-step="2" hidden>
-              <p class="sensory-question">
-                Describe the lighting where you are right now.
-              </p>
-              <div class="guest-answer">
-                <p>
-                  Filtered blue morning light refracted through water glasses
-                  and floating dust motes.
-                </p>
-              </div>
-            </div>
-
-            <!-- Inquiry III -->
-            <div class="plate-step" data-sensory-step="3" hidden>
-              <p class="sensory-question">
-                What recurring motifs do your dreams contain?
-              </p>
-              <div class="guest-answer">
-                <p>
-                  Endless subterranean parking garages, flooded basements, and
-                  distant radio towers.
-                </p>
-              </div>
-            </div>
-
-            <!-- Interactive Controls -->
-            <div class="interview-controls">
-              <button
-                type="button"
-                class="interview-btn"
-                data-sensory-action="next"
-              >
-                NEXT INQUIRY
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. Biographical Note / Artist Bio -->
+        <!-- 4. Biographical Note / Artist Bio -->
         <div
           id="bio-dialog"
           class="shrine-dialog bio-dialog is-centered active-dialog"
         >
-          <div class="hanging-rod" aria-hidden="true"></div>
-          <div class="dialog-body">
-            <img src={trinketSrc} alt={trinketAlt} class="dialog-offering" />
-            <div class="dialog-copy bio-copy">
-              <slot name="bio" />
+          <div class="photo-border">
+            <div class="dialog-header-bar">
+              <span class="dialog-title-text">biography.info</span>
+              <div class="dialog-controls">
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+                <span class="control-btn"></span>
+              </div>
+            </div>
+            <div class="dialog-body">
+              <img src={trinketSrc} alt={trinketAlt} class="dialog-offering" />
+              <div class="dialog-copy bio-copy">
+                <slot name="bio" />
+              </div>
             </div>
           </div>
         </div>
@@ -318,7 +307,6 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
 </html>
 
 <style>
-  /* Base variable & reset definitions */
   :global(:root) {
     --audio-rail-height: 4.75rem;
     color-scheme: dark;
@@ -334,15 +322,12 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     height: 100%;
     margin: 0;
     overflow: hidden;
-    background: #1a1816;
-    background-image: url("/stone.jpg");
-    background-size: cover;
-    background-position: center;
+    background: #020000;
   }
 
   :global(body) {
-    color: var(--light, #fff);
-    font-family: Arial, Helvetica, sans-serif;
+    color: #ded0c5;
+    font-family: Georgia, "Times New Roman", serif;
   }
 
   :global(button),
@@ -350,19 +335,27 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     font: inherit;
   }
 
-  /* Main Room Container */
   .study-room {
     position: relative;
     z-index: 1;
     width: 100vw;
     height: 100dvh;
     overflow: hidden;
-  }
 
-  .study-room.is-dragging,
-  .study-room.is-dragging * {
-    user-select: none !important;
-    -webkit-user-select: none !important;
+    background-color: #050000;
+    background-image:
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(153, 10, 22, 0.65) 0%,
+        rgba(55, 2, 6, 0.92) 45%,
+        rgba(4, 0, 1, 0.99) 85%
+      ),
+      var(--noise-bg);
+    background-size:
+      cover,
+      180px 180px;
+    background-position: center, center;
+    background-repeat: no-repeat, repeat;
   }
 
   .room-canvas {
@@ -373,6 +366,32 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     z-index: 2;
     overflow: auto;
     overscroll-behavior: contain;
+  }
+
+  .blue-hour-dialog {
+    top: 4.5rem;
+    left: 7.5vw;
+    width: min(85vw, 20rem);
+  }
+
+  .window-image-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .window-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 36dvh;
+    object-fit: cover;
+    filter: brightness(0.95) contrast(1.15) sepia(0.2);
+  }
+
+  .window-sill {
+    margin-top: 0.4rem;
+    padding: 0.2rem 0.2rem;
+    text-align: left;
   }
 
   .audio-rail {
@@ -386,13 +405,6 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     align-items: center;
     justify-content: space-between;
     gap: 1.25rem;
-
-    width: auto;
-    height: auto;
-    padding: 0;
-
-    background: transparent;
-    border-bottom: 0;
     pointer-events: none;
   }
 
@@ -412,261 +424,231 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     gap: 1.25rem;
   }
 
-  :global(.machine-link.active),
-  :global(.machine-link[aria-current="page"]) {
-    color: #000 !important;
-    background: var(--shrine-accent, #33ffcc) !important;
-    text-shadow: none !important;
-    box-shadow: 0 0 8px var(--shrine-accent, #33ffcc) !important;
+  :global(.machine-link) {
+    color: #ded0c5;
+    text-decoration: none;
+    font-family: Georgia, serif;
+    font-size: 0.88rem;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(200, 30, 45, 0.4);
+    background: rgba(35, 2, 6, 0.9);
+    transition: all 200ms ease;
   }
 
-  /* 
-    Procedural Pixelated Persian Rug & Woven Tapestry Frame System
-    Uses border-image with the SVG pattern and crisp pixel rendering.
-  */
+  :global(.machine-link.active),
+  :global(.machine-link[aria-current="page"]) {
+    color: #1a0509 !important;
+    background: #d4a373 !important;
+    border-color: #d4a373 !important;
+  }
+
   .shrine-dialog {
     position: absolute;
     margin: 0;
     padding: 0;
     overflow: visible;
 
-    border: 16px solid #ba1c10;
-    border-image: var(--rug-pattern) 12 round;
-    image-rendering: pixelated;
-
-    background-color: #ba1c10;
-    background-image: var(--rug-pattern);
-    background-repeat: repeat;
-    background-size: 64px 64px;
-
-    color: var(--light, #fff);
-    filter: var(--shrine-filter);
-    transform-origin: top center;
-    transition:
-      filter 300ms ease,
-      box-shadow 300ms ease,
-      width 350ms cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1;
+    background-color: transparent;
+    border: none;
+    z-index: 5;
 
     box-shadow:
-      inset 0 0 0 2px #d4af37,
-      inset 0 0 0 6px #140304,
-      inset 0 0 50px rgba(0, 0, 0, 0.9),
-      4px 8px 16px rgba(30, 15, 10, 0.35),
-      16px 32px 55px rgba(20, 10, 5, 0.45),
-      35px 70px 110px rgba(10, 5, 2, 0.55);
+      0 55px 75px rgba(0, 0, 0, 0.95),
+      0 20px 35px rgba(5, 0, 1, 0.85),
+      0 0 50px rgba(220, 15, 30, 0.25);
 
     pointer-events: auto;
-    user-select: none;
-    cursor: grab;
   }
 
-  .shrine-dialog:active {
+  /* Standard Window Header Bar for normal dialog dragging */
+  .dialog-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #2b080c;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(212, 163, 115, 0.2);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .dialog-header-bar:active {
     cursor: grabbing;
   }
 
+  .dialog-title-text {
+    font-family: Georgia, serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #d4a373;
+  }
+
+  .dialog-controls {
+    display: flex;
+    gap: 4px;
+  }
+
+  .control-btn {
+    width: 8px;
+    height: 8px;
+    border: 1px solid rgba(212, 163, 115, 0.4);
+    background-color: rgba(212, 163, 115, 0.15);
+    display: inline-block;
+  }
+
+  /* Photo Paper Border */
+  .photo-border {
+    position: relative;
+    padding: 0 0 14px 0;
+    background-color: #f7f4ed;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+  }
+
+  .photo-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    top: 28px; /* Offset past the header bar */
+    background-color: rgba(165, 12, 22, 0.88);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 25;
+  }
+
   .shrine-dialog.active-dialog {
-    filter: none;
     z-index: 100;
     box-shadow:
-      inset 0 0 0 2px #d4af37,
-      inset 0 0 0 6px #140304,
-      inset 0 0 50px rgba(0, 0, 0, 0.85),
-      6px 12px 22px rgba(30, 15, 10, 0.4),
-      24px 50px 75px rgba(20, 10, 5, 0.5),
-      50px 100px 140px rgba(10, 5, 2, 0.65);
-  }
-
-  /* Antique Hanging Rod / Tapestry Bar Handle */
-  .hanging-rod {
-    position: absolute;
-    top: -14px;
-    left: -24px;
-    right: -24px;
-    height: 10px;
-    background: linear-gradient(180deg, #614a3d 0%, #2a1f18 100%);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 5px;
-    box-shadow:
-      0 4px 10px rgba(0, 0, 0, 0.75),
-      inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  .hanging-rod::before,
-  .hanging-rod::after {
-    content: "";
-    position: absolute;
-    top: -3px;
-    width: 8px;
-    height: 14px;
-    background: linear-gradient(90deg, #7c624e, #42261b);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
-  }
-  .hanging-rod::before {
-    left: 4px;
-  }
-  .hanging-rod::after {
-    right: 4px;
-  }
-
-  /* Woven Wool Fringe / Tassels at the bottom edge */
-  .shrine-dialog::after {
-    content: "";
-    position: absolute;
-    bottom: -11px;
-    left: 0;
-    right: 0;
-    height: 11px;
-    background: repeating-linear-gradient(
-      90deg,
-      #e8d8b0,
-      #e8d8b0 3px,
-      #9c8c6f 3px,
-      #9c8c6f 5px,
-      transparent 5px,
-      transparent 9px
-    );
-    opacity: 0.95;
-    filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.6));
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* Layout Variants */
-  .blue-hour-dialog {
-    top: 2rem;
-    left: 3vw;
-    width: min(90vw, 26rem);
+      0 75px 110px rgba(0, 0, 0, 0.98),
+      0 30px 45px rgba(0, 0, 0, 0.9),
+      0 0 70px rgba(212, 163, 115, 0.2);
   }
 
   .dream-dialog {
-    top: 5rem;
-    right: 4vw;
-    width: min(90vw, 18rem);
-  }
-
-  .dream-dialog.is-expanded {
-    width: min(90vw, 42rem);
+    top: 5.5rem;
+    right: 7vw;
+    width: min(94vw, 34rem);
   }
 
   .interview-dialog {
-    top: 15rem;
-    left: 8vw;
-    width: min(90vw, 30rem);
+    top: 16rem;
+    left: 27vw;
+    width: min(90vw, 31rem);
   }
 
   .sensory-dialog {
-    top: 21rem;
-    right: 6vw;
-    width: min(90vw, 28rem);
+    top: 23rem;
+    right: 9vw;
+    width: min(90vw, 29rem);
   }
 
   .bio-dialog {
-    top: 3.5rem;
-    width: min(90vw, 23rem);
+    top: 4.5rem;
+    width: min(90vw, 24rem);
     z-index: 50;
   }
 
   .bio-dialog.is-centered {
-    left: 50%;
+    left: 57%;
     transform: translateX(-50%);
   }
 
   .dialog-body {
-    max-height: 56dvh;
-    padding: 1.25rem 0.9rem 0.9rem;
+    position: relative;
+    z-index: 2;
+    max-height: 45dvh;
+    padding: 1.25rem 1.1rem 1rem;
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: #0d0204;
-    scrollbar-color: #55222b #0d0204;
+    background-color: #120709;
+    color: #ded0c5;
+    border: none;
+    scrollbar-color: #66222b #120709;
+  }
+
+  .window-body {
+    padding: 0.5rem;
+    background-color: #120709;
+    border: none;
   }
 
   .dialog-image {
     display: block;
     width: auto;
     max-width: 100%;
-    max-height: 36dvh;
+    max-height: 16dvh;
     margin: 0 auto;
     object-fit: contain;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    border: none;
+    filter: sepia(0.15) contrast(1.1);
   }
 
   .dialog-offering {
     display: block;
     width: auto;
-    max-width: min(100%, 11rem);
-    max-height: 22dvh;
-    margin: 0 auto 0.65rem;
+    max-width: min(100%, 10rem);
+    max-height: 16dvh;
+    margin: 0 auto 0.75rem;
     object-fit: contain;
-    filter: drop-shadow(0 12px 14px rgb(0 0 0 / 0.65));
+    filter: sepia(0.2);
   }
 
   .metadata {
-    margin: 0.5rem 0 0;
-    color: var(--muted, #888);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
+    margin: 0.3rem 0 0;
+    color: #d4a373;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+  }
+
+  .dream-header {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #d4a373;
+    letter-spacing: 0.06em;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .dream-body {
+    display: flex;
+    flex-direction: column;
+    max-height: 35dvh;
+  }
+
+  .dream-figure {
+    margin: 0.4rem 0 0;
   }
 
   .dialog-copy {
-    color: var(--light, #fff);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.9rem;
+    color: #ded0c5;
+    font-family: Georgia, serif;
+    font-size: 0.92rem;
     line-height: 1.55;
     cursor: text;
     user-select: text;
   }
 
   .bio-copy {
-    margin-top: 0.65rem;
+    margin-top: 0.75rem;
     font-style: italic;
     font-size: 0.88rem;
-  }
-
-  .dream-teaser {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.65rem 0.25rem;
-    text-align: center;
-  }
-
-  .dream-teaser-text {
-    font-family: var(--machine-text, "VT323", monospace);
-    font-size: 0.88rem;
-    color: var(--muted, #888);
-    letter-spacing: 0.08em;
-    margin: 0;
+    color: #c5b2a5;
   }
 
   .dream-copy {
     width: 100%;
-    margin-bottom: 1.1rem;
-  }
-
-  .dream-dialog-body figure {
-    margin: 1.1rem 0 0;
-  }
-  .dream-image {
-    max-height: none;
-  }
-
-  .dream-footer-controls {
-    display: flex;
-    justify-content: center;
-    margin-top: 1.1rem;
   }
 
   figcaption {
-    margin-top: 0.45rem;
-    color: var(--muted, #888);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.62rem;
+    margin-top: 0.4rem;
+    color: #a89085;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 0.68rem;
     line-height: 1.4;
   }
 
@@ -674,11 +656,18 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.25rem 0.9rem 0.9rem;
+    padding: 1.25rem 1rem 1rem;
     text-align: center;
   }
 
-  .plate-step {
+  .tapestry-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .tapestry-section {
     width: 100%;
   }
 
@@ -687,66 +676,36 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     justify-content: center;
     align-items: center;
     width: 100%;
-    min-height: 8rem;
+    min-height: 7.5rem;
   }
 
   .interview-inkblot {
     display: block;
     width: auto;
     max-width: 100%;
-    max-height: 18dvh;
+    max-height: 16dvh;
     object-fit: contain;
+    filter: contrast(1.1) brightness(0.95) sepia(0.1);
   }
 
   .sensory-question {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Georgia, serif;
     font-size: 0.95rem;
-    font-weight: bold;
-    color: var(--shrine-accent, #b3ffbd);
-    margin-bottom: 0.55rem;
-    line-height: 1.3;
+    font-style: italic;
+    color: #d4a373;
+    margin-bottom: 0.5rem;
+    line-height: 1.35;
+    text-align: left;
   }
 
   .guest-answer {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px dashed rgba(255, 255, 255, 0.15);
-    color: var(--light, #fff);
-    font-family: Arial, Helvetica, sans-serif;
+    color: #ded0c5;
+    font-family: Georgia, serif;
     font-size: 0.9rem;
-    line-height: 1.5;
+    line-height: 1.6;
     text-align: left;
     cursor: text;
     user-select: text;
-  }
-
-  .interview-controls {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin-top: 0.9rem;
-  }
-
-  .interview-btn {
-    padding: 0.38rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: transparent;
-    color: var(--light, #fff);
-    font-family: var(--machine-text, "VT323", monospace);
-    font-size: 0.92rem;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition:
-      background 150ms ease,
-      color 150ms ease,
-      border-color 150ms ease;
-  }
-
-  .interview-btn:hover,
-  .interview-btn:focus-visible {
-    background: #fff;
-    color: #000;
-    border-color: #fff;
   }
 
   @media (max-width: 900px) {
@@ -777,12 +736,6 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
       gap: 0.5rem;
     }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .shrine-dialog {
-      transition-duration: 0.01ms;
-    }
-  }
 </style>
 
 <script>
@@ -808,61 +761,50 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
     }
 
     let activeDrag: HTMLElement | null = null;
-    let dragStartX = 0;
+    let startX = 0;
+    let startY = 0;
     let initialLeft = 0;
-    let lastDx = 0;
+    let initialTop = 0;
     let activePointerId: number | null = null;
 
     shell.addEventListener("pointerdown", (event) => {
       const target = event.target as HTMLElement;
-      const dialog = target.closest<HTMLElement>(".shrine-dialog");
+      const headerBar = target.closest<HTMLElement>(".dialog-header-bar");
+      if (!headerBar) return;
+
+      const dialog = headerBar.closest<HTMLElement>(".shrine-dialog");
       if (!dialog) return;
 
-      if (
-        target.closest(
-          "button, a, input, select, textarea, .dialog-copy, .guest-answer, figcaption",
-        )
-      ) {
-        return;
-      }
-
-      dialogs.forEach((d) => {
-        d.classList.remove("active-dialog");
-        d.style.transform = "";
-      });
+      dialogs.forEach((d) => d.classList.remove("active-dialog"));
       dialog.classList.add("active-dialog");
 
       event.preventDefault();
 
       activeDrag = dialog;
       activePointerId = event.pointerId;
-      shell.classList.add("is-dragging");
 
-      dragStartX = event.clientX;
+      startX = event.clientX;
+      startY = event.clientY;
       initialLeft = dialog.offsetLeft;
-      lastDx = 0;
+      initialTop = dialog.offsetTop;
 
       dialog.style.left = `${initialLeft}px`;
-      dialog.style.top = `${dialog.offsetTop}px`;
-      dialog.style.transform = "none";
+      dialog.style.top = `${initialTop}px`;
       dialog.style.right = "auto";
       dialog.style.bottom = "auto";
+      dialog.style.transform = "none";
 
-      target.setPointerCapture(event.pointerId);
+      headerBar.setPointerCapture(event.pointerId);
     });
 
     shell.addEventListener("pointermove", (event) => {
       if (!activeDrag || event.pointerId !== activePointerId) return;
 
-      const dx = event.clientX - dragStartX;
-      const currentX = initialLeft + dx;
-      const velocityX = dx - lastDx;
-      lastDx = dx;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
 
-      const tilt = Math.max(Math.min(velocityX * 0.15, 4), -4);
-
-      activeDrag.style.left = `${currentX}px`;
-      activeDrag.style.transform = `rotate(${tilt}deg)`;
+      activeDrag.style.left = `${initialLeft + dx}px`;
+      activeDrag.style.top = `${initialTop + dy}px`;
     });
 
     const stopDrag = (event: PointerEvent) => {
@@ -871,140 +813,24 @@ const rugSvgPattern = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
           (event.target as HTMLElement).releasePointerCapture(event.pointerId);
         } catch (e) {}
 
-        shell.classList.remove("is-dragging");
-        activeDrag.style.transform = "";
         activeDrag = null;
         activePointerId = null;
-        lastDx = 0;
       }
     };
 
     shell.addEventListener("pointerup", stopDrag);
     shell.addEventListener("pointercancel", stopDrag);
-
-    const dreamDialog = shell.querySelector<HTMLElement>("[data-dream-dialog]");
-    if (dreamDialog) {
-      dreamDialog.addEventListener("click", (event) => {
-        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
-          '[data-action="toggle-dream"]',
-        );
-        if (!btn) return;
-
-        const isExpanded = dreamDialog.classList.toggle("is-expanded");
-        const teaser = dreamDialog.querySelector<HTMLElement>(".dream-teaser");
-        const fullContent = dreamDialog.querySelector<HTMLElement>(
-          ".dream-full-content",
-        );
-
-        if (teaser && fullContent) {
-          teaser.hidden = isExpanded;
-          fullContent.hidden = !isExpanded;
-        }
-      });
-    }
-
-    const interviewContainer = shell.querySelector<HTMLElement>(
-      "[data-interview-container]",
-    );
-    if (interviewContainer) {
-      const plates = Array.from(
-        interviewContainer.querySelectorAll<HTMLElement>("[data-plate]"),
-      );
-      const revealBtn = interviewContainer.querySelector<HTMLButtonElement>(
-        '[data-action="reveal"]',
-      );
-      const nextPlateBtn = interviewContainer.querySelector<HTMLButtonElement>(
-        '[data-action="next-plate"]',
-      );
-
-      let plateIdx = 0;
-      let isPlateRevealed = false;
-
-      const updatePlateState = () => {
-        plates.forEach((plate, i) => {
-          plate.hidden = i !== plateIdx;
-          const responseEl =
-            plate.querySelector<HTMLElement>("[data-response]");
-          if (responseEl) {
-            responseEl.hidden = i === plateIdx ? !isPlateRevealed : true;
-          }
-        });
-
-        if (!isPlateRevealed) {
-          if (revealBtn) revealBtn.hidden = false;
-          if (nextPlateBtn) nextPlateBtn.hidden = true;
-        } else {
-          if (revealBtn) revealBtn.hidden = true;
-          if (plateIdx < plates.length - 1) {
-            if (nextPlateBtn) nextPlateBtn.hidden = false;
-          } else {
-            if (nextPlateBtn) nextPlateBtn.hidden = true;
-          }
-        }
-      };
-
-      interviewContainer.addEventListener("click", (event) => {
-        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
-          "[data-action]",
-        );
-        if (!btn) return;
-
-        const action = btn.dataset.action;
-        if (action === "reveal") {
-          isPlateRevealed = true;
-          updatePlateState();
-        } else if (action === "next-plate") {
-          if (plateIdx < plates.length - 1) {
-            plateIdx++;
-            isPlateRevealed = false;
-            updatePlateState();
-          }
-        }
-      });
-    }
-
-    const sensoryContainer = shell.querySelector<HTMLElement>(
-      "[data-sensory-container]",
-    );
-    if (sensoryContainer) {
-      const steps = Array.from(
-        sensoryContainer.querySelectorAll<HTMLElement>("[data-sensory-step]"),
-      );
-      const nextBtn = sensoryContainer.querySelector<HTMLButtonElement>(
-        '[data-sensory-action="next"]',
-      );
-
-      let sensoryIdx = 0;
-
-      const updateSensoryState = () => {
-        steps.forEach((step, i) => {
-          step.hidden = i !== sensoryIdx;
-        });
-
-        if (nextBtn) {
-          nextBtn.textContent =
-            sensoryIdx < steps.length - 1 ? "NEXT INQUIRY" : "RESET INQUIRY";
-        }
-      };
-
-      sensoryContainer.addEventListener("click", (event) => {
-        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
-          '[data-sensory-action="next"]',
-        );
-        if (!btn) return;
-
-        sensoryIdx = (sensoryIdx + 1) % steps.length;
-        updateSensoryState();
-      });
-    }
   }
 
-  function init() {
+  document.addEventListener("astro:page-load", () => {
     document
       .querySelectorAll<HTMLElement>("[data-study-shell]")
       .forEach(initializeStudyShell);
-  }
+  });
 
-  init();
-  document.addEventListener("astro:page-load", init);
+  document.addEventListener("DOMContentLoaded", () => {
+    document
+      .querySelectorAll<HTMLElement>("[data-study-shell]")
+      .forEach(initializeStudyShell);
+  });
 </script>
