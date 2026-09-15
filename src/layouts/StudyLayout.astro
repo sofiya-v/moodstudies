@@ -6,57 +6,93 @@ interface Props {
   studyNumber: string;
   artist: string;
   trackId: string;
-
+  studyColor?: string;
+  studyOnColor?: string;
   shrineColor?: string;
   shrineFilter?: string;
-
-  trinketSrc: string;
-  trinketAlt?: string;
-
+  mixDescription?: string;
+  soundCloudHref?: string;
   blueHourSrc: string;
   blueHourAlt?: string;
   blueHourMetadata?: string;
-
-  whiteInkblotSrc: string;
-  blackInkblotSrc: string;
-
-  dreamImageSrc: string;
+  inkblotSrc?: string;
+  inkblotResponse?: string;
+  inkblot1Src?: string;
+  inkblot1Response?: string;
+  qResponse1: string;
+  qResponse2: string;
+  qResponse3: string;
+  dreamTitle?: string;
+  dreamImageSrc?: string;
   dreamImageAlt?: string;
-  dreamExcerpt?: string;
+  wildcardSrc?: string;
+  wildcardAlt?: string;
+  wildcardLabel?: string;
+  trinketSrc?: string;
+  trinketAlt?: string;
+  bio?: string;
+  caption?:
+    | string
+    | {
+        label?: string;
+        author?: string;
+        authorUrl?: string;
+      };
 }
 
 const {
   studyNumber,
   artist,
   trackId,
-
-  shrineColor = "#d4a373",
-  shrineFilter = "brightness(1.05) contrast(1.1) sepia(0.15)",
-
-  trinketSrc,
-  trinketAlt = "Personal trinket contributed by the artist",
-
+  studyColor,
+  studyOnColor = "#f3ead5",
+  shrineColor,
+  shrineFilter,
+  mixDescription,
+  soundCloudHref,
   blueHourSrc,
   blueHourAlt = "Blue-hour photograph contributed by the artist",
-  blueHourMetadata = "BLUE HOUR // ARCHIVE RECORD",
-
-  whiteInkblotSrc,
-  blackInkblotSrc,
-
+  blueHourMetadata,
+  inkblotSrc,
+  inkblotResponse,
+  inkblot1Src,
+  inkblot1Response,
+  qResponse1,
+  qResponse2,
+  qResponse3,
+  dreamTitle = "dream log",
   dreamImageSrc,
-  dreamImageAlt = "Image accompanying the dream log",
-  dreamExcerpt = "The room is big and then it’s small until it’s big once more.",
+  dreamImageAlt = "Image accompanying the dream fragment",
+  wildcardSrc,
+  wildcardAlt,
+  wildcardLabel = "one more thing",
+  trinketSrc,
+  trinketAlt,
+  bio,
+  caption,
 } = Astro.props;
 
+const accent = studyColor ?? shrineColor ?? "#363775";
+const imageFilter =
+  shrineFilter ?? "grayscale(0.82) contrast(1.14) brightness(0.82)";
+const resolvedInkblotSrc = inkblotSrc ?? inkblot1Src;
+const resolvedInkblotResponse = inkblotResponse ?? inkblot1Response;
+const resolvedWildcardSrc = wildcardSrc ?? trinketSrc;
+const resolvedWildcardAlt =
+  wildcardAlt ?? trinketAlt ?? "Optional contribution from the artist";
+const hasDreamCaption = Boolean(caption) || Astro.slots.has("caption");
+const hasWildcardCopy = Astro.slots.has("wildcard");
+const hasWildcard = Boolean(resolvedWildcardSrc) || hasWildcardCopy;
 const pageTitle = `mood study ${studyNumber} — ${artist}`;
+const viewerId = `study-image-viewer-${studyNumber}`;
 
-/* Procedural SVG noise texture pattern for backdrop */
-const noiseTexturePattern = `data:image/svg+xml;utf8,${encodeURIComponent(`
-  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <filter id="noiseFilter">
-      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+const paperNoise = `data:image/svg+xml;utf8,${encodeURIComponent(`
+  <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+    <filter id="paper-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
     </filter>
-    <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.07"/>
+    <rect width="100%" height="100%" filter="url(#paper-noise)" opacity="0.22"/>
   </svg>
 `)}`;
 ---
@@ -65,7 +101,7 @@ const noiseTexturePattern = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
       content={`Mood study ${studyNumber}, featuring ${artist}.`}
@@ -73,764 +109,840 @@ const noiseTexturePattern = `data:image/svg+xml;utf8,${encodeURIComponent(`
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{pageTitle}</title>
   </head>
-
   <body>
     <div
-      class="study-room"
+      class="study-shell"
       data-study-shell
       data-study-number={studyNumber}
-      style={`--shrine-accent: ${shrineColor}; --shrine-filter: ${shrineFilter}; --noise-bg: url("${noiseTexturePattern}");`}
-      aria-label={`Mood study ${studyNumber}: ${artist}`}
+      style={`--study-color: ${accent}; --study-on-color: ${studyOnColor}; --image-filter: ${imageFilter}; --paper-noise: url("${paperNoise}");`}
     >
-      <header class="audio-rail">
-        <div class="deck-wrapper">
-          <SoundCloudPlayer trackId={trackId} />
-        </div>
-
-        <nav class="room-nav" aria-label="Site Navigation">
-          <a
-            class="machine-link nav-item"
-            href="/"
-            aria-label="Return to homepage"
-          >
-            home
-          </a>
-          <a
-            class="machine-link nav-item"
-            href="/archive"
-            aria-label="Return to archival index"
-          >
-            index
-          </a>
+      <header class="top-rail">
+        <nav class="main-nav" aria-label="Site navigation">
+          <a class="machine-link" href="/">home</a>
+          <a class="machine-link" href="/archive">index</a>
         </nav>
       </header>
 
-      <!-- Room Canvas -->
-      <main class="room-canvas">
-        <!-- Draggable Blue Hour Rug Window -->
-        <div id="blue-hour-dialog" class="shrine-dialog blue-hour-dialog">
-          <div class="photo-border">
-            <div class="dialog-header-bar">
-              <span class="dialog-title-text">blue_hour.png</span>
-              <div class="dialog-controls">
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-              </div>
+      <main class="study-sheet">
+        <header class="cover-spread">
+          <section class="mix-panel" aria-labelledby="study-title">
+            <div class="mix-heading">
+              <h1 id="study-title">{artist}</h1>
+              {
+                mixDescription && (
+                  <p class="mix-description">{mixDescription}</p>
+                )
+              }
             </div>
-            <div class="dialog-body window-body">
-              <div class="window-image-container">
-                <img src={blueHourSrc} alt={blueHourAlt} class="window-image" />
-              </div>
-              <div class="window-sill">
-                <span class="metadata">{blueHourMetadata}</span>
-              </div>
+            <div class="player-wrap">
+              <SoundCloudPlayer trackId={trackId} />
             </div>
-          </div>
-        </div>
+            {
+              soundCloudHref && (
+                <a
+                  class="track-link"
+                  href={soundCloudHref}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  track page <span aria-hidden="true">↗</span>
+                </a>
+              )
+            }
+          </section>
 
-        <!-- 1. Dream Log Panel -->
-        <div id="dream-dialog" class="shrine-dialog dream-dialog">
-          <div class="photo-border">
-            <div class="dialog-header-bar">
-              <span class="dialog-title-text">dream_log_{studyNumber}.txt</span>
-              <div class="dialog-controls">
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
+          <figure class="cover-image">
+            <button
+              type="button"
+              class="image-trigger"
+              data-image-trigger
+              data-full-src={blueHourSrc}
+              data-full-alt={blueHourAlt}
+              data-full-caption={blueHourMetadata}
+              aria-label="View the blue-hour photograph in full color"
+            >
+              <img src={blueHourSrc} alt={blueHourAlt} />
+            </button>
+            {blueHourMetadata && <figcaption>{blueHourMetadata}</figcaption>}
+          </figure>
+        </header>
+
+        {
+          (
+            <section class="colophon-spread" aria-label="About the artist">
+              <div class="bio-block">
+                <div class="prose compact-prose">
+                  <slot name="bio" />
+                </div>
               </div>
-            </div>
-            <div class="dialog-body dream-body">
-              <h3 class="dream-header">dream log {studyNumber}</h3>
-              <div class="dialog-copy dream-copy">
-                <slot name="dream log">
-                  <p>{dreamExcerpt}</p>
-                </slot>
-              </div>
-              <figure class="dream-figure">
+            </section>
+          )
+        }
+
+        <section class="perception-spread" aria-labelledby="perception-title">
+          <div class="perception-heading">
+            <h2 id="perception-title">What do you see?</h2>
+          </div>
+
+          <figure class="inkblot-block">
+            {
+              resolvedInkblotSrc && (
                 <img
-                  src={dreamImageSrc}
-                  alt={dreamImageAlt}
-                  class="dialog-image dream-image"
+                  src={resolvedInkblotSrc}
+                  alt={`Inkblot plate for mood study ${studyNumber}`}
                 />
+              )
+            }
+            {
+              resolvedInkblotResponse && (
                 <figcaption>
-                  <slot name="caption" />
+                  <span class="section-label">response</span>
+                  <p>{resolvedInkblotResponse}</p>
                 </figcaption>
-              </figure>
-            </div>
+              )
+            }
+          </figure>
+
+          <div class="questions" aria-label="Three questions">
+            <article class="question">
+              <p class="question-number">01</p>
+              <h3>What is your favorite non-musical sound?</h3>
+              <p>{qResponse1}</p>
+            </article>
+            <article class="question">
+              <p class="question-number">02</p>
+              <h3>What recurring motifs show up in your dreams?</h3>
+              <p>{qResponse2}</p>
+            </article>
+            <article class="question">
+              <p class="question-number">03</p>
+              <h3>Describe the lighting where you are right now.</h3>
+              <p>{qResponse3}</p>
+            </article>
           </div>
-        </div>
+        </section>
 
-        <!-- 2. Interview Window (Scrollable Tapestry) -->
-        <div id="interview-dialog" class="shrine-dialog interview-dialog">
-          <div class="photo-border">
-            <div class="dialog-header-bar">
-              <span class="dialog-title-text">interview_plates.dat</span>
-              <div class="dialog-controls">
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-              </div>
-            </div>
-            <div class="dialog-body interview-body">
-              <div class="tapestry-stack">
-                <!-- Plate I -->
-                <div class="tapestry-section">
-                  <div class="inkblot-frame">
-                    <img
-                      src={blackInkblotSrc}
-                      alt="Inkblot Plate I"
-                      class="interview-inkblot"
-                    />
-                  </div>
-                  <div class="guest-answer">
-                    <slot name="inkblot-1-response">
-                      <p>A pair of moths resting on dark granite.</p>
-                    </slot>
-                  </div>
-                </div>
-
-                <!-- Plate II -->
-                <div class="tapestry-section">
-                  <div class="inkblot-frame">
-                    <img
-                      src={blackInkblotSrc}
-                      alt="Inkblot Plate II"
-                      class="interview-inkblot"
-                    />
-                  </div>
-                  <div class="guest-answer">
-                    <slot name="inkblot-2-response">
-                      <p>Submerged root structures under still water.</p>
-                    </slot>
-                  </div>
-                </div>
-
-                <!-- Plate III -->
-                <div class="tapestry-section">
-                  <div class="inkblot-frame">
-                    <img
-                      src={blackInkblotSrc}
-                      alt="Inkblot Plate III"
-                      class="interview-inkblot"
-                    />
-                  </div>
-                  <div class="guest-answer">
-                    <slot name="inkblot-3-response">
-                      <p>A doorway opening inward against light.</p>
-                    </slot>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Sensory Field Notes Box (Scrollable Tapestry) -->
-        <div id="sensory-dialog" class="shrine-dialog sensory-dialog">
-          <div class="photo-border">
-            <div class="dialog-header-bar">
-              <span class="dialog-title-text">field_notes.log</span>
-              <div class="dialog-controls">
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-              </div>
-            </div>
-            <div class="dialog-body sensory-body">
-              <div class="tapestry-stack">
-                <div class="tapestry-section">
-                  <p class="sensory-question">
-                    What is your favorite non-musical sound?
-                  </p>
-                  <div class="guest-answer">
-                    <p>
-                      The low, vibrating hum of a refrigerator through a thin
-                      apartment wall at 4 AM.
-                    </p>
-                  </div>
-                </div>
-
-                <div class="tapestry-section">
-                  <p class="sensory-question">
-                    Describe the lighting where you are right now.
-                  </p>
-                  <div class="guest-answer">
-                    <p>
-                      Filtered blue morning light refracted through water
-                      glasses and floating dust motes.
-                    </p>
-                  </div>
-                </div>
-
-                <div class="tapestry-section">
-                  <p class="sensory-question">
-                    What recurring motifs do your dreams contain?
-                  </p>
-                  <div class="guest-answer">
-                    <p>
-                      Endless subterranean parking garages, flooded basements,
-                      and distant radio towers.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Biographical Note / Artist Bio -->
-        <div
-          id="bio-dialog"
-          class="shrine-dialog bio-dialog is-centered active-dialog"
+        <section
+          class:list={[
+            "dream-spread",
+            { "has-dream-image": Boolean(dreamImageSrc) },
+          ]}
+          aria-labelledby="dream-title"
         >
-          <div class="photo-border">
-            <div class="dialog-header-bar">
-              <span class="dialog-title-text">biography.info</span>
-              <div class="dialog-controls">
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-                <span class="control-btn"></span>
-              </div>
-            </div>
-            <div class="dialog-body">
-              <img src={trinketSrc} alt={trinketAlt} class="dialog-offering" />
-              <div class="dialog-copy bio-copy">
-                <slot name="bio" />
-              </div>
-            </div>
+          <div class="dream-copy">
+            <h2 id="dream-title">{dreamTitle}</h2>
+            <div class="prose dream-prose"><slot /></div>
           </div>
-        </div>
+          {
+            dreamImageSrc && (
+              <figure class="dream-image">
+                <button
+                  type="button"
+                  class="image-trigger"
+                  data-image-trigger
+                  data-full-src={dreamImageSrc}
+                  data-full-alt={dreamImageAlt}
+                  aria-label="View the dream image in full color"
+                >
+                  <img src={dreamImageSrc} alt={dreamImageAlt} />
+                </button>
+                {hasDreamCaption && (
+                  <figcaption>
+                    {typeof caption === "string" ? (
+                      caption
+                    ) : caption ? (
+                      <>
+                        {caption.label}
+                        {caption.authorUrl ? (
+                          <a
+                            href={caption.authorUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {caption.author}
+                          </a>
+                        ) : (
+                          caption.author
+                        )}
+                      </>
+                    ) : (
+                      <slot name="caption" />
+                    )}
+                  </figcaption>
+                )}
+              </figure>
+            )
+          }
+        </section>
+
+        {
+          hasWildcard && (
+            <section class="wildcard-spread" aria-labelledby="wildcard-title">
+              <header>
+                <h2 id="wildcard-title">{wildcardLabel}</h2>
+              </header>
+              {resolvedWildcardSrc && (
+                <button
+                  type="button"
+                  class="image-trigger wildcard-image"
+                  data-image-trigger
+                  data-full-src={resolvedWildcardSrc}
+                  data-full-alt={resolvedWildcardAlt}
+                  aria-label={`View ${wildcardLabel} in full color`}
+                >
+                  <img src={resolvedWildcardSrc} alt={resolvedWildcardAlt} />
+                </button>
+              )}
+              {hasWildcardCopy && (
+                <div class="prose wildcard-copy">
+                  <slot name="wildcard" />
+                </div>
+              )}
+            </section>
+          )
+        }
+
+        <footer class="study-footer">
+          <span>mood study {studyNumber}</span>
+          <span>{artist}</span>
+        </footer>
       </main>
+
+      <dialog class="image-viewer" id={viewerId} data-image-viewer>
+        <div class="viewer-toolbar">
+          <span data-viewer-label>full color</span>
+          <button
+            type="button"
+            data-viewer-close
+            aria-label="Close image viewer">close</button
+          >
+        </div>
+        <div class="viewer-body">
+          <img data-viewer-image alt="" />
+          <p data-viewer-caption hidden></p>
+        </div>
+      </dialog>
     </div>
   </body>
 </html>
 
 <style>
-  :global(:root) {
-    --audio-rail-height: 4.75rem;
-    color-scheme: dark;
-  }
-
   :global(*) {
     box-sizing: border-box;
   }
-
-  :global(html),
+  :global(html) {
+    min-height: 100%;
+    background: #050405;
+  }
   :global(body) {
-    width: 100%;
-    height: 100%;
+    min-width: 20rem;
+    min-height: 100%;
     margin: 0;
-    overflow: hidden;
-    background: #020000;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-image: url("/grain_static_bg.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+
+    background-size: cover;
+
+    background-attachment: fixed;
   }
 
-  :global(body) {
-    color: #ded0c5;
-    font-family: Georgia, "Times New Roman", serif;
+  .film {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100dvh;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+  }
+  .film-mobile {
+    display: none;
   }
 
-  :global(button),
-  :global(a) {
-    font: inherit;
-  }
-
-  .study-room {
+  .study-shell {
+    --paper: #ede7d3;
+    --paper-ink: #171113;
+    --night: #050405;
+    --signal: var(--glow, #8fffc7);
     position: relative;
     z-index: 1;
-    width: 100vw;
-    height: 100dvh;
-    overflow: hidden;
-
-    background-color: #050000;
-    background-image:
-      radial-gradient(
-        circle at 50% 50%,
-        rgba(153, 10, 22, 0.65) 0%,
-        rgba(55, 2, 6, 0.92) 45%,
-        rgba(4, 0, 1, 0.99) 85%
-      ),
-      var(--noise-bg);
-    background-size:
-      cover,
-      180px 180px;
-    background-position: center, center;
-    background-repeat: no-repeat, repeat;
-  }
-
-  .room-canvas {
-    position: fixed;
-    top: var(--audio-rail-height);
-    inset-inline: 0;
-    bottom: 0;
-    z-index: 2;
-    overflow: auto;
-    overscroll-behavior: contain;
-  }
-
-  .blue-hour-dialog {
-    top: 4.5rem;
-    left: 7.5vw;
-    width: min(85vw, 20rem);
-  }
-
-  .window-image-container {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .window-image {
-    display: block;
+    isolation: isolate;
     width: 100%;
-    height: auto;
-    max-height: 36dvh;
-    object-fit: cover;
-    filter: brightness(0.95) contrast(1.15) sepia(0.2);
+    min-height: 100dvh;
+    padding: clamp(5.75rem, 9vw, 8rem) clamp(1rem, 4vw, 4rem) 8rem;
   }
-
-  .window-sill {
-    margin-top: 0.4rem;
-    padding: 0.2rem 0.2rem;
-    text-align: left;
-  }
-
-  .audio-rail {
+  .study-shell::before {
+    content: "";
     position: fixed;
-    top: 2rem;
-    left: 2rem;
-    right: 2rem;
-    z-index: 10000;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.25rem;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(rgb(5 4 5 / 42%), rgb(5 4 5 / 68%)),
+      radial-gradient(
+        circle at 80% 12%,
+        color-mix(in srgb, var(--study-color) 14%, transparent),
+        transparent 52%
+      );
     pointer-events: none;
   }
 
-  .deck-wrapper {
-    pointer-events: auto;
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  .room-nav {
-    pointer-events: auto;
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-  }
-
-  :global(.machine-link) {
-    color: #ded0c5;
-    text-decoration: none;
-    font-family: Georgia, serif;
-    font-size: 0.88rem;
-    letter-spacing: 0.05em;
-    padding: 0.2rem 0.5rem;
-    border: 1px solid rgba(200, 30, 45, 0.4);
-    background: rgba(35, 2, 6, 0.9);
-    transition: all 200ms ease;
-  }
-
-  :global(.machine-link.active),
-  :global(.machine-link[aria-current="page"]) {
-    color: #1a0509 !important;
-    background: #d4a373 !important;
-    border-color: #d4a373 !important;
-  }
-
-  .shrine-dialog {
-    position: absolute;
-    margin: 0;
-    padding: 0;
-    overflow: visible;
-
-    background-color: transparent;
-    border: none;
-    z-index: 5;
-
-    box-shadow:
-      0 55px 75px rgba(0, 0, 0, 0.95),
-      0 20px 35px rgba(5, 0, 1, 0.85),
-      0 0 50px rgba(220, 15, 30, 0.25);
-
-    pointer-events: auto;
-  }
-
-  /* Standard Window Header Bar for normal dialog dragging */
-  .dialog-header-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #2b080c;
-    padding: 6px 10px;
-    border-bottom: 1px solid rgba(212, 163, 115, 0.2);
-    cursor: grab;
-    user-select: none;
-  }
-
-  .dialog-header-bar:active {
-    cursor: grabbing;
-  }
-
-  .dialog-title-text {
-    font-family: Georgia, serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    color: #d4a373;
-  }
-
-  .dialog-controls {
-    display: flex;
-    gap: 4px;
-  }
-
-  .control-btn {
-    width: 8px;
-    height: 8px;
-    border: 1px solid rgba(212, 163, 115, 0.4);
-    background-color: rgba(212, 163, 115, 0.15);
-    display: inline-block;
-  }
-
-  /* Photo Paper Border */
-  .photo-border {
+  .study-sheet {
     position: relative;
-    padding: 0 0 14px 0;
-    background-color: #f7f4ed;
-    border: none;
-    box-shadow: none;
+    width: min(100%, 72rem);
+    max-width: 72rem;
+    margin: 0 auto;
     overflow: hidden;
+    background: var(--paper);
+    color: var(--paper-ink);
+    box-shadow:
+      0 2rem 7rem rgb(0 0 0 / 75%),
+      0 0 0 1px rgb(255 255 255 / 8%);
   }
-
-  .photo-border::before {
+  .study-sheet::after {
     content: "";
     position: absolute;
     inset: 0;
-    top: 28px; /* Offset past the header bar */
-    background-color: rgba(165, 12, 22, 0.88);
+    z-index: 20;
+    background-image: var(--paper-noise);
+    background-repeat: repeat;
+    background-size: 180px 180px;
+    opacity: 0.032;
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: 25;
   }
 
-  .shrine-dialog.active-dialog {
-    z-index: 100;
-    box-shadow:
-      0 75px 110px rgba(0, 0, 0, 0.98),
-      0 30px 45px rgba(0, 0, 0, 0.9),
-      0 0 70px rgba(212, 163, 115, 0.2);
+  .cover-spread {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    min-height: min(46rem, calc(100dvh - 7rem));
   }
-
-  .dream-dialog {
-    top: 5.5rem;
-    right: 7vw;
-    width: min(94vw, 34rem);
-  }
-
-  .interview-dialog {
-    top: 16rem;
-    left: 27vw;
-    width: min(90vw, 31rem);
-  }
-
-  .sensory-dialog {
-    top: 23rem;
-    right: 9vw;
-    width: min(90vw, 29rem);
-  }
-
-  .bio-dialog {
-    top: 4.5rem;
-    width: min(90vw, 24rem);
-    z-index: 50;
-  }
-
-  .bio-dialog.is-centered {
-    left: 57%;
-    transform: translateX(-50%);
-  }
-
-  .dialog-body {
-    position: relative;
-    z-index: 2;
-    max-height: 45dvh;
-    padding: 1.25rem 1.1rem 1rem;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    background-color: #120709;
-    color: #ded0c5;
-    border: none;
-    scrollbar-color: #66222b #120709;
-  }
-
-  .window-body {
-    padding: 0.5rem;
-    background-color: #120709;
-    border: none;
-  }
-
-  .dialog-image {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    max-height: 16dvh;
-    margin: 0 auto;
-    object-fit: contain;
-    border: none;
-    filter: sepia(0.15) contrast(1.1);
-  }
-
-  .dialog-offering {
-    display: block;
-    width: auto;
-    max-width: min(100%, 10rem);
-    max-height: 16dvh;
-    margin: 0 auto 0.75rem;
-    object-fit: contain;
-    filter: sepia(0.2);
-  }
-
-  .metadata {
-    margin: 0.3rem 0 0;
-    color: #d4a373;
-    font-family: Georgia, serif;
-    font-style: italic;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-  }
-
-  .dream-header {
-    font-family: Georgia, serif;
-    font-style: italic;
-    font-size: 0.9rem;
-    color: #d4a373;
-    letter-spacing: 0.06em;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .dream-body {
+  .mix-panel {
     display: flex;
     flex-direction: column;
-    max-height: 35dvh;
+    justify-content: space-between;
+    gap: 3rem;
+    min-width: 0;
+    padding: clamp(2rem, 5vw, 5rem);
+    background: var(--study-color);
+    color: var(--study-on-color);
   }
-
-  .dream-figure {
-    margin: 0.4rem 0 0;
+  .section-label,
+  .question-number {
+    margin: 0;
+    font-family: var(--machine-text, ui-monospace, monospace);
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.09em;
+    line-height: 1.1;
+    text-transform: uppercase;
   }
-
-  .dialog-copy {
-    color: #ded0c5;
-    font-family: Georgia, serif;
-    font-size: 0.92rem;
-    line-height: 1.55;
-    cursor: text;
-    user-select: text;
+  .mix-heading h1 {
+    max-width: 10ch;
+    margin: 0.65rem 0 0;
+    color: inherit;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(3rem, 7vw, 6.8rem);
+    font-weight: 700;
+    letter-spacing: -0.075em;
+    line-height: 0.85;
+    overflow-wrap: anywhere;
+    text-align: left;
+    text-shadow: 0 0 9px color-mix(in srgb, currentColor 28%, transparent);
   }
-
-  .bio-copy {
-    margin-top: 0.75rem;
+  .mix-description {
+    max-width: 30rem;
+    margin: 2rem 0 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1rem, 1.8vw, 1.35rem);
     font-style: italic;
-    font-size: 0.88rem;
-    color: #c5b2a5;
+    line-height: 1.35;
   }
-
-  .dream-copy {
+  .player-wrap {
+    min-width: 0;
     width: 100%;
   }
+  .player-wrap :global(.soundcloud-player),
+  .player-wrap :global(iframe) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  .track-link {
+    width: fit-content;
+    color: inherit;
+    font-family: var(--machine-text, ui-monospace, monospace);
+    font-size: 0.82rem;
+    text-underline-offset: 0.2em;
+  }
+  .track-link:hover,
+  .track-link:focus-visible {
+    color: var(--night);
+    background: var(--signal);
+    outline: 0;
+    box-shadow: 0 0 9px color-mix(in srgb, var(--signal) 35%, transparent);
+  }
 
-  figcaption {
-    margin-top: 0.4rem;
-    color: #a89085;
-    font-family: Georgia, serif;
-    font-style: italic;
+  figure {
+    margin: 0;
+  }
+  .cover-image {
+    position: relative;
+    min-width: 0;
+    min-height: 32rem;
+    overflow: hidden;
+    background: #151215;
+  }
+  .cover-image .image-trigger,
+  .cover-image img {
+    width: 100%;
+    height: 100%;
+  }
+  .cover-image img {
+    object-fit: cover;
+  }
+  .cover-image figcaption {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 2;
+    width: fit-content;
+    max-width: calc(100% - 2rem);
+    padding: 0.35rem 0.5rem;
+    background: rgb(5 4 5 / 74%);
+    color: #f3ead5;
+    font-family: var(--machine-text, ui-monospace, monospace);
     font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+  }
+  .image-trigger {
+    appearance: none;
+    display: block;
+    border: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #141114;
+    cursor: zoom-in;
+  }
+  .image-trigger img {
+    display: block;
+    max-width: none;
+    filter: var(--image-filter);
+    transition: filter 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .image-trigger:hover img,
+  .image-trigger:focus-visible img {
+    filter: none;
+  }
+  .image-trigger:focus-visible {
+    outline: 3px solid var(--signal);
+    outline-offset: -3px;
+  }
+
+  .colophon-spread {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(3rem, 8vw, 8rem);
+    padding: clamp(4rem, 9vw, 8rem) clamp(2rem, 8vw, 7rem);
+  }
+  .section-label {
+    color: color-mix(in srgb, var(--paper-ink) 58%, transparent);
+  }
+  .prose {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.65;
+  }
+  .compact-prose {
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+  }
+  .compact-prose :global(p:first-child),
+  .dream-prose :global(p:first-child),
+  .wildcard-copy :global(p:first-child) {
+    margin-top: 0;
+  }
+  .compact-prose :global(p:last-child),
+  .dream-prose :global(p:last-child),
+  .wildcard-copy :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .perception-spread {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 2.5rem);
+    padding: clamp(3rem, 7vw, 6rem) clamp(2rem, 6vw, 5rem);
+    background: #121012;
+    color: var(--paper);
+  }
+  .perception-heading {
+    grid-column: 1 / 6;
+    align-self: end;
+    padding-bottom: 1rem;
+  }
+  .perception-heading {
+    color: var(--study-color);
+  }
+  .perception-heading h2,
+  .dream-copy h2,
+  .wildcard-spread h2 {
+    margin: 0.55rem 0 0;
+    color: inherit;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+    text-align: left;
+  }
+  .perception-heading h2 {
+    max-width: 8ch;
+    font-size: clamp(2.8rem, 6vw, 5.8rem);
+  }
+  .inkblot-block {
+    grid-column: 5 / 13;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(12rem, 0.65fr);
+    align-items: end;
+    gap: 1.5rem;
+    padding: clamp(1rem, 3vw, 2rem);
+    background: var(--paper);
+    color: var(--paper-ink);
+  }
+  .inkblot-block > img {
+    display: block;
+    width: 100%;
+    max-height: 30rem;
+    object-fit: contain;
+    filter: contrast(1.3);
+  }
+  .inkblot-block figcaption p {
+    margin: 0.7rem 0 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1rem, 1.8vw, 1.35rem);
+    font-style: italic;
     line-height: 1.4;
   }
-
-  .interview-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.25rem 1rem 1rem;
-    text-align: center;
+  .questions {
+    grid-column: 2 / 12;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: clamp(2rem, 6vw, 5rem);
+    background: rgb(237 231 211 / 24%);
   }
-
-  .tapestry-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    width: 100%;
+  .question {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: #121012;
   }
-
-  .tapestry-section {
-    width: 100%;
+  .question-number {
+    color: var(--study-color);
   }
-
-  .inkblot-frame {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    min-height: 7.5rem;
-  }
-
-  .interview-inkblot {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    max-height: 16dvh;
-    object-fit: contain;
-    filter: contrast(1.1) brightness(0.95) sepia(0.1);
-  }
-
-  .sensory-question {
-    font-family: Georgia, serif;
-    font-size: 0.95rem;
-    font-style: italic;
-    color: #d4a373;
-    margin-bottom: 0.5rem;
+  .question h3 {
+    margin: 1.25rem 0 2.5rem;
+    color: var(--paper);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0;
     line-height: 1.35;
     text-align: left;
   }
-
-  .guest-answer {
-    color: #ded0c5;
-    font-family: Georgia, serif;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    text-align: left;
-    cursor: text;
-    user-select: text;
+  .question > p:last-child {
+    margin: 0;
+    color: var(--paper);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    line-height: 1.42;
   }
 
-  @media (max-width: 900px) {
-    .shrine-dialog {
-      position: relative !important;
-      top: auto !important;
-      left: auto !important;
-      right: auto !important;
-      transform: none !important;
-      margin: 1.5rem auto;
-      width: 92vw !important;
-    }
+  .dream-spread {
+    display: grid;
+    grid-template-columns: 1fr;
+    background: var(--study-color);
+    color: var(--study-on-color);
+  }
+  .dream-spread.has-dream-image {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+  .dream-copy {
+    padding: clamp(3rem, 7vw, 6rem);
+  }
+  .dream-copy h2 {
+    max-width: 11ch;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.4rem, 5vw, 5rem);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .dream-prose {
+    max-width: 38rem;
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1rem, 1.55vw, 1.2rem);
+    line-height: 1.75;
+  }
+  .dream-image {
+    min-height: 38rem;
+    background: #111;
+  }
+  .dream-image .image-trigger,
+  .dream-image img {
+    width: 100%;
+    height: 100%;
+  }
+  .dream-image img {
+    object-fit: cover;
+  }
+  .dream-image figcaption {
+    padding: 0.8rem 1rem;
+    background: var(--paper);
+    color: var(--paper-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 0.82rem;
+    font-style: italic;
+  }
 
-    .room-canvas {
-      padding: 1rem;
+  .wildcard-spread {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.65fr) minmax(0, 1.35fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 7rem);
+    min-height: 34rem;
+    padding: clamp(3rem, 7vw, 6rem);
+    background: var(--paper);
+    color: var(--paper-ink);
+  }
+  .wildcard-spread header {
+    align-self: start;
+  }
+  .wildcard-spread h2 {
+    font-size: clamp(2.4rem, 5vw, 5rem);
+  }
+  .wildcard-image {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    width: min(100%, 36rem);
+    background: transparent;
+  }
+  .wildcard-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  .wildcard-copy {
+    max-width: 26rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.1rem;
+  }
+
+  .study-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1rem clamp(1.5rem, 4vw, 3rem);
+    border-top: 1px solid rgb(23 17 19 / 22%);
+    color: rgb(23 17 19 / 58%);
+    font-family: var(--machine-text, ui-monospace, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .image-viewer {
+    width: min(92vw, 72rem);
+    max-height: 90dvh;
+    margin: auto;
+    border: 1px solid rgb(237 231 211 / 34%);
+    padding: 0;
+    background: #0a080a;
+    color: var(--paper);
+    box-shadow: 0 2rem 8rem rgb(0 0 0 / 92%);
+  }
+  .image-viewer::backdrop {
+    background: rgb(0 0 0 / 74%);
+    backdrop-filter: blur(7px);
+  }
+  .viewer-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 2.5rem;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid rgb(237 231 211 / 24%);
+    font-family: var(--machine-text, ui-monospace, monospace);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+  }
+  .viewer-toolbar button {
+    border: 1px solid rgb(237 231 211 / 30%);
+    padding: 0.25rem 0.55rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .viewer-toolbar button:hover,
+  .viewer-toolbar button:focus-visible {
+    border-color: var(--signal);
+    outline: 0;
+    background: var(--signal);
+    color: var(--night);
+    box-shadow: 0 0 9px color-mix(in srgb, var(--signal) 40%, transparent);
+  }
+  .viewer-body {
+    max-height: calc(90dvh - 2.5rem);
+    overflow: auto;
+    padding: 1rem;
+  }
+  .viewer-body img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: calc(90dvh - 7rem);
+    margin: auto;
+    object-fit: contain;
+    filter: none;
+  }
+  .viewer-body p {
+    max-width: 60rem;
+    margin: 0.8rem auto 0;
+    color: rgb(237 231 211 / 70%);
+    font-family: var(--machine-text, ui-monospace, monospace);
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 800px) {
+    .film-web {
+      display: none;
+    }
+    .film-mobile {
+      display: block;
+    }
+    .study-shell {
+      padding: 5.5rem 0.75rem 5rem;
+    }
+    .site-controls {
+      right: 0.75rem;
+      grid-template-columns: repeat(2, 4.4rem);
+    }
+    .cover-spread,
+    .dream-spread.has-dream-image,
+    .colophon-spread,
+    .wildcard-spread {
+      grid-template-columns: 1fr;
+    }
+    .cover-spread {
+      min-height: 0;
+    }
+    .mix-panel {
+      min-height: 31rem;
+    }
+    .cover-image {
+      min-height: 70svh;
+    }
+    .perception-spread {
+      display: block;
+    }
+    .perception-heading {
+      margin-bottom: 3rem;
+    }
+    .inkblot-block {
+      grid-template-columns: 1fr;
+    }
+    .questions {
+      grid-template-columns: 1fr;
+      margin-top: 3rem;
+    }
+    .question h3 {
+      margin-bottom: 1.2rem;
+    }
+    .dream-image {
+      min-height: 65svh;
+    }
+    .wildcard-image {
+      grid-column: auto;
+      grid-row: auto;
+      justify-self: stretch;
     }
   }
 
-  @media (max-width: 767px) {
-    :global(:root) {
-      --audio-rail-height: 4rem;
+  @media (prefers-reduced-motion: reduce) {
+    .film {
+      display: none;
     }
-
-    .audio-rail {
-      top: 1rem;
-      left: 1rem;
-      right: 1rem;
-      gap: 0.5rem;
+    .image-trigger img {
+      transition: none;
     }
   }
 </style>
-
 <script>
   function initializeStudyShell(shell: HTMLElement) {
-    if (shell.dataset.initialized) return;
+    if (shell.dataset.initialized === "true") return;
     shell.dataset.initialized = "true";
 
-    const dialogs = Array.from(
-      shell.querySelectorAll<HTMLElement>(".shrine-dialog"),
+    const viewer = shell.querySelector<HTMLDialogElement>(
+      "[data-image-viewer]",
+    );
+    const viewerImage = viewer?.querySelector<HTMLImageElement>(
+      "[data-viewer-image]",
+    );
+    const viewerCaption = viewer?.querySelector<HTMLElement>(
+      "[data-viewer-caption]",
+    );
+    const viewerLabel = viewer?.querySelector<HTMLElement>(
+      "[data-viewer-label]",
     );
 
-    const roomCanvas = shell.querySelector<HTMLElement>(".room-canvas");
-    const bioDialog = shell.querySelector<HTMLElement>("#bio-dialog");
+    shell
+      .querySelectorAll<HTMLButtonElement>("[data-image-trigger]")
+      .forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          if (!viewer || !viewerImage) return;
+          const src = trigger.dataset.fullSrc;
+          if (!src) return;
 
-    if (
-      bioDialog &&
-      roomCanvas &&
-      bioDialog.classList.contains("is-centered")
-    ) {
-      const centeredLeft = (roomCanvas.clientWidth - bioDialog.offsetWidth) / 2;
-      bioDialog.style.left = `${Math.max(0, centeredLeft)}px`;
-      bioDialog.classList.remove("is-centered");
-    }
+          viewerImage.src = src;
+          viewerImage.alt = trigger.dataset.fullAlt ?? "";
 
-    let activeDrag: HTMLElement | null = null;
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 0;
-    let initialTop = 0;
-    let activePointerId: number | null = null;
+          const caption = trigger.dataset.fullCaption?.trim();
+          if (viewerCaption) {
+            viewerCaption.textContent = caption ?? "";
+            viewerCaption.hidden = !caption;
+          }
 
-    shell.addEventListener("pointerdown", (event) => {
-      const target = event.target as HTMLElement;
-      const headerBar = target.closest<HTMLElement>(".dialog-header-bar");
-      if (!headerBar) return;
+          if (viewerLabel) {
+            viewerLabel.textContent =
+              trigger.getAttribute("aria-label") ?? "full color";
+          }
 
-      const dialog = headerBar.closest<HTMLElement>(".shrine-dialog");
-      if (!dialog) return;
+          if (!viewer.open) viewer.showModal();
+        });
+      });
 
-      dialogs.forEach((d) => d.classList.remove("active-dialog"));
-      dialog.classList.add("active-dialog");
+    viewer
+      ?.querySelector<HTMLButtonElement>("[data-viewer-close]")
+      ?.addEventListener("click", () => viewer.close());
 
-      event.preventDefault();
-
-      activeDrag = dialog;
-      activePointerId = event.pointerId;
-
-      startX = event.clientX;
-      startY = event.clientY;
-      initialLeft = dialog.offsetLeft;
-      initialTop = dialog.offsetTop;
-
-      dialog.style.left = `${initialLeft}px`;
-      dialog.style.top = `${initialTop}px`;
-      dialog.style.right = "auto";
-      dialog.style.bottom = "auto";
-      dialog.style.transform = "none";
-
-      headerBar.setPointerCapture(event.pointerId);
+    viewer?.addEventListener("click", (event) => {
+      if (event.target === viewer) viewer.close();
     });
-
-    shell.addEventListener("pointermove", (event) => {
-      if (!activeDrag || event.pointerId !== activePointerId) return;
-
-      const dx = event.clientX - startX;
-      const dy = event.clientY - startY;
-
-      activeDrag.style.left = `${initialLeft + dx}px`;
-      activeDrag.style.top = `${initialTop + dy}px`;
-    });
-
-    const stopDrag = (event: PointerEvent) => {
-      if (activeDrag && event.pointerId === activePointerId) {
-        try {
-          (event.target as HTMLElement).releasePointerCapture(event.pointerId);
-        } catch (e) {}
-
-        activeDrag = null;
-        activePointerId = null;
-      }
-    };
-
-    shell.addEventListener("pointerup", stopDrag);
-    shell.addEventListener("pointercancel", stopDrag);
   }
 
-  document.addEventListener("astro:page-load", () => {
+  function initializePage() {
     document
       .querySelectorAll<HTMLElement>("[data-study-shell]")
       .forEach(initializeStudyShell);
-  });
+  }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document
-      .querySelectorAll<HTMLElement>("[data-study-shell]")
-      .forEach(initializeStudyShell);
-  });
+  initializePage();
+  document.addEventListener("astro:page-load", initializePage);
 </script>

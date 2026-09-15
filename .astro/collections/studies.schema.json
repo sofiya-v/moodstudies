@@ -23,10 +23,19 @@
     "blueHourMetadata": {
       "type": "string"
     },
-    "blackInkblotSrc": {
+    "inkblot1Src": {
       "type": "string"
     },
-    "whiteInkblotSrc": {
+    "inkblot1Response": {
+      "type": "string"
+    },
+    "qResponse1": {
+      "type": "string"
+    },
+    "qResponse2": {
+      "type": "string"
+    },
+    "qResponse3": {
       "type": "string"
     },
     "dreamImageSrc": {
@@ -46,12 +55,6 @@
     },
     "observation": {
       "type": "string"
-    },
-    "inkblotResponse": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
     },
     "caption": {
       "type": "object",
@@ -85,15 +88,17 @@
     "trackId",
     "blueHourSrc",
     "blueHourMetadata",
-    "blackInkblotSrc",
-    "whiteInkblotSrc",
+    "inkblot1Src",
+    "inkblot1Response",
+    "qResponse1",
+    "qResponse2",
+    "qResponse3",
     "dreamImageSrc",
     "dreamImageAlt",
     "trinketSrc",
     "trinketAlt",
     "bio",
     "observation",
-    "inkblotResponse",
     "caption"
   ]
 }
