@@ -20,13 +20,16 @@
     "blueHourSrc": {
       "type": "string"
     },
-    "blueHourMetadata": {
+    "blueHourCaption": {
       "type": "string"
     },
-    "inkblot1Src": {
+    "blueHourAlt": {
       "type": "string"
     },
-    "inkblot1Response": {
+    "inkblotSrc": {
+      "type": "string"
+    },
+    "inkblotResponse": {
       "type": "string"
     },
     "qResponse1": {
@@ -69,12 +72,7 @@
           "type": "string",
           "format": "uri"
         }
-      },
-      "required": [
-        "label",
-        "author",
-        "authorUrl"
-      ]
+      }
     },
     "$schema": {
       "type": "string"
@@ -87,18 +85,14 @@
     "artist",
     "trackId",
     "blueHourSrc",
-    "blueHourMetadata",
-    "inkblot1Src",
-    "inkblot1Response",
+    "blueHourCaption",
+    "blueHourAlt",
+    "inkblotSrc",
+    "inkblotResponse",
     "qResponse1",
     "qResponse2",
     "qResponse3",
-    "dreamImageSrc",
-    "dreamImageAlt",
-    "trinketSrc",
-    "trinketAlt",
     "bio",
-    "observation",
-    "caption"
+    "observation"
   ]
 }

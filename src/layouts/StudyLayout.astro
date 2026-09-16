@@ -1,1142 +1,158 @@
 ---
-import SoundCloudPlayer from "../components/SoundCloudPlayer.astro";
+import AudioPlayer from "../components/SoundCloudPlayer.astro";
 import "../styles/global.css";
 
 interface Props {
   studyNumber: string;
+  date: string;
+  duration: string;
   artist: string;
   trackId: string;
-  studyColor?: string;
-  studyOnColor?: string;
-  shrineColor?: string;
-  shrineFilter?: string;
-  mixDescription?: string;
-  soundCloudHref?: string;
   blueHourSrc: string;
-  blueHourAlt?: string;
-  blueHourMetadata?: string;
-  inkblotSrc?: string;
-  inkblotResponse?: string;
-  inkblot1Src?: string;
-  inkblot1Response?: string;
+  blueHourCaption: string;
+  blueHourAlt: string;
+  inkblotSrc: string;
+  inkblotResponse: string;
   qResponse1: string;
   qResponse2: string;
   qResponse3: string;
-  dreamTitle?: string;
   dreamImageSrc?: string;
   dreamImageAlt?: string;
-  wildcardSrc?: string;
-  wildcardAlt?: string;
-  wildcardLabel?: string;
   trinketSrc?: string;
   trinketAlt?: string;
   bio: string;
-  caption?:
-    | string
-    | {
-        label?: string;
-        author?: string;
-        authorUrl?: string;
-      };
+  caption?: {
+    label?: string;
+    author?: string;
+    authorUrl?: string;
+  };
 }
 
 const {
   studyNumber,
+  date,
+  duration,
   artist,
   trackId,
-  studyColor,
-  studyOnColor = "#f3ead5",
-  shrineColor,
-  shrineFilter,
-  mixDescription,
-  soundCloudHref,
   blueHourSrc,
-  blueHourAlt = "Blue-hour photograph contributed by the artist",
-  blueHourMetadata,
+  blueHourCaption,
+  blueHourAlt,
   inkblotSrc,
   inkblotResponse,
-  inkblot1Src,
-  inkblot1Response,
   qResponse1,
   qResponse2,
   qResponse3,
-  dreamTitle,
   dreamImageSrc,
-  dreamImageAlt = "Image accompanying the dream log",
-  wildcardSrc,
-  wildcardAlt,
-  wildcardLabel = "one more thing",
+  dreamImageAlt,
   trinketSrc,
   trinketAlt,
   bio,
   caption,
 } = Astro.props;
-
-const accent = studyColor ?? shrineColor ?? "#363775";
-
-const imageFilter =
-  shrineFilter ?? "grayscale(0.82) contrast(1.14) brightness(0.82)";
-
-const resolvedInkblotSrc = inkblotSrc ?? inkblot1Src;
-const resolvedInkblotResponse = inkblotResponse ?? inkblot1Response;
-
-const resolvedDreamTitle = dreamTitle ?? `dream log ${studyNumber}`;
-
-const resolvedWildcardSrc = wildcardSrc ?? trinketSrc;
-const resolvedWildcardAlt =
-  wildcardAlt ?? trinketAlt ?? "Optional contribution from the artist";
-
-const hasDreamCaption = Boolean(caption) || Astro.slots.has("caption");
-const hasWildcardCopy = Astro.slots.has("wildcard");
-const hasWildcard = Boolean(resolvedWildcardSrc) || hasWildcardCopy;
-
-const pageTitle = `mood study ${studyNumber} — ${artist}`;
-const viewerId = `study-image-viewer-${studyNumber}`;
-
-const paperNoise = `data:image/svg+xml;utf8,${encodeURIComponent(`
-  <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
-    <filter id="paper-noise">
-      <feTurbulence
-        type="fractalNoise"
-        baseFrequency="0.72"
-        numOctaves="3"
-        stitchTiles="stitch"
-      />
-      <feColorMatrix type="saturate" values="0"/>
-    </filter>
-    <rect
-      width="100%"
-      height="100%"
-      filter="url(#paper-noise)"
-      opacity="0.22"
-    />
-  </svg>
-`)}`;
 ---
 
-<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <meta
-      name="description"
-      content={`Mood study ${studyNumber}, featuring ${artist}.`}
-    />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <title>{pageTitle}</title>
+    <title>Study {studyNumber} — {artist}</title>
   </head>
 
   <body>
-    <div
-      class="study-shell"
-      data-study-shell
-      data-study-number={studyNumber}
-      style={`--study-color: ${accent}; --study-on-color: ${studyOnColor}; --image-filter: ${imageFilter}; --paper-noise: url("${paperNoise}");`}
-    >
-      <header class="top-rail">
-        <nav class="main-nav" aria-label="Site navigation">
-          <a class="machine-link" href="/">home</a>
-          <a class="machine-link" href="/archive">index</a>
-        </nav>
+    <nav>
+      <a class="machine-link" href="/">home</a>
+      <a class="machine-link" href="/archive">index</a>
+    </nav>
+
+    <main class="study-page">
+      <header class="study-header">
+        <h1>{artist}</h1>
       </header>
 
-      <main class="study-sheet">
-        <header class="cover-spread">
-          <section class="mix-panel" aria-labelledby="study-title">
-            <div class="mix-heading">
-              <h1 id="study-title">{artist}</h1>
-
-              {
-                mixDescription && (
-                  <p class="mix-description">{mixDescription}</p>
-                )
-              }
-            </div>
-
-            <div class="player-wrap">
-              <SoundCloudPlayer trackId={trackId} />
-            </div>
-
-            {
-              soundCloudHref && (
-                <a
-                  class="track-link"
-                  href={soundCloudHref}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  track page <span aria-hidden="true">↗</span>
-                </a>
-              )
-            }
-          </section>
-
-          <figure class="cover-image">
-            <button
-              type="button"
-              class="image-trigger"
-              data-image-trigger
-              data-full-src={blueHourSrc}
-              data-full-alt={blueHourAlt}
-              data-full-caption={blueHourMetadata}
-              aria-label="View the blue-hour photograph in full color"
-            >
-              <img src={blueHourSrc} alt={blueHourAlt} />
-            </button>
-
-            {blueHourMetadata && <figcaption>{blueHourMetadata}</figcaption>}
-          </figure>
-        </header>
-
-        <section class="colophon-spread" aria-label="About the artist">
-          <div class="bio-block prose compact-prose">
-            <p>{bio}</p>
-          </div>
+      <div class="study-grid">
+        <section class="study-audio">
+          <AudioPlayer trackId={trackId} />
         </section>
 
-        <section class="perception-spread" aria-labelledby="perception-title">
-          <div class="perception-heading">
-            <h2 id="perception-title">What do you see?</h2>
-          </div>
+        <figure class="blue-hour">
+          <img src={blueHourSrc} alt={blueHourAlt} />
+          <figcaption>{blueHourCaption}</figcaption>
+        </figure>
 
-          <figure class="inkblot-block">
-            {
-              resolvedInkblotSrc && (
-                <img
-                  src={resolvedInkblotSrc}
-                  alt={`Inkblot plate for mood study ${studyNumber}`}
-                />
-              )
-            }
+        <figure class="inkblot">
+          <img src={inkblotSrc} alt="Inkblot" />
+          <p>{inkblotResponse}</p>
+        </figure>
 
-            {
-              resolvedInkblotResponse && (
-                <figcaption>
-                  <span class="section-label">response</span>
-                  <p>{resolvedInkblotResponse}</p>
-                </figcaption>
-              )
-            }
-          </figure>
+        <div class="questions">
+          <h3>What is your favorite non-musical sound?</h3>
+          <p>{qResponse1}</p>
 
-          <div class="questions" aria-label="Three questions">
-            <article class="question">
-              <p class="question-number">01</p>
+          <h3>What tends to recur in your dreams?</h3>
+          <p>{qResponse2}</p>
 
-              <h3>What is your favorite non-musical sound?</h3>
-
-              <p>{qResponse1}</p>
-            </article>
-
-            <article class="question">
-              <p class="question-number">02</p>
-
-              <h3>What recurring motifs show up in your dreams?</h3>
-
-              <p>{qResponse2}</p>
-            </article>
-
-            <article class="question">
-              <p class="question-number">03</p>
-
-              <h3>Describe the lighting where you are right now.</h3>
-
-              <p>{qResponse3}</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="dream-spread" aria-labelledby="dream-title">
-          <header class="dream-heading">
-            <h2 id="dream-title">{resolvedDreamTitle}</h2>
-          </header>
-
-          <div
-            class:list={[
-              "dream-layout",
-              {
-                "has-dream-image": Boolean(dreamImageSrc),
-              },
-            ]}
-          >
-            <div class="prose dream-prose">
-              <slot />
-            </div>
-
-            {
-              dreamImageSrc && (
-                <figure class="dream-image">
-                  <button
-                    type="button"
-                    class="image-trigger"
-                    data-image-trigger
-                    data-full-src={dreamImageSrc}
-                    data-full-alt={dreamImageAlt}
-                    aria-label="View the dream image in full color"
-                  >
-                    <img src={dreamImageSrc} alt={dreamImageAlt} />
-                  </button>
-
-                  {hasDreamCaption && (
-                    <figcaption>
-                      {typeof caption === "string" ? (
-                        caption
-                      ) : caption ? (
-                        <>
-                          {caption.label}
-
-                          {caption.authorUrl ? (
-                            <a
-                              href={caption.authorUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {caption.author}
-                            </a>
-                          ) : (
-                            caption.author
-                          )}
-                        </>
-                      ) : (
-                        <slot name="caption" />
-                      )}
-                    </figcaption>
-                  )}
-                </figure>
-              )
-            }
-          </div>
-        </section>
-
-        {
-          hasWildcard && (
-            <section class="wildcard-spread" aria-labelledby="wildcard-title">
-              <header>
-                <h2 id="wildcard-title">{wildcardLabel}</h2>
-              </header>
-
-              {resolvedWildcardSrc && (
-                <button
-                  type="button"
-                  class="image-trigger wildcard-image"
-                  data-image-trigger
-                  data-full-src={resolvedWildcardSrc}
-                  data-full-alt={resolvedWildcardAlt}
-                  aria-label={`View ${wildcardLabel} in full color`}
-                >
-                  <img src={resolvedWildcardSrc} alt={resolvedWildcardAlt} />
-                </button>
-              )}
-
-              {hasWildcardCopy && (
-                <div class="prose wildcard-copy">
-                  <slot name="wildcard" />
-                </div>
-              )}
-            </section>
-          )
-        }
-
-        <footer class="study-footer">
-          <span>mood study {studyNumber}</span>
-          <span>{artist}</span>
-        </footer>
-      </main>
-
-      <dialog class="image-viewer" id={viewerId} data-image-viewer>
-        <div class="viewer-toolbar">
-          <span data-viewer-label>full color</span>
-
-          <button
-            type="button"
-            data-viewer-close
-            aria-label="Close image viewer"
-          >
-            close
-          </button>
+          <h3>Describe the light where you are right now.</h3>
+          <p>{qResponse3}</p>
         </div>
 
-        <div class="viewer-body">
-          <img data-viewer-image alt="" />
-          <p data-viewer-caption hidden></p>
-        </div>
-      </dialog>
-    </div>
+        <article class="study-prose">
+          <slot />
+        </article>
+
+        <figure class="dream-image">
+          <img src={dreamImageSrc} alt={dreamImageAlt} />
+        </figure>
+
+        <section class="bio">
+          <p>{bio}</p>
+        </section>
+      </div>
+    </main>
   </body>
 </html>
 
 <style>
-  :global(*) {
-    box-sizing: border-box;
-  }
+  body {
+    background-image: url("/grain_static_bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 
-  :global(html) {
-    min-height: 100%;
-    background: #050405;
-  }
-
-  :global(body) {
-    min-width: 20rem;
-    min-height: 100%;
     margin: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: url("/grain_static_bg.jpg") center / cover fixed no-repeat;
+    min-height: 100vh;
+    padding: 4rem 2rem;
   }
 
-  .study-shell {
-    --paper: #ede7d3;
-    --paper-ink: #171113;
-    --night: #050405;
-    --signal: var(--glow, #8fffc7);
-
-    position: relative;
-    isolation: isolate;
-    width: 100%;
-    min-height: 100dvh;
-    padding: clamp(5.75rem, 9vw, 8rem) clamp(1rem, 4vw, 4rem) 8rem;
-  }
-
-  .study-shell::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background:
-      linear-gradient(rgb(5 4 5 / 42%), rgb(5 4 5 / 68%)),
-      radial-gradient(
-        circle at 80% 12%,
-        color-mix(in srgb, var(--study-color) 14%, transparent),
-        transparent 52%
-      );
-    pointer-events: none;
-  }
-
-  .top-rail {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 50;
-  }
-
-  .main-nav {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .main-nav .machine-link {
-    display: inline-block;
-    border: 1px solid rgb(237 231 211 / 32%);
-    padding: 0.4rem 0.65rem;
-    background: rgb(5 4 5 / 78%);
-    color: #ede7d3;
-    font-family: var(--machine-text, ui-monospace), monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-  }
-
-  .main-nav .machine-link:hover,
-  .main-nav .machine-link:focus-visible {
-    border-color: var(--signal);
-    outline: 0;
-    background: var(--signal);
-    color: var(--night);
-    box-shadow: 0 0 9px color-mix(in srgb, var(--signal) 40%, transparent);
-  }
-
-  .study-sheet {
-    position: relative;
-    width: min(100%, 72rem);
+  .study-page {
+    max-width: 900px;
     margin: 0 auto;
-    overflow: visible;
-    background: var(--paper);
-    color: var(--paper-ink);
-    box-shadow: 0 2rem 8rem rgb(0 0 0 / 55%);
-  }
 
-  .study-sheet::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 20;
-    background: var(--paper-noise) repeat;
-    background-size: 180px 180px;
-    opacity: 0.032;
-    mix-blend-mode: multiply;
-    pointer-events: none;
-  }
+    background-color: var(--dark);
+    padding: 3rem;
 
-  figure {
-    margin: 0;
-  }
-
-  .prose {
-    line-height: 1.65;
-  }
-
-  /* Cover */
-
-  .cover-spread {
-    display: grid;
-    grid-template-columns:
-      minmax(0, 0.9fr)
-      minmax(0, 1.1fr);
-    min-height: min(46rem, calc(100dvh - 7rem));
-  }
-
-  .mix-panel {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     gap: 3rem;
-    min-width: 0;
-    padding: clamp(2rem, 5vw, 5rem);
-    background: var(--study-color);
-    color: var(--study-on-color);
   }
 
-  .mix-heading h1 {
-    max-width: 10ch;
-    margin: 0;
-    color: inherit;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(3rem, 7vw, 6.8rem);
-    font-weight: 700;
-    letter-spacing: -0.075em;
-    line-height: 0.85;
-    overflow-wrap: anywhere;
-    text-align: left;
-    text-shadow: 0 0 9px color-mix(in srgb, currentColor 28%, transparent);
+  .study-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2-column setup */
+    gap: 2rem;
+    align-items: start;
   }
 
-  .mix-description {
-    max-width: 30rem;
-    margin: 2rem 0 0;
-    font:
-      italic clamp(1rem, 1.8vw, 1.35rem) / 1.35 Georgia,
-      serif;
-  }
-
-  .player-wrap {
-    min-width: 0;
+  .audio-wrapper {
     width: 100%;
+    max-width: 600px; /* Adjust to fit your desired layout width */
   }
 
-  .player-wrap :global(.soundcloud-player),
-  .player-wrap :global(iframe) {
-    display: block;
-    width: 100%;
+  img {
     max-width: 100%;
-    margin: 0;
-  }
-
-  .track-link {
-    width: fit-content;
-    color: inherit;
-    font-family: var(--machine-text, ui-monospace), monospace;
-    font-size: 0.82rem;
-    text-underline-offset: 0.2em;
-  }
-
-  .track-link:hover,
-  .track-link:focus-visible {
-    outline: 0;
-    background: var(--signal);
-    color: var(--night);
-  }
-
-  .cover-image {
-    position: relative;
-    min-width: 0;
-    min-height: 32rem;
-    overflow: hidden;
-    background: #151215;
-  }
-
-  .cover-image .image-trigger,
-  .cover-image img {
-    width: 100%;
-    height: 100%;
-  }
-
-  .cover-image img {
-    object-fit: cover;
-  }
-
-  .cover-image figcaption {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-    left: 1rem;
-    z-index: 2;
-    width: fit-content;
-    max-width: calc(100% - 2rem);
-    padding: 0.35rem 0.5rem;
-    background: rgb(5 4 5 / 74%);
-    color: #f3ead5;
-    font:
-      0.68rem / 1.35 var(--machine-text, ui-monospace),
-      monospace;
-    letter-spacing: 0.04em;
-  }
-
-  /* Interactive images */
-
-  .image-trigger {
-    appearance: none;
-    display: block;
-    border: 0;
-    padding: 0;
-    overflow: hidden;
-    background: #141114;
-    cursor: zoom-in;
-  }
-
-  .image-trigger img {
-    display: block;
-    max-width: none;
-    filter: var(--image-filter);
-    transition: filter 650ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .image-trigger:hover img,
-  .image-trigger:focus-visible img {
-    filter: none;
-  }
-
-  .image-trigger:focus-visible {
-    outline: 3px solid var(--signal);
-    outline-offset: -3px;
-  }
-
-  /* Bio */
-
-  .colophon-spread {
-    padding: clamp(4rem, 9vw, 8rem) clamp(2rem, 8vw, 7rem);
-  }
-
-  .compact-prose {
-    width: min(100%, 42rem);
-    margin: 0 auto;
-    font:
-      0.95rem / 1.65 Arial,
-      Helvetica,
-      sans-serif;
-  }
-
-  .compact-prose p {
-    margin: 0;
-  }
-
-  /* Interview */
-
-  .section-label,
-  .question-number {
-    margin: 0;
-    font:
-      400 0.72rem / 1.1 var(--machine-text, ui-monospace),
-      monospace;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-  }
-
-  .section-label {
-    color: color-mix(in srgb, var(--paper-ink) 58%, transparent);
-  }
-
-  .perception-spread {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: clamp(1rem, 3vw, 2.5rem);
-    padding: clamp(3rem, 7vw, 6rem) clamp(2rem, 6vw, 5rem);
-    background: #121012;
-    color: var(--paper);
-  }
-
-  .perception-heading {
-    grid-column: 1 / 6;
-    align-self: end;
-    padding-bottom: 1rem;
-    color: var(--study-color);
-  }
-
-  .perception-heading h2,
-  .wildcard-spread h2 {
-    margin: 0;
-    color: inherit;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.055em;
-    line-height: 0.95;
-    text-align: left;
-  }
-
-  .perception-heading h2 {
-    max-width: 8ch;
-    font-size: clamp(2.8rem, 6vw, 5.8rem);
-  }
-
-  .inkblot-block {
-    grid-column: 5 / 13;
-    display: grid;
-    grid-template-columns:
-      minmax(0, 1.35fr)
-      minmax(12rem, 0.65fr);
-    align-items: end;
-    gap: 1.5rem;
-    padding: clamp(1rem, 3vw, 2rem);
-    background: var(--paper);
-    color: var(--paper-ink);
-  }
-
-  .inkblot-block > img {
-    display: block;
-    width: 100%;
-    max-height: 30rem;
-    object-fit: contain;
-    filter: contrast(1.3);
-  }
-
-  .inkblot-block figcaption p {
-    margin: 0.7rem 0 0;
-    font:
-      italic clamp(1rem, 1.8vw, 1.35rem) / 1.4 Georgia,
-      serif;
+    height: auto;
   }
 
   .questions {
-    grid-column: 2 / 12;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    margin-top: clamp(2rem, 6vw, 5rem);
-    background: rgb(237 231 211 / 24%);
-  }
-
-  .question {
-    padding: clamp(1.25rem, 3vw, 2rem);
-    background: #121012;
-  }
-
-  .question-number {
-    color: var(--study-color);
-  }
-
-  .question h3 {
-    margin: 1.25rem 0 2.5rem;
-    color: var(--paper);
-    font:
-      700 0.82rem / 1.35 Arial,
-      Helvetica,
-      sans-serif;
-    text-align: left;
-  }
-
-  .question > p:last-child {
-    margin: 0;
-    color: var(--paper);
-    font:
-      clamp(1rem, 1.8vw, 1.3rem) / 1.42 Georgia,
-      serif;
-  }
-
-  /* Long-form dream log */
-
-  .dream-spread {
-    padding: clamp(3rem, 7vw, 6rem);
-    background: var(--study-color);
-    color: var(--study-on-color);
-  }
-
-  .dream-heading {
-    width: min(100%, 42rem);
-  }
-
-  .dream-heading h2 {
-    max-width: 11ch;
-    margin: 0;
-    color: inherit;
-    font:
-      italic 400 clamp(2.8rem, 6vw, 5.5rem) / 0.95 Georgia,
-      serif;
-    letter-spacing: -0.055em;
-    text-align: left;
-  }
-
-  .dream-layout {
-    display: grid;
-    grid-template-columns:
-      minmax(0, 40rem)
-      minmax(16rem, 1fr);
-    align-items: start;
-    gap: clamp(3rem, 7vw, 7rem);
-    margin-top: clamp(3rem, 6vw, 5rem);
-  }
-
-  .dream-layout:not(.has-dream-image) {
-    grid-template-columns: minmax(0, 42rem);
-    justify-content: center;
-  }
-
-  .dream-prose {
-    min-width: 0;
-    font:
-      clamp(1.05rem, 1.5vw, 1.22rem) / 1.8 Georgia,
-      serif;
-    overflow-wrap: break-word;
-    text-wrap: pretty;
-  }
-
-  .dream-prose :global(p) {
-    margin: 0 0 1.6em;
-  }
-
-  .dream-prose :global(p:last-child) {
-    margin-bottom: 0;
-  }
-
-  /*
-   * This prevents accidentally indented Markdown
-   * from overflowing if Astro renders it as a code block.
-   */
-  .dream-prose :global(pre) {
-    margin: 0 0 1.6em;
-    white-space: pre-wrap;
-    font: inherit;
-    line-height: inherit;
-  }
-
-  .dream-image {
-    position: sticky;
-    top: 6rem;
-    width: 100%;
-    background: #111;
-  }
-
-  .dream-image .image-trigger,
-  .dream-image img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .dream-image img {
-    max-height: calc(100dvh - 10rem);
-    object-fit: contain;
-  }
-
-  .dream-image figcaption {
-    padding: 0.8rem 1rem;
-    background: var(--paper);
-    color: var(--paper-ink);
-    font:
-      italic 0.82rem / 1.45 Georgia,
-      serif;
-  }
-
-  .dream-image figcaption a {
-    color: inherit;
-    text-underline-offset: 0.16em;
-  }
-
-  /* Wildcard contribution */
-
-  .wildcard-spread {
-    display: grid;
-    grid-template-columns:
-      minmax(12rem, 0.65fr)
-      minmax(0, 1.35fr);
-    align-items: center;
-    gap: clamp(2rem, 7vw, 7rem);
-    min-height: 34rem;
-    padding: clamp(3rem, 7vw, 6rem);
-    background: var(--paper);
-    color: var(--paper-ink);
-  }
-
-  .wildcard-spread header {
-    align-self: start;
-  }
-
-  .wildcard-spread h2 {
-    font-size: clamp(2.4rem, 5vw, 5rem);
-  }
-
-  .wildcard-image {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    justify-self: end;
-    width: min(100%, 36rem);
-    background: transparent;
-  }
-
-  .wildcard-image img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-  }
-
-  .wildcard-copy {
-    max-width: 26rem;
-    font:
-      1.1rem / 1.65 Georgia,
-      serif;
-  }
-
-  /* Footer */
-
-  .study-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    padding: 1rem clamp(1.5rem, 4vw, 3rem);
-    border-top: 1px solid rgb(23 17 19 / 22%);
-    color: rgb(23 17 19 / 58%);
-    font:
-      0.7rem var(--machine-text, ui-monospace),
-      monospace;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-  }
-
-  /* Image viewer */
-
-  .image-viewer {
-    width: min(92vw, 72rem);
-    max-height: 90dvh;
-    margin: auto;
-    border: 1px solid rgb(237 231 211 / 34%);
-    padding: 0;
-    background: #0a080a;
-    color: var(--paper);
-    box-shadow: 0 2rem 8rem rgb(0 0 0 / 92%);
-  }
-
-  .image-viewer::backdrop {
-    background: rgb(0 0 0 / 74%);
-    backdrop-filter: blur(7px);
-  }
-
-  .viewer-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    min-height: 2.5rem;
-    padding: 0.45rem 0.75rem;
-    border-bottom: 1px solid rgb(237 231 211 / 24%);
-    font:
-      0.78rem var(--machine-text, ui-monospace),
-      monospace;
-    letter-spacing: 0.05em;
-  }
-
-  .viewer-toolbar button {
-    border: 1px solid rgb(237 231 211 / 30%);
-    padding: 0.25rem 0.55rem;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-  }
-
-  .viewer-toolbar button:hover,
-  .viewer-toolbar button:focus-visible {
-    border-color: var(--signal);
-    outline: 0;
-    background: var(--signal);
-    color: var(--night);
-  }
-
-  .viewer-body {
-    max-height: calc(90dvh - 2.5rem);
-    overflow: auto;
-    padding: 1rem;
-  }
-
-  .viewer-body img {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    max-height: calc(90dvh - 7rem);
-    margin: auto;
-    object-fit: contain;
-    filter: none;
-  }
-
-  .viewer-body p {
-    max-width: 60rem;
-    margin: 0.8rem auto 0;
-    color: rgb(237 231 211 / 70%);
-    font:
-      0.72rem / 1.4 var(--machine-text, ui-monospace),
-      monospace;
-  }
-
-  /* Mobile */
-
-  @media (max-width: 800px) {
-    .study-shell {
-      padding: 5.5rem 0.75rem 5rem;
-    }
-
-    .cover-spread,
-    .wildcard-spread {
-      grid-template-columns: 1fr;
-    }
-
-    .cover-spread {
-      min-height: 0;
-    }
-
-    .mix-panel {
-      min-height: 31rem;
-    }
-
-    .cover-image {
-      min-height: 70svh;
-    }
-
-    .perception-spread {
-      display: block;
-    }
-
-    .perception-heading {
-      margin-bottom: 3rem;
-    }
-
-    .inkblot-block {
-      grid-template-columns: 1fr;
-    }
-
-    .questions {
-      grid-template-columns: 1fr;
-      margin-top: 3rem;
-    }
-
-    .question h3 {
-      margin-bottom: 1.2rem;
-    }
-
-    .dream-spread {
-      padding: 3.5rem 1.5rem;
-    }
-
-    .dream-layout,
-    .dream-layout:not(.has-dream-image) {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 2.5rem;
-    }
-
-    /*
-     * The image appears after the heading and before
-     * the long dream text on smaller screens.
-     */
-    .dream-image {
-      position: static;
-      grid-row: 1;
-    }
-
-    .dream-prose {
-      grid-row: 2;
-      font-size: 1.05rem;
-      line-height: 1.75;
-    }
-
-    .wildcard-image {
-      grid-column: auto;
-      grid-row: auto;
-      justify-self: stretch;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .image-trigger img {
-      transition: none;
-    }
+    grid-column: 1 / -1;
   }
 </style>
-
-<script>
-  function initializeStudyShell(shell: HTMLElement) {
-    if (shell.dataset.initialized === "true") return;
-
-    shell.dataset.initialized = "true";
-
-    const viewer = shell.querySelector<HTMLDialogElement>(
-      "[data-image-viewer]",
-    );
-
-    const viewerImage = viewer?.querySelector<HTMLImageElement>(
-      "[data-viewer-image]",
-    );
-
-    const viewerCaption = viewer?.querySelector<HTMLElement>(
-      "[data-viewer-caption]",
-    );
-
-    const viewerLabel = viewer?.querySelector<HTMLElement>(
-      "[data-viewer-label]",
-    );
-
-    shell
-      .querySelectorAll<HTMLButtonElement>("[data-image-trigger]")
-      .forEach((trigger) => {
-        trigger.addEventListener("click", () => {
-          if (!viewer || !viewerImage) return;
-
-          const src = trigger.dataset.fullSrc;
-
-          if (!src) return;
-
-          viewerImage.src = src;
-          viewerImage.alt = trigger.dataset.fullAlt ?? "";
-
-          const imageCaption = trigger.dataset.fullCaption?.trim();
-
-          if (viewerCaption) {
-            viewerCaption.textContent = imageCaption ?? "";
-
-            viewerCaption.hidden = !imageCaption;
-          }
-
-          if (viewerLabel) {
-            viewerLabel.textContent =
-              trigger.getAttribute("aria-label") ?? "full color";
-          }
-
-          if (!viewer.open) {
-            viewer.showModal();
-          }
-        });
-      });
-
-    viewer
-      ?.querySelector<HTMLButtonElement>("[data-viewer-close]")
-      ?.addEventListener("click", () => {
-        viewer.close();
-      });
-
-    viewer?.addEventListener("click", (event) => {
-      if (event.target === viewer) {
-        viewer.close();
-      }
-    });
-  }
-
-  function initializePage() {
-    document
-      .querySelectorAll<HTMLElement>("[data-study-shell]")
-      .forEach(initializeStudyShell);
-  }
-
-  initializePage();
-
-  document.addEventListener("astro:page-load", initializePage);
-</script>

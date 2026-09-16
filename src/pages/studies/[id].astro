@@ -3,30 +3,34 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import StudyLayout from "../../layouts/StudyLayout.astro";
 
 export async function getStaticPaths() {
-  const allStudies = await getCollection("studies");
+  const studies = await getCollection("studies");
 
-  return allStudies.map((study: CollectionEntry<"studies">) => {
-    return {
-      params: { id: study.data.studyNumber }, // Matches "001", "002", etc. directly
-      props: { study },
-    };
-  });
+  return studies.map((study: CollectionEntry<"studies">) => ({
+    params: {
+      id: study.data.studyNumber,
+    },
+    props: {
+      study,
+    },
+  }));
 }
 
 const { study } = Astro.props;
-
 const { Content } = await render(study);
 ---
 
 <StudyLayout
   studyNumber={study.data.studyNumber}
   artist={study.data.artist}
-  bio={study.data.bio}
   trackId={study.data.trackId}
+  date={study.data.date}
+  duration={study.data.duration}
+  bio={study.data.bio}
   blueHourSrc={study.data.blueHourSrc}
-  blueHourMetadata={study.data.blueHourMetadata}
-  inkblot1Src={study.data.inkblot1Src}
-  inkblot1Response={study.data.inkblot1Response}
+  blueHourCaption={study.data.blueHourCaption}
+  blueHourAlt={study.data.blueHourAlt}
+  inkblotSrc={study.data.inkblotSrc}
+  inkblotResponse={study.data.inkblotResponse}
   qResponse1={study.data.qResponse1}
   qResponse2={study.data.qResponse2}
   qResponse3={study.data.qResponse3}
@@ -34,15 +38,7 @@ const { Content } = await render(study);
   dreamImageAlt={study.data.dreamImageAlt}
   trinketSrc={study.data.trinketSrc}
   trinketAlt={study.data.trinketAlt}
+  caption={study.data.caption}
 >
-  <fragment slot="bio">{study.data.bio} </fragment>
-
-  <fragment>
-    <Content />
-  </fragment>
-
-  <fragment slot="caption">
-    {study.data.caption.label}
-    <a href={study.data.caption.authorUrl}>{study.data.caption.author}</a>
-  </fragment>
+  <Content />
 </StudyLayout>
