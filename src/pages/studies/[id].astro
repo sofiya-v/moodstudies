@@ -21,6 +21,7 @@ const { Content } = await render(study);
 <StudyLayout
   studyNumber={study.data.studyNumber}
   artist={study.data.artist}
+  bio={study.data.bio}
   trackId={study.data.trackId}
   blueHourSrc={study.data.blueHourSrc}
   blueHourMetadata={study.data.blueHourMetadata}
@@ -36,7 +37,7 @@ const { Content } = await render(study);
 >
   <fragment slot="bio">{study.data.bio} </fragment>
 
-  <fragment slot="dream-log">
+  <fragment>
     <Content />
   </fragment>
 
