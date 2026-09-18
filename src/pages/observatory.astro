@@ -11,8 +11,8 @@ const audioFiles = import.meta.glob(
   },
 );
 
-const playlist = Object.keys(audioFiles).map((path) => ({
-  src: path.replace("/public", ""),
+const playlist = Object.entries(audioFiles).map(([path, fileUrl]) => ({
+  src: fileUrl,
   title: path.split("/").pop() || "",
 }));
 
@@ -108,8 +108,6 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       </filter>
     </svg>
   </div>
-
-  <audio id="bg-player" preload="metadata"></audio>
 
   <style>
     .page {
