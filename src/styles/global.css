@@ -4,12 +4,11 @@
 
 :root {
     --light: #ebe5df;
-    --dark: #130b0b;
+    --dark: #181818;
     --muted: #a8a8a8;
     --glow: rgba(0, 255, 149, 0.95);
     --glow-dark: rgba(0, 255, 200, 0.5);
 
-    /* Use Astro's injected font variable with reliable fallbacks */
     --machine-text: var(--font-vt323, "VT323", monospace);
 }
 
@@ -77,7 +76,7 @@ main {
 h1,
 h2,
 h3 {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-syne-mono);
     color: rgb(240 255 240 / 95%);
     letter-spacing: 0.05em;
 
@@ -147,14 +146,7 @@ a.machine-link,
     padding: 0;
     margin: 0;
 
-    background: transparent;
-    border: none;
-    box-shadow: none;
-
-    text-shadow: 0 0 6px var(--light);
-
     transition: background 150ms ease, color 150ms ease, text-shadow 150ms ease, box-shadow 150ms ease;
-    user-select: none;
     justify-items: center;
 }
 

@@ -1,6 +1,7 @@
 ---
 import AudioPlayer from "../components/SoundCloudPlayer.astro";
 import "../styles/global.css";
+import Font from "astro/components/Font.astro";
 
 interface Props {
   studyNumber: string;
@@ -55,10 +56,13 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Study {studyNumber} — {artist}</title>
+    <Font cssVariable="--font-syne-mono" preload />
+    <title>study {studyNumber} — {artist}</title>
   </head>
 
   <body>
+    <img src="/static_bg.jpg" alt="" class="page-bg" />
+
     <nav>
       <a class="machine-link" href="/">home</a>
       <a class="machine-link" href="/archive">index</a>
@@ -66,54 +70,59 @@ const {
 
     <main class="study-page">
       <header class="study-header">
-        <h1>{artist}</h1>
-      </header>
-
-      <div class="study-grid">
         <section class="study-audio">
           <AudioPlayer trackId={trackId} />
         </section>
+
+        <h2 class="artist-name">{artist}</h2>
 
         <figure class="blue-hour">
           <img src={blueHourSrc} alt={blueHourAlt} />
           <figcaption>{blueHourCaption}</figcaption>
         </figure>
+      </header>
 
-        <figure class="inkblot">
-          <img src={inkblotSrc} alt="Inkblot" />
-          <p>{inkblotResponse}</p>
-        </figure>
+      <div class="study-grid"></div>
 
-        <div class="questions">
-          <h3>What is your favorite non-musical sound?</h3>
-          <p>{qResponse1}</p>
+      <figure class="inkblot">
+        <h3>what do you see?</h3>
+        <img src={inkblotSrc} alt="Inkblot" />
+        <p>{inkblotResponse}</p>
+      </figure>
 
-          <h3>What tends to recur in your dreams?</h3>
-          <p>{qResponse2}</p>
+      <div class="questions">
+        <h3>What is your favorite non-musical sound?</h3>
+        <p>{qResponse1}</p>
 
-          <h3>Describe the light where you are right now.</h3>
-          <p>{qResponse3}</p>
-        </div>
+        <h3>What tends to recur in your dreams?</h3>
+        <p>{qResponse2}</p>
 
-        <article class="study-prose">
-          <slot />
-        </article>
-
-        <figure class="dream-image">
-          <img src={dreamImageSrc} alt={dreamImageAlt} />
-        </figure>
-
-        <section class="bio">
-          <p>{bio}</p>
-        </section>
+        <h3>Describe the light where you are right now.</h3>
+        <p>{qResponse3}</p>
       </div>
+
+      <article class="study-prose">
+        <h2>dream log {studyNumber}</h2>
+        <slot />
+      </article>
+
+      <figure class="dream-image">
+        <img src={dreamImageSrc} alt={dreamImageAlt} />
+        <figcaption>
+          {caption?.label}
+          <a href={caption?.authorUrl}>{caption?.author}</a>
+        </figcaption>
+      </figure>
+
+      <section class="bio">
+        <p><i>{bio}</i></p>
+      </section>
     </main>
   </body>
 </html>
 
 <style>
   body {
-    background-image: url("/grain_static_bg.jpg");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -121,6 +130,17 @@ const {
     margin: 0;
     min-height: 100vh;
     padding: 4rem 2rem;
+  }
+
+  .page-bg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
   }
 
   .study-page {
@@ -135,24 +155,72 @@ const {
     gap: 3rem;
   }
 
+  header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .audio-wrapper {
+    justify-self: center;
+    grid-row: 1;
+    width: 100%;
+    max-width: 600px;
+    grid-column: 1 / -1;
+  }
+
+  .artist-name {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .blue-hour {
+    grid-column: 2;
+    width: 50%;
+    grid-row: 2;
+  }
+
+  .blue-hour img {
+    width: 100%;
+    height: auto;
+  }
+
   .study-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2-column setup */
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: start;
   }
 
-  .audio-wrapper {
-    width: 100%;
-    max-width: 600px; /* Adjust to fit your desired layout width */
-  }
-
-  img {
+  img:not(.page-bg) {
     max-width: 100%;
     height: auto;
+    filter: contrast(150%) brightness(90%) sepia(100%) hue-rotate(180deg);
+  }
+
+  img:not(.page-bg):hover {
+    max-width: 100%;
+    height: auto;
+    filter: none;
+  }
+
+  figcaption {
+    color: var(--muted);
+    font-family: monospace;
   }
 
   .questions {
     grid-column: 1 / -1;
+  }
+
+  .bio {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .bio p {
+    font-family: var(--font-syne-mono);
   }
 </style>

@@ -116,7 +116,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     resizeCanvases();
     window.addEventListener("resize", resizeCanvases);
 
-    const PHOSPHOR_COLOR = "#ff4500";
+    const PHOSPHOR_COLOR = "var(--glow)";
     const PHOSPHOR_DIM = "rgba(255, 69, 0, 0.4)";
 
     const formatTime = (ms: number) => {
@@ -163,8 +163,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
         ctxScrub.save();
         ctxScrub.strokeStyle = PHOSPHOR_COLOR;
         ctxScrub.lineWidth = 3;
-        ctxScrub.shadowColor = "#ff3300";
-        ctxScrub.shadowBlur = 16;
         ctxScrub.beginPath();
         ctxScrub.moveTo(paddingX, cy);
         ctxScrub.lineTo(scrubX, cy);
@@ -176,8 +174,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxScrub.save();
       ctxScrub.strokeStyle = "#ffe5b4";
       ctxScrub.lineWidth = 1.5;
-      ctxScrub.shadowColor = "#ff4500";
-      ctxScrub.shadowBlur = 22;
 
       ctxScrub.beginPath();
       ctxScrub.moveTo(scrubX, 1);
@@ -440,6 +436,14 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     pointer-events: none !important;
   }
 
+  #sc-external-link {
+    opacity: 0.7;
+  }
+
+  #sc-external-link:hover {
+    opacity: 1;
+  }
+
   .audio-deck {
     position: relative;
     z-index: 1;
@@ -455,11 +459,8 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     backdrop-filter: none;
     border-bottom: none;
     font-family: "VT323", var(--machine-text, monospace);
-    color: #ffdab9;
+    color: var(--light);
     overflow: visible;
-    /* Expanded padding & overflow: visible so the intense darkroom bulb bloom haze never gets clipped by container boundaries */
-    filter: drop-shadow(0 0 32px rgba(255, 69, 0, 0.85))
-      drop-shadow(0 0 14px rgba(255, 30, 0, 0.8));
   }
 
   .deck-group {
@@ -527,8 +528,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
   .btn-icon {
     width: 22px;
     height: 22px;
-    filter: drop-shadow(0 0 10px rgba(255, 69, 0, 0.95))
-      drop-shadow(0 0 4px rgba(255, 200, 150, 0.7));
   }
 
   .hidden {
@@ -543,9 +542,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     font-size: 1.1rem;
     letter-spacing: 0.5px;
     max-width: 240px;
-    text-shadow:
-      0 0 14px rgba(255, 69, 0, 0.95),
-      0 0 6px rgba(255, 180, 120, 0.7);
   }
 
   .sc-link {
@@ -556,11 +552,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     flex-shrink: 0;
     opacity: 0.9;
     transition: opacity 0.2s ease;
-  }
-
-  .sc-link:hover {
-    opacity: 1;
-    text-shadow: 0 0 10px rgba(255, 69, 0, 0.9);
   }
 
   #canvas-radial,
@@ -581,7 +572,6 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     opacity: 0.95;
     white-space: nowrap;
     flex-shrink: 0;
-    text-shadow: 0 0 10px rgba(255, 69, 0, 0.85);
   }
 
   @media (max-width: 768px) {
