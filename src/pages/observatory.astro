@@ -2,11 +2,14 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const audioFiles = import.meta.glob("/public/audio/*.{mp3,flac,wav,ogg,m4a}", {
-  eager: true,
-  query: "?url",
-  import: "default",
-});
+const audioFiles = import.meta.glob(
+  "/src/assets/audio/*.{mp3,flac,wav,ogg,m4a}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
 
 const playlist = Object.keys(audioFiles).map((path) => ({
   src: path.replace("/public", ""),
@@ -23,7 +26,7 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
   <button
     id="audio-toggle"
     type="button"
-    class="nav-button audio-btn"
+    class="machine-link audio-btn"
     slot="header-left"
     aria-label="Toggle Audio">[AUDIO: OFF]</button
   >
