@@ -63,75 +63,101 @@ const {
   <body>
     <img src="/static_bg.jpg" alt="" class="page-bg" />
 
-    <nav>
-      <a class="machine-link" href="/">home</a>
-      <a class="machine-link" href="/archive">index</a>
-    </nav>
+    <!-- Site Navigation -->
+    <header class="top-navigation">
+      <nav>
+        <a class="machine-link" href="/">home</a>
+        <a class="machine-link" href="/archive">index</a>
+      </nav>
+    </header>
 
-    <main class="study-page">
-      <header class="study-header">
-        <section class="study-audio">
+    <main class="study-container">
+      <!-- Article Editorial Header -->
+      <section class="study-header editorial-hero">
+        <h1 class="artist-name">{artist}</h1>
+
+        <div class="audio-wrapper">
           <AudioPlayer trackId={trackId} />
-        </section>
+        </div>
+      </section>
 
-        <h2 class="artist-name">{artist}</h2>
-
-        <figure class="blue-hour">
-          <img src={blueHourSrc} alt={blueHourAlt} />
-          <figcaption>{blueHourCaption}</figcaption>
-        </figure>
-      </header>
-
-      <div class="study-grid"></div>
-
-      <figure class="inkblot">
-        <h3>what do you see?</h3>
-        <img src={inkblotSrc} alt="Inkblot" />
-        <p>{inkblotResponse}</p>
+      <!-- Hero Visual: Blue Hour -->
+      <figure class="study-figure hero-figure">
+        <img src={blueHourSrc} alt={blueHourAlt} />
+        <figcaption>{blueHourCaption}</figcaption>
       </figure>
 
-      <div class="questions">
-        <h3>What is your favorite non-musical sound?</h3>
-        <p>{qResponse1}</p>
+      <!-- Side-by-Side Inkblot Q&A Block -->
+      <section class="inkblot-split">
+        <figure class="study-figure inkblot-figure">
+          <img src={inkblotSrc} alt="Inkblot" />
+        </figure>
 
-        <h3>What tends to recur in your dreams?</h3>
-        <p>{qResponse2}</p>
+        <div class="questions copy inkblot-answer">
+          <div class="question-block">
+            <h3>what do you see?</h3>
+            <p>{inkblotResponse}</p>
+          </div>
+        </div>
+      </section>
 
-        <h3>Describe the light where you are right now.</h3>
-        <p>{qResponse3}</p>
-      </div>
+      <!-- Remaining Interview Questions -->
+      <section class="questions copy">
+        <div class="question-block">
+          <h3>What is your favorite non-musical sound?</h3>
+          <p>{qResponse1}</p>
+        </div>
 
-      <article class="study-prose">
+        <div class="question-block">
+          <h3>What tends to recur in your dreams?</h3>
+          <p>{qResponse2}</p>
+        </div>
+
+        <div class="question-block">
+          <h3>Describe the light where you are right now.</h3>
+          <p>{qResponse3}</p>
+        </div>
+      </section>
+
+      <!-- Dream Log & Inline Dream Visual -->
+      <article class="study-prose copy">
         <h2>dream log {studyNumber}</h2>
-        <slot />
+        <div class="prose-body">
+          <slot />
+        </div>
+
+        {
+          dreamImageSrc && (
+            <figure class="study-figure inline-figure dream-image">
+              <img src={dreamImageSrc} alt={dreamImageAlt || "Dream Image"} />
+              {caption?.label && (
+                <figcaption>
+                  {caption?.label}
+                  {caption?.authorUrl && (
+                    <a
+                      href={caption?.authorUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {caption?.author}
+                    </a>
+                  )}
+                </figcaption>
+              )}
+            </figure>
+          )
+        }
       </article>
 
-      <figure class="dream-image">
-        <img src={dreamImageSrc} alt={dreamImageAlt} />
-        <figcaption>
-          {caption?.label}
-          <a href={caption?.authorUrl}>{caption?.author}</a>
-        </figcaption>
-      </figure>
-
-      <section class="bio">
-        <p><i>{bio}</i></p>
-      </section>
+      <!-- Bio Footer -->
+      <footer class="bio copy">
+        <p class="bio-text"><i>{bio}</i></p>
+      </footer>
     </main>
   </body>
 </html>
 
 <style>
-  body {
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-
-    margin: 0;
-    min-height: 100vh;
-    padding: 4rem 2rem;
-  }
-
   .page-bg {
     position: fixed;
     inset: 0;
@@ -143,84 +169,188 @@ const {
     pointer-events: none;
   }
 
-  .study-page {
-    max-width: 900px;
+  /* Navigation Bar */
+  .top-navigation {
+    max-width: 800px;
     margin: 0 auto;
-
-    background-color: var(--dark);
-    padding: 3rem;
-
+    padding: 2rem 1.5rem 1rem;
     display: flex;
-    flex-direction: column;
-    gap: 3rem;
-  }
-
-  header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 2rem;
+    justify-content: space-between;
     align-items: center;
   }
 
-  .audio-wrapper {
-    justify-self: center;
-    grid-row: 1;
-    width: 100%;
-    max-width: 600px;
-    grid-column: 1 / -1;
+  /* Main Editorial Container */
+  .study-container {
+    max-width: 800px;
+    margin: 0 auto 4rem;
+    background-color: var(--dark, #181818);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  /* Header Section */
+  .editorial-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   .artist-name {
-    grid-column: 1;
-    grid-row: 2;
+    font-family: var(--font-syne-mono, monospace);
+    font-size: clamp(2.8rem, 6.5vw, 4.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+    margin: 0;
+    text-transform: lowercase;
+    color: var(--light);
   }
 
-  .blue-hour {
-    grid-column: 2;
-    width: 50%;
-    grid-row: 2;
-  }
-
-  .blue-hour img {
+  .audio-wrapper {
     width: 100%;
-    height: auto;
   }
 
-  .study-grid {
+  /* Figures & Image Formatting */
+  .study-figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* Hero Blue Hour Image */
+  .hero-figure {
+    margin-left: -3.5rem;
+    margin-right: -3.5rem;
+    width: calc(100% + 7rem);
+  }
+
+  .hero-figure img {
+    max-height: 480px;
+    object-fit: cover;
+  }
+
+  .hero-figure figcaption {
+    padding: 0 3.5rem;
+  }
+
+  /* Asymmetric Inkblot Block */
+  .inkblot-split {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: start;
+    grid-template-columns: 200px 1fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .inkblot-figure img {
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+  }
+
+  .inkblot-answer .question-block {
+    margin-bottom: 0;
+  }
+
+  .inline-figure {
+    margin: 2.5rem 0 1rem;
+    width: 100%;
   }
 
   img:not(.page-bg) {
-    max-width: 100%;
+    width: 100%;
     height: auto;
-    filter: contrast(150%) brightness(90%) sepia(100%) hue-rotate(180deg);
+    display: block;
+    filter: contrast(130%) brightness(90%) sepia(80%) hue-rotate(180deg);
+    transition: filter 0.3s ease;
   }
 
   img:not(.page-bg):hover {
-    max-width: 100%;
-    height: auto;
     filter: none;
   }
 
   figcaption {
     color: var(--muted);
-    font-family: monospace;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.4;
   }
 
-  .questions {
-    grid-column: 1 / -1;
+  /* Questions */
+  .question-block {
+    margin-bottom: 2rem;
   }
 
+  .question-block:last-child {
+    margin-bottom: 0;
+  }
+
+  .question-block h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Shared Text / Copy Scoping for Component and Slotted Elements */
+  .copy {
+    line-height: 1.7;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--light);
+    font-size: 1.05rem;
+  }
+
+  .copy h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .copy p,
+  .copy :global(p) {
+    color: var(--light);
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+
+  /* Bio Footer */
   .bio {
-    grid-column: 1 / -1;
-    text-align: center;
+    margin-top: 1rem;
   }
 
-  .bio p {
-    font-family: var(--font-syne-mono);
+  .bio-text {
+    text-align: center;
+    font-family: var(--font-syne-mono, monospace);
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  /* Mobile Layout Adjustments */
+  @media (max-width: 768px) {
+    .study-container {
+      padding: 1.5rem;
+      gap: 2.5rem;
+    }
+
+    .editorial-hero {
+      gap: 1.5rem;
+      padding-top: 0;
+    }
+
+    .hero-figure {
+      margin-left: -1.5rem;
+      margin-right: -1.5rem;
+      width: calc(100% + 3rem);
+    }
+
+    .hero-figure figcaption {
+      padding: 0 1.5rem;
+    }
+
+    .inkblot-split {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
   }
 </style>

@@ -254,4 +254,16 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       loadAndPlay(currentIndex + 1);
     });
   }
+
+  if (player) {
+    // Advance to next track when current one ends
+    player.addEventListener("ended", () => {
+      loadAndPlay(currentIndex + 1);
+    });
+
+    player.addEventListener("error", () => {
+      console.warn("Track failed to load, skipping to next...");
+      loadAndPlay(currentIndex + 1);
+    });
+  }
 </script>

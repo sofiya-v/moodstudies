@@ -17,5 +17,6 @@ export default new Map([
 ["src/content/sightings/sunset-blue-hour.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fsunset-blue-hour.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/train-blue-hour.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Ftrain-blue-hour.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/urban-twilight.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Furban-twilight.mdx&astroContentModuleFlag=true")],
-["src/content/studies/001.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fstudies%2F001.mdx&astroContentModuleFlag=true")]]);
+["src/content/studies/001.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fstudies%2F001.mdx&astroContentModuleFlag=true")],
+["src/content/studies/002.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fstudies%2F002.mdx&astroContentModuleFlag=true")]]);
 		
