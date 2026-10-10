@@ -168,7 +168,7 @@ const {
 </html>
 <style>
   body {
-    background-color: var(--dark, #121212);
+    background-color: black;
   }
   /* Navigation Bar */
   .top-navigation {
@@ -217,7 +217,10 @@ const {
   .artist-header {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    min-height: clamp(16rem, 40svh, 28rem);
+    text-align: center;
   }
   .study-tag {
     font-family: var(--font-syne-mono, monospace);
@@ -227,15 +230,19 @@ const {
     text-transform: lowercase;
   }
   .artist-name {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(3.2rem, 6vw, 5.2rem);
+    font-family: var(--font-syne-mono, monospace);
+    font-size: clamp(2rem, 3vw, 3.5rem);
     font-weight: 700;
     line-height: 0.92;
     letter-spacing: -0.03em;
     margin: 0;
     text-transform: lowercase;
     color: var(--light);
+    line-height: 0.92;
+    margin: 0;
+    overflow-wrap: anywhere;
   }
+
   /* Interview Stream */
   .interview-stream {
     display: flex;
@@ -329,9 +336,6 @@ const {
     .inkblot-figure img {
       max-width: 220px;
     }
-    .artist-name {
-      font-size: clamp(3rem, 8vw, 4.2rem);
-    }
   }
 
   /* Layout revision: shared alignment, a smaller side column, varied rhythm. */
@@ -356,8 +360,8 @@ const {
     grid-template-columns: minmax(0, 1fr);
     gap: 2.5rem;
     align-items: start;
-    margin-top: 1.5rem;
-    margin-bottom: 3.5rem;
+    margin-top: 7rem;
+    margin-bottom: 8rem;
   }
   .opening-header {
     min-width: 0;
@@ -367,12 +371,6 @@ const {
     min-width: 0;
   }
 
-  .artist-name {
-    font-size: clamp(3rem, 8vw, 7.5rem);
-    line-height: 0.92;
-    margin: 1rem 0 1.5rem;
-    overflow-wrap: anywhere;
-  }
   .hero-figure {
     width: 100%;
     max-width: 100%;
@@ -386,11 +384,21 @@ const {
   }
   .audio-wrapper {
     max-width: 100%;
-    margin: 1.5rem 0 0;
+    margin: 2rem 0 0;
+    padding: 0;
+    align-self: flex-start;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .audio-wrapper > :global(:first-child) {
+    margin-inline: 0;
+    padding-inline: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
   .ledger-layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: 3rem;
+    column-gap: 4rem;
     row-gap: 3rem;
     margin-top: 0;
     margin-bottom: 5rem;
@@ -406,11 +414,21 @@ const {
     min-width: 0;
     gap: 3rem;
   }
+  .ledger-layout > .media-column,
+  .ledger-layout > .narrative-column {
+    align-self: center;
+  }
   .interview-stream {
-    gap: 2rem;
+    gap: 3rem;
   }
   .question-block h3 {
     margin-top: 0.5rem;
+  }
+  .interview-stream > .question-block:first-child {
+    margin-top: 0;
+  }
+  .interview-stream > .question-block:first-child h3 {
+    margin-top: 0;
   }
   .question-block p:last-child {
     margin-bottom: 0;
@@ -457,13 +475,15 @@ const {
     .hero-figure {
       max-width: 100%;
     }
-    .artist-name {
-      font-size: clamp(3rem, 11vw, 6rem);
-    }
     .opening-layout {
       grid-template-columns: minmax(0, 1fr);
       gap: 2rem;
-      margin-bottom: 2.5rem;
+      margin-top: 2rem;
+      margin-bottom: 3.5rem;
+    }
+    .ledger-layout > .media-column,
+    .ledger-layout > .narrative-column {
+      align-self: start;
     }
     .opening-media {
       max-width: 500px;
@@ -476,12 +496,11 @@ const {
     }
   }
 
-  /* A large artifact study separates the inkblot from the scene photograph. */
-  .ledger-layout > .inkblot-block {
+  .inkblot-block {
     grid-column: 1 / -1;
     width: 100%;
     max-width: 760px;
-    margin: 1rem auto 0;
+    margin: 5rem auto 0;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -501,15 +520,23 @@ const {
     margin-top: 0;
   }
   .ledger-layout > .study-prose {
-    grid-column: 2;
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 65ch;
     min-width: 0;
+    margin-inline: auto;
+    font-size: 1.15rem;
+    text-align: left;
   }
   @media (max-width: 860px) {
-    .ledger-layout > .study-prose {
-      grid-column: 1;
-    }
     .opening-media {
       max-width: 500px;
+    }
+  }
+  @media (max-width: 860px) {
+    .artist-header {
+      min-height: clamp(12rem, 32svh, 20rem);
     }
   }
 </style>

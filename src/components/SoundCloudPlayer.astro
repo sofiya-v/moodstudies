@@ -21,42 +21,55 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 <iframe id="sc-hidden-iframe" src={iframeSrc} allow="autoplay"></iframe>
 
 <div class="audio-deck">
-  <!-- LEFT: RADIAL SCOPE & TRANSPORT CONTROLS -->
-  <div class="deck-group left-controls">
-    <div class="radial-stage">
-      <canvas id="canvas-radial"></canvas>
+  <div class="player-heading">
+    <!-- Transport and mix information -->
+    <div class="deck-group left-controls">
+      <div class="radial-stage">
+        <canvas id="canvas-radial"></canvas>
+      </div>
+
+      <button id="sk-play-btn" class="control-btn" aria-label="Play / Pause">
+        <svg id="icon-play" viewBox="0 0 24 24" class="btn-icon">
+          <path d="M8 5v14l11-7z" fill="currentColor"></path>
+        </svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" class="btn-icon hidden">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"></path>
+        </svg>
+      </button>
     </div>
 
-    <button id="sk-play-btn" class="control-btn" aria-label="Play / Pause">
-      <svg id="icon-play" viewBox="0 0 24 24" class="btn-icon">
-        <path d="M8 5v14l11-7z" fill="currentColor"></path>
-      </svg>
-      <svg id="icon-pause" viewBox="0 0 24 24" class="btn-icon hidden">
-        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"></path>
-      </svg>
-    </button>
+    <!-- CENTER-LEFT: TRACK INFORMATION -->
+    <div class="deck-group track-info">
+      <span class="track-title" id="sc-title">TRANSMISSION</span>
+      <a
+        class="machine-link sc-link"
+        id="sc-external-link"
+        href="#"
+        target="_blank"
+        rel="noopener">Soundcloud</a
+      >
+    </div>
   </div>
-
-  <!-- CENTER-LEFT: TRACK INFORMATION -->
-  <div class="deck-group track-info">
-    <span class="track-title" id="sc-title">TRANSMISSION</span>
-    <a
-      class="machine-link sc-link"
-      id="sc-external-link"
-      href="#"
-      target="_blank"
-      rel="noopener">Soundcloud</a
+  <div class="player-timeline">
+    <div
+      class="scrubber-stage"
+      id="scrubber-stage"
+      role="slider"
+      tabindex="0"
+      aria-label="Seek through mix"
+      aria-valuemin="0"
+      aria-valuemax="0"
+      aria-valuenow="0"
+      aria-disabled="true"
     >
-  </div>
-
-  <!-- CENTER-RIGHT: CONSTRAINED SCRUBBER -->
-  <div class="scrubber-stage">
-    <canvas id="canvas-scrubber"></canvas>
-  </div>
-
-  <!-- RIGHT: TIMECODE -->
-  <div class="deck-group right-controls">
-    <span id="time-current" class="time-code">00:00:00</span>
+      <canvas id="canvas-scrubber" aria-hidden="true"></canvas>
+      <output id="seek-preview" class="seek-preview" hidden></output>
+    </div>
+    <div class="deck-group right-controls">
+      <span id="time-current" class="time-code">00:00:00</span>
+      <span class="time-code" aria-hidden="true">/</span>
+      <span id="time-total" class="time-code">00:00:00</span>
+    </div>
   </div>
 </div>
 
@@ -82,6 +95,13 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     const iconPlay = document.getElementById("icon-play");
     const iconPause = document.getElementById("icon-pause");
     const timeCurrent = document.getElementById("time-current");
+    const timeTotal = document.getElementById("time-total");
+    const scrubStage = document.getElementById("scrubber-stage");
+    const seekPreview = document.getElementById(
+      "seek-preview",
+    ) as HTMLOutputElement;
+    let activePointer: number | null = null;
+    let dragStartPosition = 0;
 
     const scrubCanvas = document.getElementById(
       "canvas-scrubber",
@@ -106,7 +126,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     const resizeCanvases = () => {
       if (scrubCanvas && scrubCanvas.parentElement) {
         scrubCanvas.width = scrubCanvas.parentElement.clientWidth;
-        scrubCanvas.height = scrubCanvas.parentElement.clientHeight;
+        scrubCanvas.height = 22;
       }
       if (radialCanvas && radialCanvas.parentElement) {
         radialCanvas.width = radialCanvas.parentElement.clientWidth;
@@ -116,7 +136,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     resizeCanvases();
     window.addEventListener("resize", resizeCanvases);
 
-    const PHOSPHOR_COLOR = "var(--glow)";
+    const PHOSPHOR_COLOR = "#ff4500";
     const PHOSPHOR_DIM = "rgba(255, 69, 0, 0.4)";
 
     const formatTime = (ms: number) => {
@@ -126,6 +146,18 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       const m = Math.floor((totalSec % 3600) / 60);
       const s = totalSec % 60;
       return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    };
+
+    const updateTime = () => {
+      if (timeCurrent) timeCurrent.textContent = formatTime(currentPosMs);
+      scrubStage?.setAttribute(
+        "aria-valuenow",
+        String(Math.floor(currentPosMs / 1000)),
+      );
+      scrubStage?.setAttribute(
+        "aria-valuetext",
+        `${formatTime(currentPosMs)} of ${formatTime(trackDuration)}`,
+      );
     };
 
     // STRAIGHT-LINE SCRUBBER
@@ -336,6 +368,10 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     widget.bind(window.SC.Widget.Events.READY, () => {
       widget.getDuration((d: number) => {
         trackDuration = d;
+        if (timeTotal) timeTotal.textContent = formatTime(d);
+        scrubStage?.setAttribute("aria-valuemax", String(Math.floor(d / 1000)));
+        scrubStage?.setAttribute("aria-disabled", String(!(d > 0)));
+        updateTime();
       });
       widget.getCurrentSound((sound: any) => {
         if (sound) {
@@ -381,43 +417,120 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       if (!isScrubbing) {
         masterProgressRatio = data.relativePosition;
         currentPosMs = data.currentPosition;
-        if (timeCurrent) timeCurrent.textContent = formatTime(currentPosMs);
+        updateTime();
       }
     });
 
-    const handleScrub = (e: MouseEvent) => {
-      if (!scrubCanvas) return;
-      const paddingX = 4;
-      const rect = scrubCanvas.getBoundingClientRect();
-      const usableWidth = rect.width - paddingX * 2;
-      const clickX = e.clientX - rect.left - paddingX;
-
-      masterProgressRatio = Math.max(0, Math.min(1, clickX / usableWidth));
-      if (trackDuration) {
-        currentPosMs = Math.floor(trackDuration * masterProgressRatio);
-        if (timeCurrent) timeCurrent.textContent = formatTime(currentPosMs);
-        widget.seekTo(currentPosMs);
-      }
+    const positionForPointer = (clientX: number) => {
+      const rect = scrubStage?.getBoundingClientRect();
+      if (!rect) return 0;
+      return Math.max(
+        0,
+        Math.min(1, (clientX - rect.left - 4) / Math.max(1, rect.width - 8)),
+      );
     };
 
-    window.addEventListener("keydown", function (event) {
+    const previewAt = (ratio: number) => {
+      if (!seekPreview || !scrubStage || !(trackDuration > 0)) return;
+      seekPreview.textContent = formatTime(Math.floor(ratio * trackDuration));
+      const width = scrubStage.clientWidth;
+      const x = 4 + ratio * Math.max(1, width - 8);
+      seekPreview.style.left = `${Math.max(36, Math.min(width - 36, x))}px`;
+      seekPreview.hidden = false;
+    };
+
+    const previewScrub = (clientX: number) => {
+      masterProgressRatio = positionForPointer(clientX);
+      currentPosMs = Math.floor(trackDuration * masterProgressRatio);
+      updateTime();
+      previewAt(masterProgressRatio);
+    };
+
+    scrubStage?.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || activePointer !== null || !(trackDuration > 0))
+        return;
+      event.preventDefault();
+      scrubStage.focus();
+      activePointer = event.pointerId;
+      dragStartPosition = currentPosMs;
+      isScrubbing = true;
+      scrubStage.setPointerCapture(event.pointerId);
+      previewScrub(event.clientX);
+    });
+
+    scrubStage?.addEventListener("pointermove", (event) => {
+      if (activePointer === event.pointerId) previewScrub(event.clientX);
+      else if (activePointer === null && event.pointerType !== "touch") {
+        previewAt(positionForPointer(event.clientX));
+      }
+    });
+
+    scrubStage?.addEventListener("pointerup", (event) => {
+      if (activePointer !== event.pointerId) return;
+      previewScrub(event.clientX);
+      // Commit once on release, rather than repeatedly seeking during a drag.
+      widget.seekTo(currentPosMs);
+      isScrubbing = false;
+      activePointer = null;
+      scrubStage.releasePointerCapture(event.pointerId);
+      if (seekPreview) seekPreview.hidden = true;
+    });
+
+    const cancelScrub = () => {
+      if (activePointer === null) return;
+      currentPosMs = dragStartPosition;
+      masterProgressRatio = trackDuration ? currentPosMs / trackDuration : 0;
+      isScrubbing = false;
+      activePointer = null;
+      updateTime();
+      if (seekPreview) seekPreview.hidden = true;
+    };
+    scrubStage?.addEventListener("pointercancel", cancelScrub);
+    scrubStage?.addEventListener("lostpointercapture", cancelScrub);
+    scrubStage?.addEventListener("pointerleave", () => {
+      if (!isScrubbing && seekPreview) seekPreview.hidden = true;
+    });
+
+    scrubStage?.addEventListener("keydown", (event) => {
+      if (!(trackDuration > 0) || isScrubbing) return;
+      const step = event.shiftKey ? 30000 : 5000;
+      let target = currentPosMs;
+      switch (event.key) {
+        case "ArrowRight":
+        case "ArrowUp":
+          target += step;
+          break;
+        case "ArrowLeft":
+        case "ArrowDown":
+          target -= step;
+          break;
+        case "Home":
+          target = 0;
+          break;
+        case "End":
+          target = trackDuration;
+          break;
+        default:
+          return;
+      }
+      event.preventDefault();
+      currentPosMs = Math.max(0, Math.min(trackDuration, target));
+      masterProgressRatio = currentPosMs / trackDuration;
+      widget.seekTo(currentPosMs);
+      updateTime();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        event.defaultPrevented ||
+        target?.closest("input, textarea, select, button, a, [contenteditable]")
+      )
+        return;
       if (event.code === "Space") {
         event.preventDefault();
         widget.toggle();
       }
-    });
-
-    scrubCanvas?.addEventListener("mousedown", (e) => {
-      isScrubbing = true;
-      handleScrub(e);
-    });
-
-    window.addEventListener("mousemove", (e) => {
-      if (isScrubbing) handleScrub(e);
-    });
-
-    window.addEventListener("mouseup", () => {
-      isScrubbing = false;
     });
   };
 
@@ -448,13 +561,13 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     position: relative;
     z-index: 1;
     width: 100%;
-    height: 100%;
-    padding: 2rem 1.5rem;
+    height: auto;
+    padding: 0;
     box-sizing: border-box;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
     background: transparent;
     backdrop-filter: none;
     border-bottom: none;
@@ -482,15 +595,50 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     gap: 0.75rem;
   }
 
-  /* SCRUBBER STAGE: Constrained width to prevent over-stretching */
+  .player-heading {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+  .track-info {
+    flex: 1 1 auto;
+  }
+  .track-title {
+    max-width: none;
+    min-width: 0;
+  }
+  .player-timeline {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0;
+  }
   .scrubber-stage {
-    flex: 0 1 300px;
-    width: 100%;
-    max-width: 300px;
-    height: 22px;
-    margin-top: 2px;
-    min-width: 80px;
-    overflow: visible;
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    cursor: crosshair;
+    touch-action: pan-y;
+    outline: none;
+    box-shadow: none;
+  }
+  .seek-preview {
+    position: absolute;
+    bottom: calc(100% - 4px);
+    transform: translateX(-50%);
+    pointer-events: none;
+    font: inherit;
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+  .scrubber-stage:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .scrubber-stage:focus-visible #canvas-scrubber {
+    filter: brightness(1.5);
   }
 
   .radial-stage {
@@ -541,14 +689,14 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     text-overflow: ellipsis;
     font-size: 1.1rem;
     letter-spacing: 0.5px;
-    max-width: 240px;
+    max-width: none;
   }
 
   .sc-link {
     color: inherit;
-    text-decoration: none;
+    text-decoration: underline;
     white-space: nowrap;
-    font-size: 1.05rem;
+    font-size: 0.7rem;
     flex-shrink: 0;
     opacity: 0.9;
     transition: opacity 0.2s ease;
@@ -563,7 +711,11 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
   }
 
   #canvas-scrubber {
-    cursor: crosshair;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 22px;
+    pointer-events: none;
   }
 
   .time-code {
@@ -577,19 +729,38 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
   @media (max-width: 768px) {
     .audio-deck {
       gap: 0.75rem;
-      padding: 1.5rem 0.75rem;
+      padding: 0;
     }
 
     .track-title {
-      max-width: 120px;
+      max-width: none;
     }
 
-    .scrubber-stage {
-      max-width: 140px;
+    .player-heading,
+    .player-timeline {
+      gap: 0.75rem;
+    }
+    .right-controls {
+      gap: 0.35rem;
     }
 
     .track-info {
       gap: 0.75rem;
+    }
+  }
+  @media (max-width: 480px) {
+    .track-info {
+      flex-wrap: wrap;
+      gap: 0.25rem 0.75rem;
+    }
+    .track-title {
+      flex-basis: 100%;
+    }
+    .right-controls {
+      font-size: 0.9rem;
+    }
+    .right-controls .time-code {
+      font-size: 0.9rem;
     }
   }
 </style>
