@@ -2,7 +2,6 @@
 import AudioPlayer from "../components/SoundCloudPlayer.astro";
 import "../styles/global.css";
 import Font from "astro/components/Font.astro";
-
 interface Props {
   studyNumber: string;
   date: string;
@@ -28,7 +27,6 @@ interface Props {
     authorUrl?: string;
   };
 }
-
 const {
   studyNumber,
   date,
@@ -59,208 +57,215 @@ const {
     <Font cssVariable="--font-syne-mono" preload />
     <title>study {studyNumber} — {artist}</title>
   </head>
-
   <body>
-    <img src="/static_bg.jpg" alt="" class="page-bg" />
-
-    <!-- Site Navigation -->
+    <!-- Top Navigation -->
     <header class="top-navigation">
       <nav>
         <a class="machine-link" href="/">home</a>
         <a class="machine-link" href="/archive">index</a>
       </nav>
     </header>
-
-    <main class="study-container">
-      <!-- Article Editorial Header -->
-      <section class="study-header editorial-hero">
-        <h1 class="artist-name">{artist}</h1>
-
+    <div class="opening-layout">
+      <!-- Artist and audio -->
+      <section class="content-column opening-header">
+        <header class="artist-header">
+          <h1 class="artist-name">
+            {artist}
+          </h1>
+        </header>
         <div class="audio-wrapper">
           <AudioPlayer trackId={trackId} />
         </div>
       </section>
-
-      <!-- Hero Visual: Blue Hour -->
-      <figure class="study-figure hero-figure">
-        <img src={blueHourSrc} alt={blueHourAlt} />
-        <figcaption>{blueHourCaption}</figcaption>
-      </figure>
-
-      <!-- Side-by-Side Inkblot Q&A Block -->
-      <section class="inkblot-split">
-        <figure class="study-figure inkblot-figure">
-          <img src={inkblotSrc} alt="Inkblot" />
-        </figure>
-
-        <div class="questions copy inkblot-answer">
+    </div>
+    <!-- Asymmetric Editorial Canvas -->
+    <main class="ledger-layout">
+      <!-- Blue-hour scene -->
+      <aside class="media-column">
+        <section class="opening-media">
+          <figure class="study-figure hero-figure">
+            <img src={blueHourSrc} alt={blueHourAlt} />
+            <figcaption style="margin-top: 0.75rem; text-align: right;">
+              {blueHourCaption}
+            </figcaption>
+          </figure>
+        </section>
+      </aside>
+      <!-- Main Narrative Flow -->
+      <section class="content-column narrative-column">
+        <!-- Interview Deck -->
+        <div class="interview-stream copy">
           <div class="question-block">
-            <h3>what do you see?</h3>
-            <p>{inkblotResponse}</p>
+            <h3>What is your favorite non-musical sound?</h3>
+            <p>{qResponse1}</p>
+          </div>
+          <div class="question-block">
+            <h3>What tends to recur in your dreams?</h3>
+            <p>{qResponse2}</p>
+          </div>
+          <div class="question-block">
+            <h3>Describe the light where you are right now.</h3>
+            <p>{qResponse3}</p>
           </div>
         </div>
       </section>
-
-      <!-- Remaining Interview Questions -->
-      <section class="questions copy">
-        <div class="question-block">
-          <h3>What is your favorite non-musical sound?</h3>
-          <p>{qResponse1}</p>
+      <div class="inkblot-block">
+        <figure class="study-figure inkblot-figure">
+          <img
+            src={inkblotSrc}
+            alt="Inkblot"
+            style="border: 1px solid rgba(255,255,255,0.15); padding: 1rem;"
+          />
+        </figure>
+        <div class="question-block copy">
+          <h3>what do you see?</h3>
+          <p style="font-size: 0.95rem; opacity: 0.9;">{inkblotResponse}</p>
         </div>
-
-        <div class="question-block">
-          <h3>What tends to recur in your dreams?</h3>
-          <p>{qResponse2}</p>
-        </div>
-
-        <div class="question-block">
-          <h3>Describe the light where you are right now.</h3>
-          <p>{qResponse3}</p>
-        </div>
-      </section>
-
-      <!-- Dream Log & Inline Dream Visual -->
-      <article class="study-prose copy">
-        <h2>dream log {studyNumber}</h2>
-        <div class="prose-body">
+      </div>
+      <!-- Prose Monolith -->
+      <article
+        class="study-prose copy"
+        style="border-top: 1px solid rgba(255,255,255,0.15); padding-top: 2.5rem;"
+      >
+        <h2
+          style="font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 2rem;"
+        >
+          dream log {studyNumber}
+        </h2>
+        <div class="prose-body" style="font-size: 1.15rem; line-height: 1.85;">
           <slot />
         </div>
-
-        {
-          dreamImageSrc && (
-            <figure class="study-figure inline-figure dream-image">
-              <img src={dreamImageSrc} alt={dreamImageAlt || "Dream Image"} />
-              {caption?.label && (
-                <figcaption>
-                  {caption?.label}
-                  {caption?.authorUrl && (
-                    <a
-                      href={caption?.authorUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {caption?.author}
-                    </a>
-                  )}
-                </figcaption>
-              )}
-            </figure>
-          )
-        }
       </article>
-
-      <!-- Bio Footer -->
-      <footer class="bio copy">
+      {
+        dreamImageSrc && (
+          <figure class="study-figure dream-image">
+            <img src={dreamImageSrc} alt={dreamImageAlt || "Dream Image"} />
+            {caption?.label && (
+              <figcaption style="margin-top: 1rem;">
+                {caption?.label}
+                {caption?.authorUrl && (
+                  <a
+                    href={caption?.authorUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {caption?.author}
+                  </a>
+                )}
+              </figcaption>
+            )}
+          </figure>
+        )
+      }
+      <footer
+        class="bio copy"
+        style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 2rem;"
+      >
         <p class="bio-text"><i>{bio}</i></p>
       </footer>
     </main>
   </body>
 </html>
-
 <style>
-  .page-bg {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100dvh;
-    object-fit: cover;
-    object-position: center;
-    z-index: -1;
-    pointer-events: none;
+  body {
+    background-color: var(--dark, #121212);
   }
-
   /* Navigation Bar */
   .top-navigation {
-    max-width: 800px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 2rem 1.5rem 1rem;
+    padding: 2.5rem 2rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-
-  /* Main Editorial Container */
-  .study-container {
-    max-width: 800px;
-    margin: 0 auto 4rem;
-    background-color: var(--dark, #181818);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 3.5rem;
+  /* Main 2-Column Ledger Canvas */
+  .ledger-layout {
+    max-width: 1100px;
+    margin: 1rem auto 6rem;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 4.5rem;
+    align-items: start;
+  }
+  /* Left Column Media Anchor */
+  .media-column {
+    position: sticky;
+    top: 2.5rem;
+  }
+  .media-stack {
     display: flex;
     flex-direction: column;
-    gap: 3.5rem;
+    gap: 2rem;
   }
-
-  /* Header Section */
-  .editorial-hero {
+  .hero-figure img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  .audio-wrapper {
+    width: 100%;
+  }
+  /* Right Column Content Stream */
+  .content-column {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    gap: 4rem; /* Substantial vertical breathing room */
   }
-
-  .artist-name {
+  /* Artist Header Lockup */
+  .artist-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .study-tag {
     font-family: var(--font-syne-mono, monospace);
-    font-size: clamp(2.8rem, 6.5vw, 4.8rem);
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+  }
+  .artist-name {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(3.2rem, 6vw, 5.2rem);
     font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: 0.03em;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
     margin: 0;
     text-transform: lowercase;
     color: var(--light);
   }
-
-  .audio-wrapper {
-    width: 100%;
+  /* Interview Stream */
+  .interview-stream {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
   }
-
-  /* Figures & Image Formatting */
+  /* Inline Inkblot Split */
+  .inkblot-split {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .inkblot-figure img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+  }
+  /* Figures & Image Styling */
   .study-figure {
     margin: 0;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
-
-  /* Hero Blue Hour Image */
-  .hero-figure {
-    margin-left: -3.5rem;
-    margin-right: -3.5rem;
-    width: calc(100% + 7rem);
-  }
-
-  .hero-figure img {
-    max-height: 480px;
-    object-fit: cover;
-  }
-
-  .hero-figure figcaption {
-    padding: 0 3.5rem;
-  }
-
-  /* Asymmetric Inkblot Block */
-  .inkblot-split {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 2.5rem;
-    align-items: center;
-  }
-
-  .inkblot-figure img {
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-  }
-
-  .inkblot-answer .question-block {
-    margin-bottom: 0;
-  }
-
   .inline-figure {
-    margin: 2.5rem 0 1rem;
+    margin: 2rem 0 1rem;
     width: 100%;
   }
-
   img:not(.page-bg) {
     width: 100%;
     height: auto;
@@ -268,89 +273,243 @@ const {
     filter: contrast(130%) brightness(90%) sepia(80%) hue-rotate(180deg);
     transition: filter 0.3s ease;
   }
-
   img:not(.page-bg):hover {
     filter: none;
   }
-
   figcaption {
     color: var(--muted);
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.85rem;
     line-height: 1.4;
   }
-
-  /* Questions */
-  .question-block {
-    margin-bottom: 2rem;
-  }
-
-  .question-block:last-child {
-    margin-bottom: 0;
-  }
-
   .question-block h3 {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
   }
-
-  /* Shared Text / Copy Scoping for Component and Slotted Elements */
+  /* Copy Scoping */
   .copy {
     line-height: 1.7;
     font-family: Arial, Helvetica, sans-serif;
     color: var(--light);
     font-size: 1.05rem;
   }
-
   .copy h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
   }
-
   .copy p,
   .copy :global(p) {
     color: var(--light);
     line-height: 1.7;
     margin-bottom: 1.25rem;
   }
-
   /* Bio Footer */
   .bio {
     margin-top: 1rem;
   }
-
   .bio-text {
-    text-align: center;
     font-family: var(--font-syne-mono, monospace);
     font-size: 0.95rem;
     color: var(--muted);
   }
-
-  /* Mobile Layout Adjustments */
-  @media (max-width: 768px) {
-    .study-container {
-      padding: 1.5rem;
+  /* Responsive Mobile */
+  @media (max-width: 860px) {
+    .ledger-layout {
+      grid-template-columns: 1fr;
       gap: 2.5rem;
-    }
-
-    .editorial-hero {
-      gap: 1.5rem;
-      padding-top: 0;
-    }
-
-    .hero-figure {
-      margin-left: -1.5rem;
-      margin-right: -1.5rem;
-      width: calc(100% + 3rem);
-    }
-
-    .hero-figure figcaption {
       padding: 0 1.5rem;
     }
-
+    .media-column {
+      position: static;
+    }
     .inkblot-split {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 1.25rem;
+    }
+    .inkblot-figure img {
+      max-width: 220px;
+    }
+    .artist-name {
+      font-size: clamp(3rem, 8vw, 4.2rem);
+    }
+  }
+
+  /* Layout revision: shared alignment, a smaller side column, varied rhythm. */
+  .top-navigation,
+  .opening-layout,
+  .ledger-layout {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .top-navigation {
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+  }
+  .opening-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+    margin-top: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+  .opening-header {
+    min-width: 0;
+    gap: 0;
+  }
+  .opening-media {
+    min-width: 0;
+  }
+
+  .artist-name {
+    font-size: clamp(3rem, 8vw, 7.5rem);
+    line-height: 0.92;
+    margin: 1rem 0 1.5rem;
+    overflow-wrap: anywhere;
+  }
+  .hero-figure {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+  }
+  .hero-figure img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  .audio-wrapper {
+    max-width: 100%;
+    margin: 1.5rem 0 0;
+  }
+  .ledger-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 3rem;
+    row-gap: 3rem;
+    margin-top: 0;
+    margin-bottom: 5rem;
+  }
+  .media-column {
+    min-width: 0;
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .narrative-column {
+    min-width: 0;
+    gap: 3rem;
+  }
+  .interview-stream {
+    gap: 2rem;
+  }
+  .question-block h3 {
+    margin-top: 0.5rem;
+  }
+  .question-block p:last-child {
+    margin-bottom: 0;
+  }
+  .prose-body {
+    max-width: 65ch;
+  }
+  .ledger-layout > .dream-image {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    align-items: center;
+    text-align: center;
+  }
+  .dream-image img {
+    width: 100%;
+    height: auto;
+  }
+  .ledger-layout > .bio {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+  }
+  .bio .bio-text {
+    max-width: 65ch;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 860px) {
+    .top-navigation,
+    .opening-layout,
+    .ledger-layout {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    .ledger-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+    .media-column {
+      position: static;
+    }
+    .hero-figure {
+      max-width: 100%;
+    }
+    .artist-name {
+      font-size: clamp(3rem, 11vw, 6rem);
+    }
+    .opening-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .opening-media {
+      max-width: 500px;
+    }
+    .audio-wrapper {
+      margin-bottom: 0;
+    }
+    .narrative-column {
+      gap: 2.5rem;
+    }
+  }
+
+  /* A large artifact study separates the inkblot from the scene photograph. */
+  .ledger-layout > .inkblot-block {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 760px;
+    margin: 1rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .inkblot-block .inkblot-figure {
+    margin: 0;
+    width: 100%;
+  }
+  .inkblot-block img {
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+  .inkblot-block h3 {
+    margin-top: 0;
+  }
+  .ledger-layout > .study-prose {
+    grid-column: 2;
+    min-width: 0;
+  }
+  @media (max-width: 860px) {
+    .ledger-layout > .study-prose {
+      grid-column: 1;
+    }
+    .opening-media {
+      max-width: 500px;
     }
   }
 </style>
