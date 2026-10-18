@@ -10,6 +10,7 @@ const studies = defineCollection({
         date: z.string(),
         duration: z.string(),
         artist: z.string(),
+        color: z.string(),
         trackId: z.string(),
         blueHourSrc: z.string(),
         blueHourCaption: z.string(),

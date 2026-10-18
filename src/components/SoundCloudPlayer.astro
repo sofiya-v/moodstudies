@@ -1,9 +1,10 @@
 ---
 interface Props {
   trackId: string;
+  color: string;
 }
 
-const { trackId } = Astro.props;
+const { trackId, color } = Astro.props;
 const targetUrl = encodeURIComponent(
   `https://api.soundcloud.com/tracks/${trackId}`,
 );
@@ -20,7 +21,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 <script is:inline src="https://w.soundcloud.com/player/api.js"></script>
 <iframe id="sc-hidden-iframe" src={iframeSrc} allow="autoplay"></iframe>
 
-<div class="audio-deck">
+<div class="audio-deck" style={`--phosphor-color: ${color}`}>
   <div class="player-heading">
     <!-- Transport and mix information -->
     <div class="deck-group left-controls">
@@ -136,8 +137,25 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     resizeCanvases();
     window.addEventListener("resize", resizeCanvases);
 
-    const PHOSPHOR_COLOR = "#ff4500";
-    const PHOSPHOR_DIM = "rgba(255, 69, 0, 0.4)";
+    const deck = document.querySelector<HTMLElement>(".audio-deck");
+    const PHOSPHOR_COLOR = deck
+      ? getComputedStyle(deck).getPropertyValue("--phosphor-color").trim() ||
+        "#ff4500"
+      : "#ff4500";
+    // Resolve the component color into RGB channels for reliable Canvas drawing.
+    const colorProbe = document.createElement("span");
+    colorProbe.style.color = PHOSPHOR_COLOR;
+    (deck ?? document.body).appendChild(colorProbe);
+    const resolvedColor = getComputedStyle(colorProbe).color;
+    colorProbe.remove();
+    const channels = resolvedColor
+      .match(/[\d.]+/g)
+      ?.slice(0, 3)
+      .map(Number);
+    const [red, green, blue] = channels?.length === 3 ? channels : [255, 69, 0];
+    const colorWithAlpha = (alpha: number) =>
+      `rgba(${red}, ${green}, ${blue}, ${Math.max(0, Math.min(1, alpha))})`;
+    const PHOSPHOR_DIM = colorWithAlpha(0.4);
 
     const formatTime = (ms: number) => {
       if (!ms || isNaN(ms)) return "00:00:00";
@@ -183,7 +201,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxScrub.stroke();
 
       // Base Line (Unplayed)
-      ctxScrub.strokeStyle = "rgba(255, 69, 0, 0.25)";
+      ctxScrub.strokeStyle = colorWithAlpha(0.25);
       ctxScrub.lineWidth = 1.5;
       ctxScrub.beginPath();
       ctxScrub.moveTo(paddingX, cy);
@@ -204,7 +222,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 
       // Playhead Indicator
       ctxScrub.save();
-      ctxScrub.strokeStyle = "#ffe5b4";
+      ctxScrub.strokeStyle = PHOSPHOR_COLOR;
       ctxScrub.lineWidth = 1.5;
 
       ctxScrub.beginPath();
@@ -212,7 +230,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
       ctxScrub.lineTo(scrubX, h - 1);
       ctxScrub.stroke();
 
-      ctxScrub.fillStyle = "#ffe5b4";
+      ctxScrub.fillStyle = PHOSPHOR_COLOR;
       ctxScrub.beginPath();
       ctxScrub.moveTo(scrubX - 3.5, cy);
       ctxScrub.lineTo(scrubX, cy - 3.5);
@@ -238,8 +256,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 
       ctxRadial.clearRect(0, 0, w, h);
 
-      const AMBER_RED_MAIN = "#ff4500";
-      const AMBER_RED_GRID = "rgba(255, 69, 0, 0.15)";
+      const AMBER_RED_GRID = colorWithAlpha(0.15);
 
       const targetMorph = isPlaying ? 1 : 0;
       scopeMorph += (targetMorph - scopeMorph) * 0.05;
@@ -300,9 +317,9 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
         (6 + idlePulse * 10) * (1 - scopeMorph) +
         (10 + currentPulse * 18) * scopeMorph;
 
-      ctxRadial.strokeStyle = `rgba(255, 69, 0, ${lineAlpha})`;
+      ctxRadial.strokeStyle = colorWithAlpha(lineAlpha);
       ctxRadial.lineWidth = 1.4;
-      ctxRadial.shadowColor = "#ff3300";
+      ctxRadial.shadowColor = PHOSPHOR_COLOR;
       ctxRadial.shadowBlur = glowBlur;
 
       const beamJitterX = (Math.random() - 0.5) * currentPulse * 3 * scopeMorph;
@@ -344,8 +361,8 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
         (1.8 + idlePulse * 0.8) * (1 - scopeMorph) +
         (2.5 + currentPulse * 2.2) * scopeMorph;
 
-      ctxRadial.fillStyle = `rgba(255, 140, 60, ${spotAlpha})`;
-      ctxRadial.shadowColor = "#ff3300";
+      ctxRadial.fillStyle = colorWithAlpha(spotAlpha);
+      ctxRadial.shadowColor = PHOSPHOR_COLOR;
       ctxRadial.shadowBlur =
         (8 + idlePulse * 10) * (1 - scopeMorph) + 18 * scopeMorph;
 

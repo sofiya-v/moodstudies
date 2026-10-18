@@ -8,6 +8,7 @@ interface Props {
   duration: string;
   artist: string;
   trackId: string;
+  color: string;
   blueHourSrc: string;
   blueHourCaption: string;
   blueHourAlt: string;
@@ -33,6 +34,7 @@ const {
   duration,
   artist,
   trackId,
+  color,
   blueHourSrc,
   blueHourCaption,
   blueHourAlt,
@@ -74,7 +76,7 @@ const {
           </h1>
         </header>
         <div class="audio-wrapper">
-          <AudioPlayer trackId={trackId} />
+          <AudioPlayer trackId={trackId} color={color} />
         </div>
       </section>
     </div>
@@ -85,7 +87,7 @@ const {
         <section class="opening-media">
           <figure class="study-figure hero-figure">
             <img src={blueHourSrc} alt={blueHourAlt} />
-            <figcaption style="margin-top: 0.75rem; text-align: right;">
+            <figcaption style="margin-top: 0.75rem; text-align: left;">
               {blueHourCaption}
             </figcaption>
           </figure>
@@ -242,7 +244,6 @@ const {
     margin: 0;
     overflow-wrap: anywhere;
   }
-
   /* Interview Stream */
   .interview-stream {
     display: flex;
@@ -447,6 +448,7 @@ const {
     width: 100%;
     height: auto;
   }
+
   .ledger-layout > .bio {
     grid-column: 1 / -1;
     width: 100%;
