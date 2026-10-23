@@ -87,7 +87,7 @@ const {
         <section class="opening-media">
           <figure class="study-figure hero-figure">
             <img src={blueHourSrc} alt={blueHourAlt} />
-            <figcaption style="margin-top: 0.75rem; text-align: left;">
+            <figcaption style="margin-top: 0.75rem;">
               {blueHourCaption}
             </figcaption>
           </figure>
@@ -159,10 +159,7 @@ const {
           </figure>
         )
       }
-      <footer
-        class="bio copy"
-        style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 2rem;"
-      >
+      <footer class="bio copy">
         <p class="bio-text"><i>{bio}</i></p>
       </footer>
     </main>
@@ -284,11 +281,17 @@ const {
   img:not(.page-bg):hover {
     filter: none;
   }
+
+  .dream-image figcaption {
+    width: 100%;
+  }
+
   figcaption {
     color: var(--muted);
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.85rem;
     line-height: 1.4;
+    text-align: left;
   }
   .question-block h3 {
     font-size: 1.1rem;
@@ -311,10 +314,7 @@ const {
     line-height: 1.7;
     margin-bottom: 1.25rem;
   }
-  /* Bio Footer */
-  .bio {
-    margin-top: 1rem;
-  }
+
   .bio-text {
     font-family: var(--font-syne-mono, monospace);
     font-size: 0.95rem;
@@ -442,8 +442,8 @@ const {
     width: 100%;
     margin: 0;
     align-items: center;
-    text-align: center;
   }
+
   .dream-image img {
     width: 100%;
     height: auto;
@@ -452,14 +452,16 @@ const {
   .ledger-layout > .bio {
     grid-column: 1 / -1;
     width: 100%;
-    margin: 0;
-    text-align: center;
-  }
-  .bio .bio-text {
-    max-width: 65ch;
-    margin: 0 auto;
+    margin: 9rem 0 0;
+    text-align: left;
   }
 
+  .bio .bio-text {
+    max-width: 40ch;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
   @media (max-width: 860px) {
     .top-navigation,
     .opening-layout,

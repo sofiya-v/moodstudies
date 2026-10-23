@@ -82,24 +82,24 @@ h3 {
 
     /* Broader, softer bleeding layers to eliminate the crisp digital vector edge */
     text-shadow:
-        -1px 0px 1px rgba(255, 38, 0, 0.5),
+        -1px 0px 1px rgba(255, 38, 0, 0.212),
         /* Wider, softer red fringe */
-        1px 0px 1px rgba(0, 255, 204, 0.5),
+        1px 0px 1px rgba(0, 255, 204, 0.153),
         /* Wider, softer cyan fringe */
-        0 0 2px rgb(232 235 228 / 80%),
+        0 0 2px rgb(232 235 228 / 30%),
         /* Softer core */
-        0 0 6px rgb(232 235 228 / 35%),
+        0 0 4px rgb(232 235 228 / 20%),
         /* Mid-range bloom */
-        0 0 12px rgb(179 255 189 / 20%);
+        0 0 8px rgb(179 255 189 / 20%);
     /* Expanded green halo */
 
-    /* Blurs the entire element slightly to mimic analog signal loss */
-    filter: blur(0.4px);
 
 }
 
 h1 {
     font-size: clamp(2.5rem, 6vw, 4rem);
+    filter: blur(0.5px);
+
 }
 
 h2 {
@@ -107,6 +107,11 @@ h2 {
     font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
 .copy {
