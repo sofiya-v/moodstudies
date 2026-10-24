@@ -1,0 +1,172 @@
+<div class="shader-container">
+  <canvas class="shader-canvas" aria-label="Animated fractal visualization"
+  ></canvas>
+</div>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>(".shader-canvas");
+
+  if (canvas) {
+    const gl = canvas.getContext("webgl2", { antialias: false, alpha: false });
+    if (!gl) {
+      console.error("DimaShader: WebGL 2 is unavailable.");
+    } else {
+      const vertexSource = `#version 300 es
+precision highp float;
+precision highp int;
+void main() {
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}`;
+
+      const compile = (type: number, source: string) => {
+        const shader = gl.createShader(type);
+        if (!shader) throw new Error("Could not create shader");
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const message =
+            gl.getShaderInfoLog(shader) || "Shader compilation failed";
+          gl.deleteShader(shader);
+          throw new Error(message);
+        }
+        return shader;
+      };
+
+      type AudioControls = {
+        rate: number;
+        duration: number;
+        bassRms: number[];
+        rms: number[];
+      };
+      let controls: AudioControls | null = null;
+      let playbackTime = 0;
+      let playbackUpdatedAt = performance.now();
+      let playing = false;
+
+      window.addEventListener("study:playback", ((event: CustomEvent) => {
+        const detail = event.detail;
+        if (!detail) return;
+        playbackTime = Number(detail.currentTime) || 0;
+        playing = Boolean(detail.playing);
+        playbackUpdatedAt = performance.now();
+      }) as EventListener);
+
+      const sampleControl = (values: number[], seconds: number) => {
+        if (!controls || seconds < 0 || seconds >= controls.duration) return 0;
+        const position = seconds * controls.rate;
+        const index = Math.floor(position);
+        const blend = position - index;
+        const first = values[Math.min(index, values.length - 1)] ?? 0;
+        const second = values[Math.min(index + 1, values.length - 1)] ?? first;
+        return first + (second - first) * blend;
+      };
+
+      let frame = 0;
+      let stopped = false;
+      let program: WebGLProgram | null = null;
+      let vao: WebGLVertexArrayObject | null = null;
+
+      canvas.addEventListener("webglcontextlost", (event) => {
+        event.preventDefault();
+        stopped = true;
+        cancelAnimationFrame(frame);
+        console.error("DimaShader: WebGL context lost. Reload to restart.");
+      });
+
+      const start = async () => {
+        // Controls are generated offline from the same audio uploaded to SoundCloud.
+        const controlsResponse = await fetch(
+          "/audio-controls/controls-002.json",
+        );
+        if (!controlsResponse.ok)
+          throw new Error(
+            `Audio controls fetch failed: HTTP ${controlsResponse.status}`,
+          );
+        controls = (await controlsResponse.json()) as AudioControls;
+
+        const response = await fetch("/shaders/reactive-webgl.frag");
+        if (!response.ok)
+          throw new Error(`Shader fetch failed: HTTP ${response.status}`);
+        const fragmentSource = await response.text();
+        if (stopped) return;
+
+        const vertex = compile(gl.VERTEX_SHADER, vertexSource);
+        const fragment = compile(gl.FRAGMENT_SHADER, fragmentSource);
+        program = gl.createProgram();
+        if (!program) throw new Error("Could not create shader program");
+        gl.attachShader(program, vertex);
+        gl.attachShader(program, fragment);
+        gl.linkProgram(program);
+        gl.deleteShader(vertex);
+        gl.deleteShader(fragment);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          throw new Error(
+            gl.getProgramInfoLog(program) || "Shader linking failed",
+          );
+        }
+
+        gl.useProgram(program);
+        vao = gl.createVertexArray();
+        gl.bindVertexArray(vao);
+
+        const resolution = gl.getUniformLocation(program, "u_resolution");
+        const time = gl.getUniformLocation(program, "u_time");
+        const bass = gl.getUniformLocation(program, "u_bassRms");
+        const rms = gl.getUniformLocation(program, "u_rms");
+
+        const draw = (now: number) => {
+          if (stopped) return;
+          // Dima's fractal is expensive: limit rendering resolution.
+          const scale = Math.min(
+            window.devicePixelRatio || 1,
+            1,
+            960 / Math.max(1, canvas.clientWidth),
+          );
+          const width = Math.max(1, Math.round(canvas.clientWidth * scale));
+          const height = Math.max(1, Math.round(canvas.clientHeight * scale));
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+          }
+          gl.viewport(0, 0, width, height);
+          gl.uniform2f(resolution, width, height);
+          const seconds =
+            playbackTime + (playing ? (now - playbackUpdatedAt) / 1000 : 0);
+          const audioTime = Math.max(
+            0,
+            Math.min(seconds, controls?.duration ?? 0),
+          );
+          gl.uniform1f(time, audioTime);
+          gl.uniform1f(
+            bass,
+            controls ? sampleControl(controls.bassRms, audioTime) : 0,
+          );
+          gl.uniform1f(
+            rms,
+            controls ? sampleControl(controls.rms, audioTime) : 0,
+          );
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          frame = requestAnimationFrame(draw);
+        };
+        frame = requestAnimationFrame(draw);
+      };
+
+      start().catch((error) => console.error("DimaShader:", error));
+    }
+  }
+</script>
+
+<style>
+  .shader-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #000;
+  }
+  .shader-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

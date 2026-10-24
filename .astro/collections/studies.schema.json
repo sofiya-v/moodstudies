@@ -50,12 +50,6 @@
     "dreamImageAlt": {
       "type": "string"
     },
-    "trinketSrc": {
-      "type": "string"
-    },
-    "trinketAlt": {
-      "type": "string"
-    },
     "bio": {
       "type": "string"
     },
@@ -76,6 +70,9 @@
           "format": "uri"
         }
       }
+    },
+    "shader": {
+      "type": "string"
     },
     "$schema": {
       "type": "string"

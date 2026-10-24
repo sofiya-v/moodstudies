@@ -22,8 +22,6 @@ const studies = defineCollection({
         qResponse3: z.string(),
         dreamImageSrc: z.string().optional(),
         dreamImageAlt: z.string().optional(),
-        trinketSrc: z.string().optional(),
-        trinketAlt: z.string().optional(),
         bio: z.string(),
         observation: z.string(),
         caption: z.object({
@@ -31,6 +29,7 @@ const studies = defineCollection({
             author: z.string().optional(),
             authorUrl: z.url().optional(),
         }).optional(),
+        shader: z.string().optional(),
     }),
 });
 
