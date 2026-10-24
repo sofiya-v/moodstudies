@@ -59,6 +59,18 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <Font cssVariable="--font-syne-mono" preload />
+    <meta
+      property="og:title"
+      content={`mood study ${studyNumber} — ${artist}`}
+    />
+    <meta
+      property="og:description"
+      content="field notes from the in-between."
+    />
+    <meta property="og:image" content={new URL(blueHourSrc, Astro.url).href} />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>study {studyNumber} — {artist}</title>
   </head>
   <body>

@@ -5,12 +5,23 @@ import Font from "astro/components/Font.astro";
 interface Props {
   title?: string;
   summary?: string;
+  ogTitle?: string;
+  ogImage?: string;
 }
 
-const { title = "mood studies", summary = "The blue hour is now" } =
-  Astro.props;
+const {
+  title = "mood studies",
+  summary = "field notes from the in-between.",
+  ogTitle,
+  ogImage,
+} = Astro.props;
 const pathname = Astro.url.pathname;
 const isHome = pathname === "/";
+const isArchive = pathname.startsWith("/archive");
+const shareTitle = ogTitle ?? (isHome ? "the blue hour is now" : title);
+const shareImage = new URL(ogImage ?? "/film_still.jpeg", Astro.url.origin)
+  .href;
+const canonicalUrl = new URL(pathname, Astro.url.origin).href;
 ---
 
 <!doctype html>
@@ -22,9 +33,16 @@ const isHome = pathname === "/";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta property="og:title" content={title} />
+    <meta name="description" content={summary} />
+    <meta property="og:title" content={shareTitle} />
     <meta property="og:description" content={summary} />
-    <meta property="og:url" content="https://moodstudies.net" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={shareImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={shareTitle} />
+    <meta name="twitter:description" content={summary} />
+    <meta name="twitter:image" content={shareImage} />
     <script async src="https://tally.so/widgets/embed.js"></script>
     <title>{title}</title>
   </head>
@@ -37,7 +55,11 @@ const isHome = pathname === "/";
     <div
       class:list={[
         "mobile-film",
-        { "mobile-film--home": isHome, "mobile-film--interior": !isHome },
+        {
+          "mobile-film--home": isHome,
+          "mobile-film--interior": !isHome,
+          "mobile-film--archive": isArchive,
+        },
       ]}
       aria-hidden="true"
     >
@@ -250,10 +272,10 @@ const isHome = pathname === "/";
       );
     }
 
-    /* Interior pages: one subdued, full-bleed film layer, no aperture. */
-    .mobile-film--interior .mobile-film-glow {
-      filter: blur(22px) brightness(0.32);
-      transform: scale(1.08);
+    /* Archive only: more visible chromatic film on mobile. */
+    .mobile-film--archive .mobile-film-glow {
+      filter: blur(35px) brightness(0.7) saturate(1.5);
+      transform: scale(1.15);
     }
   }
 </style>
