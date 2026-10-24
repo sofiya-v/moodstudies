@@ -67,8 +67,14 @@ const {
       property="og:description"
       content="field notes from the in-between."
     />
-    <meta property="og:image" content={new URL(blueHourSrc, Astro.url).href} />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta
+      property="og:image"
+      content={new URL(blueHourSrc, "https://moodstudies.net").href}
+    />
+    <meta
+      property="og:url"
+      content={new URL(Astro.url.pathname, "https://moodstudies.net").href}
+    />
     <meta property="og:type" content="article" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>study {studyNumber} — {artist}</title>
