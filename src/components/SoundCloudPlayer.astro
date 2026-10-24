@@ -1,10 +1,10 @@
 ---
 interface Props {
   trackId: string;
-  color: string;
+  color?: string;
 }
 
-const { trackId, color } = Astro.props;
+const { trackId } = Astro.props;
 const privateTokens: Record<string, string> = {
   "2424391488": "s-tsC7q7TtPd3",
 };
@@ -26,7 +26,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 <script is:inline src="https://w.soundcloud.com/player/api.js"></script>
 <iframe id="sc-hidden-iframe" src={iframeSrc} allow="autoplay"></iframe>
 
-<div class="audio-deck" style={`--phosphor-color: ${color}`}>
+<div class="audio-deck" style="--phosphor-color: #00ff95;">
   <div class="player-heading">
     <!-- Transport and mix information -->
     <div class="deck-group left-controls">
@@ -702,16 +702,23 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     border: none;
     color: inherit;
     cursor: pointer;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
     transition:
       transform 0.1s ease,
       opacity 0.2s ease;
+  }
+
+  .control-btn::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
   }
 
   .control-btn:hover {
@@ -723,8 +730,8 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
   }
 
   .btn-icon {
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
   }
 
   .hidden {
@@ -798,18 +805,40 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
     }
   }
   @media (max-width: 480px) {
+    .left-controls {
+      gap: 0.5rem;
+    }
     .track-info {
       flex-wrap: wrap;
       gap: 0.25rem 0.75rem;
     }
     .track-title {
       flex-basis: 100%;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      overflow-wrap: anywhere;
     }
     .right-controls {
       font-size: 0.9rem;
     }
     .right-controls .time-code {
       font-size: 0.9rem;
+    }
+  }
+  @media (max-width: 359px) {
+    .player-timeline {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+    .scrubber-stage {
+      flex: none;
+      width: 100%;
+    }
+    .right-controls {
+      justify-content: flex-end;
+      margin-top: 0.15rem;
     }
   }
 </style>

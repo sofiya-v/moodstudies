@@ -34,6 +34,12 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       <h1 aria-label="blue hour observatory">
         <span aria-hidden="true">observatory</span>
       </h1>
+      <p class="copy">
+        Have you seen it too? <a
+          href="#tally-open=jaRg2R&tally-overlay=1&tally-auto-close=3000"
+          >Submit.</a
+        >
+      </p>
     </header>
 
     <section class="gallery" aria-label="Blue hour sightings">
@@ -73,7 +79,7 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       <p class="copy">
         Have you seen it too? <a
           href="#tally-open=jaRg2R&tally-overlay=1&tally-auto-close=3000"
-          >Submit a sighting.</a
+          >Submit a sighting →</a
         >
       </p>
     </footer>
@@ -237,7 +243,23 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
         width: calc(100% - 2rem);
       }
       .intro {
-        min-height: 70svh;
+        min-height: 56svh;
+      }
+      .intro .copy {
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      .outro .copy {
+        max-width: 19rem;
+        margin-inline: auto;
+      }
+      .outro .copy a {
+        display: block;
+        width: fit-content;
+        margin: 0.25rem auto 0;
+      }
+      .audio-btn {
+        white-space: nowrap;
       }
       .gallery {
         gap: 6rem;

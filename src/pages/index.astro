@@ -24,8 +24,8 @@ const observations = [
       <span aria-hidden="true">mood studies</span>
     </h1>
     <div id="entry-links">
-      <a class="machine-link" href="/archive">INDEX</a>
-      <a class="machine-link" href="/observatory">OBSERVATORY</a>
+      <a class="machine-link" href="/archive"><span>INDEX</span></a>
+      <a class="machine-link" href="/observatory"><span>OBSERVATORY</span></a>
     </div>
 
     <style>
@@ -75,6 +75,42 @@ const observations = [
 
         a#archival-index {
           font-size: 0.8rem;
+        }
+      }
+      @media (max-width: 768px) {
+        #entry-links a {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 44px;
+          min-width: 110px;
+        }
+
+        #entry-links a:hover,
+        #entry-links a:focus-visible,
+        #entry-links a:active {
+          background: transparent !important;
+          box-shadow: none !important;
+          color: var(--light) !important;
+        }
+
+        #entry-links a span {
+          display: inline-block;
+        }
+
+        #entry-links a:hover span,
+        #entry-links a:focus-visible span,
+        #entry-links a:active span {
+          background: var(--glow);
+          color: #000;
+          box-shadow: 0 0 4px var(--glow);
+        }
+        h1 {
+          filter: none;
+          text-shadow:
+            -0.5px 0 1px rgba(255, 38, 0, 0.25),
+            0.5px 0 1px rgba(0, 255, 204, 0.2),
+            0 0 3px rgba(232, 235, 228, 0.2);
         }
       }
     </style>

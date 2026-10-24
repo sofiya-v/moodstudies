@@ -328,23 +328,6 @@ const {
     color: var(--muted);
   }
   /* Responsive Mobile */
-  @media (max-width: 860px) {
-    .ledger-layout {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-      padding: 0 1.5rem;
-    }
-    .media-column {
-      position: static;
-    }
-    .inkblot-split {
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-    }
-    .inkblot-figure img {
-      max-width: 220px;
-    }
-  }
 
   /* Layout revision: shared alignment, a smaller side column, varied rhythm. */
   .top-navigation,
@@ -469,7 +452,71 @@ const {
     font-size: 0.9rem;
     line-height: 1.7;
   }
+
+  .inkblot-block {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 760px;
+    margin: 5rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .inkblot-block .inkblot-figure {
+    margin: 0;
+    width: 100%;
+  }
+  .inkblot-block img {
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+  .inkblot-block h3 {
+    margin-top: 0;
+  }
+  .ledger-layout > .study-prose {
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 65ch;
+    min-width: 0;
+    margin-inline: auto;
+    font-size: 1.15rem;
+    text-align: left;
+  }
+
+  .shader-section {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 2rem;
+    margin: 0 auto 8rem;
+  }
+
+  /* Mobile layout */
   @media (max-width: 860px) {
+    .study-nav a {
+      font-size: 1.15rem;
+    }
+
+    .ledger-layout {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding: 0 1.5rem;
+    }
+    .media-column {
+      position: static;
+    }
+    .inkblot-split {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    .inkblot-figure img {
+      max-width: min(270px, 100%);
+    }
+
     .top-navigation,
     .opening-layout,
     .ledger-layout {
@@ -505,64 +552,34 @@ const {
     .narrative-column {
       gap: 2.5rem;
     }
-  }
 
-  .inkblot-block {
-    grid-column: 1 / -1;
-    width: 100%;
-    max-width: 760px;
-    margin: 5rem auto 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .inkblot-block .inkblot-figure {
-    margin: 0;
-    width: 100%;
-  }
-  .inkblot-block img {
-    box-sizing: border-box;
-    width: 100%;
-    height: auto;
-    aspect-ratio: auto;
-    object-fit: contain;
-  }
-  .inkblot-block h3 {
-    margin-top: 0;
-  }
-  .ledger-layout > .study-prose {
-    grid-column: 1 / -1;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 65ch;
-    min-width: 0;
-    margin-inline: auto;
-    font-size: 1.15rem;
-    text-align: left;
-  }
-  @media (max-width: 860px) {
-    .opening-media {
-      max-width: 500px;
+    .artist-name {
+      filter: none;
+      text-shadow:
+        0 0 2px rgba(232, 235, 228, 0.3),
+        0 0 5px rgba(179, 255, 189, 0.12);
     }
-  }
-  @media (max-width: 860px) {
     .artist-header {
       min-height: clamp(12rem, 32svh, 20rem);
     }
-  }
 
-  .shader-section {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 1100px;
-    padding: 0 2rem;
-    margin: 0 auto 8rem;
-  }
+    /* A quieter hierarchy for the interview on narrow screens. */
+    .interview-stream .question-block h3 {
+      font-size: 0.98rem;
+    }
 
-  @media (max-width: 860px) {
     .shader-section {
       padding: 0 1.5rem;
       margin-bottom: 4rem;
+    }
+  }
+  @media (max-width: 768px) {
+    .top-navigation {
+      gap: 1.6rem;
+    }
+
+    .top-navigation a {
+      font-size: 1.15rem;
     }
   }
 </style>
