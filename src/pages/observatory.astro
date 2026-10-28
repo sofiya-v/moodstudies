@@ -46,7 +46,7 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
             sighting.data.author ? `by ${sighting.data.author}` : null,
           ]
             .filter(Boolean)
-            .join(" // ");
+            .join(" · ");
 
           return (
             <figure class="gallery-item">
@@ -73,7 +73,7 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       <p class="copy">
         Have you seen it too? <a
           href="#tally-open=jaRg2R&tally-overlay=1&tally-auto-close=3000"
-          >Report a sighting →</a
+          >Report a sighting.</a
         >
       </p>
     </footer>
@@ -185,23 +185,38 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
         opacity 400ms ease,
         filter 400ms ease;
     }
-    .gallery-item:hover img {
-      opacity: 1;
-      filter: url(#universalGrain) brightness(1) contrast(1.08) saturate(0.95);
+    @media (hover: hover) and (pointer: fine) {
+      .gallery-item:hover img {
+        opacity: 1;
+        filter: url(#universalGrain) brightness(1) contrast(1.08) saturate(0.95);
+      }
+
+      .gallery-item:hover .gallery-meta {
+        opacity: 1;
+      }
+    }
+
+    @media (hover: none) {
+      .gallery-item.is-active img {
+        opacity: 1;
+        filter: url(#universalGrain) brightness(1) contrast(1.08) saturate(0.95);
+      }
+
+      .gallery-item.is-active .gallery-meta {
+        opacity: 1;
+      }
     }
 
     .gallery-meta {
-      margin-top: 0.55rem;
-      font-family: "VT323", monospace;
-      font-size: 1rem;
-      letter-spacing: 0.05em;
-      color: rgba(51, 255, 204, 0.55);
-      opacity: 0.35;
+      margin-top: 0.75rem;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      color: var(--muted);
+      opacity: 0.7;
       transition: opacity 200ms ease;
       overflow-wrap: anywhere;
-    }
-    .gallery-item:hover .gallery-meta {
-      opacity: 1;
     }
 
     .outro {
@@ -324,5 +339,12 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
   player?.addEventListener("error", () => {
     if (shuffledPlaylist.length > 1) loadAndPlay(currentIndex + 1);
     else setAudioState(false);
+  });
+  document.querySelectorAll(".gallery-item img").forEach((img) => {
+    img.addEventListener("click", () => {
+      if (window.matchMedia("(hover: none)").matches) {
+        img.closest(".gallery-item")?.classList.toggle("is-active");
+      }
+    });
   });
 </script>

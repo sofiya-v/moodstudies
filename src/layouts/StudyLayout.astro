@@ -78,7 +78,19 @@ const {
     <meta property="og:type" content="article" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>study {studyNumber} — {artist}</title>
-  </head>
+    <script>
+      const images = document.querySelectorAll(".study-figure img");
+
+      images.forEach((img) => {
+        img.addEventListener("click", () => {
+          if (window.matchMedia("(hover: none)").matches) {
+            img.classList.toggle("is-color");
+          }
+        });
+      });
+    </script></head
+  >
+
   <body>
     <!-- Top Navigation -->
     <header class="top-navigation">
@@ -303,8 +315,16 @@ const {
     filter: contrast(130%) brightness(90%) sepia(80%) hue-rotate(180deg);
     transition: filter 0.3s ease;
   }
-  img:not(.page-bg):hover {
-    filter: none;
+  @media (hover: hover) and (pointer: fine) {
+    img:not(.page-bg):hover {
+      filter: none;
+    }
+  }
+
+  @media (hover: none) {
+    img:not(.page-bg).is-color {
+      filter: none;
+    }
   }
 
   .dream-image figcaption {
@@ -569,13 +589,6 @@ const {
     }
     .narrative-column {
       gap: 2.5rem;
-    }
-
-    .artist-name {
-      filter: none;
-      text-shadow:
-        0 0 2px rgba(232, 235, 228, 0.3),
-        0 0 5px rgba(179, 255, 189, 0.12);
     }
     .artist-header {
       min-height: clamp(12rem, 32svh, 20rem);
