@@ -135,8 +135,10 @@ a {
     text-decoration: underline;
 }
 
-a:hover {
-    color: var(--glow);
+@media (hover: hover) and (pointer: fine) {
+    a:hover {
+        color: var(--glow);
+    }
 }
 
 /* Machine Link (Enforced Machine Typography) */
@@ -225,6 +227,15 @@ nav {
 }
 
 @media (max-width: 768px) {
+    .top-rail {
+        pointer-events: auto;
+    }
+
+    .top-rail nav,
+    .top-rail nav a {
+        pointer-events: auto;
+    }
+
     body {
         min-height: 100dvh;
     }
