@@ -103,7 +103,7 @@ const observations = [
 
             return (
               <blockquote class="fragment-item">
-                <p class="fragment-text copy">{observation.text}</p>
+                <p class="fragment-text">{observation.text}</p>
                 {isLast && (
                   <div class="fragment-author">{observation.author}</div>
                 )}
@@ -146,7 +146,7 @@ const observations = [
     </section>
 
     <footer class="outro">
-      <p class="copy">
+      <p>
         Have you seen it too? <a
           href="#tally-open=jaRg2R&tally-overlay=1&tally-auto-close=3000"
           >Report a sighting.</a
@@ -267,6 +267,7 @@ const observations = [
       line-height: 1.85;
       color: var(--muted);
       white-space: pre-line;
+      font-family: var(--font-syne-mono);
     }
 
     .fragment-author {
@@ -318,7 +319,7 @@ const observations = [
       line-height: 1.5;
       letter-spacing: 0.01em;
       color: var(--muted);
-      opacity: 0.7;
+      opacity: 0.5;
       transition: opacity 200ms ease;
       overflow-wrap: anywhere;
     }
@@ -331,9 +332,14 @@ const observations = [
       justify-content: center;
       gap: 1rem;
       text-align: center;
+      font-family: var(--font-syne-mono);
+      color: var(--light);
     }
     .outro p {
       margin: 0;
+    }
+    .outro p a:hover {
+      color: var(--glow);
     }
     .audio-btn {
       color: var(--light);
@@ -362,11 +368,11 @@ const observations = [
         font-size: 0.9rem;
         line-height: 1.5;
       }
-      .outro .copy {
+      .outro p {
         max-width: 19rem;
         margin-inline: auto;
       }
-      .outro .copy a {
+      .outro p a {
         display: block;
         width: fit-content;
         margin: 0.25rem auto 0;
