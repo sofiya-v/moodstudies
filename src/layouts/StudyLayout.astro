@@ -92,8 +92,7 @@ const {
       });
     </script></head
   >
-
-  <body>
+  <body style={`--study-color: ${color};`}>
     <!-- Top Navigation -->
     <header class="top-navigation">
       <nav>
@@ -614,5 +613,16 @@ const {
     .top-navigation a {
       font-size: 1.15rem;
     }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    figcaption a:hover,
+    .copy a:hover {
+      color: var(--study-color);
+    }
+  }
+
+  figcaption a:focus-visible,
+  .copy a:focus-visible {
+    color: var(--study-color);
   }
 </style>
