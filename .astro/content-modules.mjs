@@ -12,6 +12,7 @@ export default new Map([
 ["src/content/sightings/red-blue-mtns.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fred-blue-mtns.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/red-moon-sea.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fred-moon-sea.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/rose-dusk.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Frose-dusk.mdx&astroContentModuleFlag=true")],
+["src/content/sightings/south-florida.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fsouth-florida.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/strip-mall-twilight.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fstrip-mall-twilight.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/suburban-dusk.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fsuburban-dusk.mdx&astroContentModuleFlag=true")],
 ["src/content/sightings/sunset-blue-hour.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fsightings%2Fsunset-blue-hour.mdx&astroContentModuleFlag=true")],
