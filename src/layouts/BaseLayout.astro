@@ -105,28 +105,6 @@ const canonicalUrl = new URL(pathname, Astro.url.origin).href;
               <a
                 class:list={[
                   "machine-link nav-item",
-                  { active: pathname === "/" },
-                ]}
-                aria-current={pathname === "/" ? "page" : undefined}
-                href="/"
-              >
-                home
-              </a>
-              <a
-                class:list={[
-                  "machine-link nav-item",
-                  { active: pathname.startsWith("/archive") },
-                ]}
-                aria-current={
-                  pathname.startsWith("/archive") ? "page" : undefined
-                }
-                href="/archive"
-              >
-                index
-              </a>
-              <a
-                class:list={[
-                  "machine-link nav-item",
                   { active: pathname.startsWith("/observatory") },
                 ]}
                 aria-current={
@@ -135,6 +113,17 @@ const canonicalUrl = new URL(pathname, Astro.url.origin).href;
                 href="/observatory"
               >
                 observatory
+              </a>
+
+              <a
+                class:list={[
+                  "machine-link nav-item",
+                  { active: pathname === "/" },
+                ]}
+                aria-current={pathname === "/" ? "page" : undefined}
+                href="/"
+              >
+                home
               </a>
             </>
           )
