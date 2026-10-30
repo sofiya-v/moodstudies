@@ -6,8 +6,8 @@ As the day comes to an end, the twilight dissolves the surfaces, absorbing their
 
 ---
 
-The luminous transparency in open spaces condenses into beams and phosphorescence […] along city streets the shop windows, restaurants, bars and discos enclose twilight havens where the hard edges of things are softened into glows and reflections […]
+The luminous transparency in open spaces condenses into beams and phosphorescence... along city streets the shop windows, restaurants, bars and discos enclose twilight havens where the hard edges of things are softened into glows and reflections...
 
 ---
 
-The visible night gives way to a high noon of sounds, odors, and textures …
+The visible night gives way to a high noon of sounds, odors, and textures...
