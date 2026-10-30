@@ -15,6 +15,59 @@ const playlist = Object.entries(audioFiles).map(([path, fileUrl]) => ({
 const allSightings: CollectionEntry<"sightings">[] =
   await getCollection("sightings");
 const sightings = [...allSightings].sort(() => Math.random() - 0.5);
+
+const passages = await getCollection("fragments");
+
+// Each Markdown file is one passage. Standalone --- lines divide its fragments.
+const fragmentQueues = passages.map((passage) => ({
+  author: passage.data.author,
+  fragments: (passage.body ?? "")
+    .split(/^\s*(?:\*\*---\*\*|---)\s*$/gm)
+    .map((text) =>
+      text
+        .trim()
+        .replace(/&(?:#x20|nbsp);/gi, " ")
+        .trim(),
+    )
+    .filter(Boolean),
+}));
+
+// Interweave authors without ever changing the order within a passage.
+const orderedFragments: { type: "fragment"; author: string; text: string }[] =
+  [];
+while (fragmentQueues.some((queue) => queue.fragments.length > 0)) {
+  const available = fragmentQueues.filter(
+    (queue) => queue.fragments.length > 0,
+  );
+  const chosen = available[Math.floor(Math.random() * available.length)];
+  orderedFragments.push({
+    type: "fragment",
+    author: chosen.author,
+    text: chosen.fragments.shift()!,
+  });
+}
+
+// Spread text across photo slots, retaining the order of all fragments.
+// A slot is after a photograph; multiple fragments may share a slot when
+// there are more fragments than photographs.
+const slots: (typeof orderedFragments)[] = Array.from(
+  { length: sightings.length + 1 },
+  () => [],
+);
+orderedFragments.forEach((fragment, index) => {
+  const idealSlot = Math.round(
+    ((index + 1) * (sightings.length + 1)) / (orderedFragments.length + 1),
+  );
+  slots[Math.min(sightings.length, idealSlot)].push(fragment);
+});
+
+const observations = [
+  ...slots[0],
+  ...sightings.flatMap((sighting, index) => [
+    { type: "sighting" as const, sighting },
+    ...slots[index + 1],
+  ]),
+];
 ---
 
 <BaseLayout title="blue hour observatory" ogImage="/og-observatory.jpeg">
@@ -38,7 +91,30 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
 
     <section class="gallery" aria-label="Blue hour sightings">
       {
-        sightings.map((sighting, index) => {
+        observations.map((observation, index) => {
+          if (observation.type === "fragment") {
+            const isLast = !observations
+              .slice(index + 1)
+              .some(
+                (item) =>
+                  item.type === "fragment" &&
+                  item.author === observation.author,
+              );
+
+            return (
+              <blockquote class="fragment-item">
+                <p class="fragment-text copy">{observation.text}</p>
+                {isLast && (
+                  <div class="fragment-author">{observation.author}</div>
+                )}
+              </blockquote>
+            );
+          }
+
+          const { sighting } = observation;
+          const photoIndex = observations
+            .slice(0, index)
+            .filter((item) => item.type === "sighting").length;
           const metaString = [
             sighting.data.date,
             sighting.data.time,
@@ -49,7 +125,7 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
             .join(" · ");
 
           return (
-            <figure class="gallery-item">
+            <figure class={`gallery-item photo-layout-${photoIndex % 5}`}>
               <img
                 src={sighting.data.image}
                 alt={
@@ -57,7 +133,7 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
                     ? `Blue hour sighting in ${sighting.data.location}`
                     : "Blue hour sighting"
                 }
-                loading={index < 2 ? "eager" : "lazy"}
+                loading={photoIndex < 2 ? "eager" : "lazy"}
                 decoding="async"
               />
               {metaString && (
@@ -154,25 +230,53 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       padding: 0;
     }
 
-    .gallery-item:nth-child(5n + 1) {
+    .gallery-item.photo-layout-0 {
       width: 68%;
       align-self: center;
     }
-    .gallery-item:nth-child(5n + 2) {
+    .gallery-item.photo-layout-1 {
       width: 34%;
       align-self: flex-end;
     }
-    .gallery-item:nth-child(5n + 3) {
+    .gallery-item.photo-layout-2 {
       width: 52%;
       align-self: flex-start;
     }
-    .gallery-item:nth-child(5n + 4) {
+    .gallery-item.photo-layout-3 {
       width: 28%;
       margin-left: 18%;
     }
-    .gallery-item:nth-child(5n) {
+    .gallery-item.photo-layout-4 {
       width: 75%;
       align-self: flex-end;
+    }
+
+    .fragment-item {
+      box-sizing: border-box;
+      width: min(100%, 36rem);
+      margin: 0;
+      padding: clamp(2rem, 5vw, 4rem) 0;
+      align-self: center;
+      border: 0;
+      background: transparent;
+    }
+
+    .fragment-text {
+      margin: 0;
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      line-height: 1.85;
+      color: var(--light);
+      white-space: pre-line;
+    }
+
+    .fragment-author {
+      margin-top: 1.75rem;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--muted);
+      opacity: 0.7;
+      text-transform: lowercase;
     }
 
     .gallery-item img {
@@ -281,6 +385,13 @@ const sightings = [...allSightings].sort(() => Math.random() - 0.5);
       }
       .gallery-item:nth-child(even) {
         align-self: flex-end;
+      }
+      .fragment-item {
+        width: 88%;
+        padding-block: 2rem;
+      }
+      .fragment-text {
+        font-size: 1rem;
       }
       .gallery-meta {
         opacity: 0.8;

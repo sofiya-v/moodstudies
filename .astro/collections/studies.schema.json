@@ -53,7 +53,7 @@
     "bio": {
       "type": "string"
     },
-    "observation": {
+    "genre": {
       "type": "string"
     },
     "caption": {
@@ -94,6 +94,6 @@
     "qResponse2",
     "qResponse3",
     "bio",
-    "observation"
+    "genre"
   ]
 }

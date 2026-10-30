@@ -112,7 +112,124 @@ const observations = [
             0.5px 0 1px rgba(0, 255, 204, 0.2),
             0 0 3px rgba(232, 235, 228, 0.2);
         }
+        
       }
+      ---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Ticker from "../components/Ticker.astro";
+
+const observations = [
+  "the blue hour is now",
+  "please enjoy the twilit hush",
+  "visibility is rapidly waning",
+  "pay special attention to vespertine phenomena",
+  "reports of mutual dreaming are unverified but seductively plausible",
+  "your stay will be brief but its effects will linger",
+  "the archive changes as it's observed",
+  "please intuit your way through",
+  "there are dark times in which things glow",
+  "your demeanor is an incantation",
+  "the study of glittering images is a worthy pursuit",
+];
+---
+
+<BaseLayout>
+  <div class="page">
+    <Ticker items={observations} />
+    <h1 aria-label="mood studies">
+      <span aria-hidden="true">mood studies</span>
+    </h1>
+    <div id="entry-links">
+      <a class="machine-link" href="/archive"><span>INDEX</span></a>
+      <a class="machine-link" href="/observatory"><span>OBSERVATORY</span></a>
+    </div>
+
+    <style>
+      .main-nav {
+        visibility: hidden;
+      }
+
+      #entry-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 28rem;
+        justify-items: center;
+      }
+
+      .page {
+        box-sizing: border-box;
+        height: 100svh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        overflow: hidden;
+        position: fixed;
+        inset: 0;
+        width: min(100%, 48rem);
+        margin-inline: auto;
+      }
+
+      .page:has(.machine-link:hover) :global(.ticker-track),
+      .page:has(.machine-link:hover) :global(.ticker-item) {
+        animation-play-state: paused;
+      }
+
+      #entry-links {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .page img {
+          width: clamp(12rem, 55vw, 18rem);
+          max-height: 32svh;
+        }
+
+        a#archival-index {
+          font-size: 0.8rem;
+        }
+      }
+      @media (max-width: 768px) {
+        #entry-links a {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 44px;
+          min-width: 110px;
+        }
+
+        #entry-links a:hover,
+        #entry-links a:focus-visible,
+        #entry-links a:active {
+          background: transparent !important;
+          box-shadow: none !important;
+          color: var(--dark) !important;
+        }
+
+        #entry-links a span {
+          display: inline-block;
+        }
+
+        #entry-links a:hover span,
+        #entry-links a:focus-visible span,
+        #entry-links a:active span {
+          background: var(--glow);
+          color: #000;
+          box-shadow: 0 0 4px var(--glow);
+        }
+        h1 {
+          filter: none;
+          text-shadow:
+            -0.5px 0 1px rgba(255, 38, 0, 0.25),
+            0.5px 0 1px rgba(0, 255, 204, 0.2),
+            0 0 3px rgba(232, 235, 228, 0.2);
+        }
+      }
+
     </style>
   </div>
 </BaseLayout>

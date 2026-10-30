@@ -23,7 +23,7 @@ const studies = defineCollection({
         dreamImageSrc: z.string().optional(),
         dreamImageAlt: z.string().optional(),
         bio: z.string(),
-        observation: z.string(),
+        genre: z.string(),
         caption: z.object({
             label: z.string().optional(),
             author: z.string().optional(),
@@ -45,5 +45,12 @@ const sightings = defineCollection({
     }),
 });
 
-export const collections = { sightings, studies };
+const fragments = defineCollection({
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/fragments' }),
+    schema: z.object({
+        author: z.string(),
+    }),
+});
+
+export const collections = { sightings, studies, fragments };
 
