@@ -14,4 +14,8 @@ The French called this time of day “l’heure bleue.” To the English it was 
 
 ---
 
-During the blue nights you think the end of day will never come. As the blue nights draw to a close (and they will, and they do) you experience an actual chill, an apprehension of illness, at the moment you first notice: the blue light is going, the days are already shortening, the summer is gone.
+During the blue nights you think the end of day will never come.
+
+---
+
+As the blue nights draw to a close (and they will, and they do) you experience an actual chill, an apprehension of illness, at the moment you first notice: the blue light is going, the days are already shortening, the summer is gone.
