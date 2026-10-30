@@ -4,7 +4,7 @@ interface Props {
   color?: string;
 }
 
-const { trackId } = Astro.props;
+const { trackId, color } = Astro.props;
 const privateTokens: Record<string, string> = {
   "2424391488": "s-tsC7q7TtPd3",
 };
@@ -26,7 +26,7 @@ const iframeSrc = `https://w.soundcloud.com/player/?url=${targetUrl}&enable_api=
 <script is:inline src="https://w.soundcloud.com/player/api.js"></script>
 <iframe id="sc-hidden-iframe" src={iframeSrc} allow="autoplay"></iframe>
 
-<div class="audio-deck" style="--phosphor-color: #00ff95;">
+<div class="audio-deck" style={`--phosphor-color: ${color ?? "#00ff95"};`}>
   <div class="player-heading">
     <!-- Transport and mix information -->
     <div class="deck-group left-controls">
